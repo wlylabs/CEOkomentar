@@ -10,9 +10,11 @@ import Composer from "./Composer";
 import ProfileHeader from "./ProfileHeader";
 import RightRail from "./RightRail";
 import Sidebar from "./Sidebar";
+import BilahTamu from "./BilahTamu";
 import {
   IkonBulan,
   IkonCari,
+  IkonJam,
   IkonKeluar,
   IkonKembali,
   IkonMatahari,
@@ -28,6 +30,7 @@ import {
   setSuka,
   setUlang,
 } from "@/lib/api";
+import { MASA_KOMENTAR_JAM, MASA_KOMENTAR_MS } from "@/lib/kebijakan";
 import { angkaPenuh } from "@/lib/time";
 import type { Comment, Statistik, Tab, User, View } from "@/lib/types";
 
@@ -58,7 +61,13 @@ function pesanGalat(kesalahan: unknown, cadangan: string) {
   return cadangan;
 }
 
-export default function App({ akunAwal }: { akunAwal: User }) {
+export default function App({
+  akunAwal,
+  tamu,
+}: {
+  akunAwal: User;
+  tamu: boolean;
+}) {
   const router = useRouter();
   const supabase = klienPeramban();
 
@@ -78,6 +87,7 @@ export default function App({ akunAwal }: { akunAwal: User }) {
   const [pesan, setPesan] = useState<string | null>(null);
   const [sekarang, setSekarang] = useState(() => Date.now());
 
+  const [tanyaKeluar, setTanyaKeluar] = useState(false);
   const [memuat, setMemuat] = useState(true);
   const [memuatLagi, setMemuatLagi] = useState(false);
   const [galatMuat, setGalatMuat] = useState<string | null>(null);
@@ -347,7 +357,17 @@ export default function App({ akunAwal }: { akunAwal: User }) {
     }
   }
 
+  /* Keluar dari akun tamu berarti kehilangan akunnya, jadi ditanya dulu. */
+  function mintaKeluar() {
+    if (tamu) {
+      setTanyaKeluar(true);
+      return;
+    }
+    keluar();
+  }
+
   async function keluar() {
+    setTanyaKeluar(false);
     await supabase.auth.signOut();
     router.replace("/");
     router.refresh();
@@ -390,6 +410,14 @@ export default function App({ akunAwal }: { akunAwal: User }) {
     [pengguna, akun],
   );
 
+  /* Basis data yang menentukan, tetapi daftar di layar tetap disaring sendiri
+     supaya komentar yang lewat 24 jam hilang tanpa menunggu muat ulang. Jam
+     `sekarang` berdetak tiap menit, jadi ini ikut menyegarkan sendiri. */
+  const daftar = useMemo(
+    () => komentar.filter((k) => sekarang - k.createdAt < MASA_KOMENTAR_MS),
+    [komentar, sekarang],
+  );
+
   const teksKosong = kueriTertunda
     ? `Tidak ada komentar yang cocok dengan "${kueriTertunda}".`
     : tampilan === "profil"
@@ -409,7 +437,7 @@ export default function App({ akunAwal }: { akunAwal: User }) {
         pengguna={akun}
         tema={tema}
         onGantiTema={() => setTema(tema === "gelap" ? "terang" : "gelap")}
-        onKeluar={keluar}
+        onKeluar={mintaKeluar}
       />
 
       <main className="utama" ref={utamaRef}>
@@ -447,13 +475,20 @@ export default function App({ akunAwal }: { akunAwal: User }) {
             <button
               type="button"
               className="bulat"
-              onClick={keluar}
+              onClick={mintaKeluar}
               aria-label="Keluar dari akun"
             >
               <IkonKeluar size={20} />
             </button>
           </span>
         </div>
+
+        {tamu && (
+          <BilahTamu
+            onSelesai={() => router.refresh()}
+            onKabar={setPesan}
+          />
+        )}
 
         {tampilan === "profil" && (
           <div className="kepala-profil">
@@ -490,7 +525,11 @@ export default function App({ akunAwal }: { akunAwal: User }) {
             <p className="kepala-sub">
               {memuat
                 ? "Memuat komentar…"
-                : `${angkaPenuh(komentar.length)}${habis ? "" : "+"} komentar`}
+                : `${angkaPenuh(daftar.length)}${habis ? "" : "+"} komentar`}
+              <span className="kepala-tanda">
+                <IkonJam size={13} />
+                Hilang setelah {MASA_KOMENTAR_JAM} jam
+              </span>
             </p>
           </div>
         ) : (
@@ -566,7 +605,7 @@ export default function App({ akunAwal }: { akunAwal: User }) {
                 Coba lagi
               </button>
             </div>
-          ) : komentar.length === 0 ? (
+          ) : daftar.length === 0 ? (
             <div className="kosong">
               <Avatar pengguna={akun} ukuran={56} />
               <h2 className="kosong-judul">Belum ada yang ditampilkan</h2>
@@ -583,7 +622,7 @@ export default function App({ akunAwal }: { akunAwal: User }) {
             </div>
           ) : (
             <>
-              {komentar.map((k) => {
+              {daftar.map((k) => {
                 const penulis = daftarPengguna[k.authorId];
                 if (!penulis) return null;
                 return (
@@ -634,7 +673,7 @@ export default function App({ akunAwal }: { akunAwal: User }) {
         onKueri={setKueri}
         statistik={statistik}
         pengguna={akun}
-        onKeluar={keluar}
+        onKeluar={mintaKeluar}
       />
 
       {tampilan === "profil" && (
@@ -649,6 +688,40 @@ export default function App({ akunAwal }: { akunAwal: User }) {
       )}
 
       <BottomNav tampilan={tampilan} onPindah={gantiTampilan} />
+
+      {tanyaKeluar && (
+        <div className="tirai" onClick={() => setTanyaKeluar(false)}>
+          <div
+            className="tanya"
+            role="alertdialog"
+            aria-labelledby="tanya-judul"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="tanya-judul" id="tanya-judul">
+              Keluar dari akun tamu?
+            </h2>
+            <p className="tanya-teks">
+              Akun tamu tidak punya email atau kata sandi, jadi sesi ini tidak
+              bisa dimasuki lagi setelah keluar. Komentar yang sudah terkirim
+              tetap tampil sampai umurnya habis, tapi kamu tidak akan bisa
+              menyuntingnya lagi. Buat akun dulu kalau ingin menyimpannya.
+            </p>
+            <div className="tanya-aksi">
+              <button
+                type="button"
+                className="tombol tombol-garis"
+                onClick={() => setTanyaKeluar(false)}
+                autoFocus
+              >
+                Tetap di sini
+              </button>
+              <button type="button" className="tombol tombol-bahaya" onClick={keluar}>
+                Keluar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="pesan-wadah" aria-live="polite" role="status">
         {pesan && <div className="pesan">{pesan}</div>}

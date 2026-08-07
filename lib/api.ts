@@ -1,6 +1,7 @@
 import type { KlienSupabase } from "./supabase/client";
 import type { BarisKomentar, BarisProfil } from "./supabase/database.types";
 import type { Gambar, JenisMedia } from "./image";
+import { ambangKedaluwarsa } from "./kebijakan";
 import type { Comment, Statistik, Tab, User, View } from "./types";
 
 export const BATAS_HALAMAN = 25;
@@ -106,6 +107,10 @@ export async function ambilFeed(
   const batas = opsi.batas ?? BATAS_HALAMAN;
   const cari = bersihkanKueri(opsi.kueri);
   const diProfil = opsi.tampilan === "profil";
+  /* Kebijakan RLS sudah menyembunyikan komentar kedaluwarsa. Penyaring yang
+     sama diulang di sini supaya satu halaman tidak pulang setengah kosong dan
+     penanda halamannya tetap masuk akal. */
+  const ambang = ambangKedaluwarsa();
 
   /* Pencarian juga menjangkau nama dan handle penulis, jadi id yang cocok
      dikumpulkan lebih dulu lalu dipakai sebagai penyaring tambahan. */
@@ -135,6 +140,7 @@ export async function ambilFeed(
       .from("likes")
       .select(`created_at, comment:comments!inner ( ${KOLOM_KOMENTAR}, author:profiles!comments_author_id_fkey ( ${KOLOM_PROFIL} ) )`)
       .eq("user_id", opsi.akunId)
+      .gt("comment.created_at", ambang)
       .order("created_at", { ascending: false })
       .limit(batas);
 
@@ -156,6 +162,7 @@ export async function ambilFeed(
     let kueri = sb
       .from("comments")
       .select(`${KOLOM_KOMENTAR}, author:profiles!comments_author_id_fkey ( ${KOLOM_PROFIL} )`)
+      .gt("created_at", ambang)
       .order("created_at", { ascending: false })
       .limit(batas);
 

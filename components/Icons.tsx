@@ -203,6 +203,24 @@ export function IkonGambar(p: IkonProps) {
   );
 }
 
+export function IkonJam(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <circle cx="12" cy="12" r="8.4" />
+      <path d="M12 7.2V12l3.2 1.9" />
+    </Dasar>
+  );
+}
+
+export function IkonTamu(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <circle cx="12" cy="8" r="3.9" strokeDasharray="3 2.4" />
+      <path d="M4.5 20.4a7.5 7.5 0 0 1 15 0" strokeDasharray="3 2.4" />
+    </Dasar>
+  );
+}
+
 export function IkonPeringatan(p: IkonProps) {
   return (
     <Dasar {...p}>

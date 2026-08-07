@@ -40,5 +40,5 @@ export default async function Halaman() {
 
   if (!profil) return <AuthScreen />;
 
-  return <App akunAwal={keUser(profil)} />;
+  return <App akunAwal={keUser(profil)} tamu={user.is_anonymous ?? false} />;
 }

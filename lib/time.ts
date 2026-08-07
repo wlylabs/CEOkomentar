@@ -58,6 +58,14 @@ export function bulanTahun(iso: string) {
   return `${BULAN_PANJANG[t.getMonth()]} ${t.getFullYear()}`;
 }
 
+/** Sisa umur komentar: "3j lagi", "12m lagi". null berarti sudah lewat. */
+export function sisaWaktu(createdAt: number, masaMs: number, now: number) {
+  const sisa = createdAt + masaMs - now;
+  if (sisa <= 0) return null;
+  if (sisa < JAM) return `${Math.max(1, Math.floor(sisa / MENIT))}m lagi`;
+  return `${Math.floor(sisa / JAM)}j lagi`;
+}
+
 /** Label lengkap untuk atribut title/datetime. */
 export function waktuLengkap(createdAt: number) {
   const t = new Date(createdAt);

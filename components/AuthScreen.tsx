@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Brand from "./Brand";
-import { IkonMata, IkonPeringatan } from "./Icons";
+import { IkonMata, IkonPeringatan, IkonTamu } from "./Icons";
 import { klienPeramban } from "@/lib/supabase/client";
 
 type Mode = "masuk" | "daftar" | "lupa";
@@ -37,6 +37,9 @@ function terjemahkan(pesan: string) {
   }
   if (p.includes("rate limit") || p.includes("too many requests")) {
     return "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.";
+  }
+  if (p.includes("anonymous sign-ins are disabled") || p.includes("anonymous_provider_disabled")) {
+    return "Masuk sebagai tamu belum diaktifkan. Nyalakan Anonymous Sign-Ins di Supabase Dashboard → Authentication → Sign In / Providers.";
   }
   if (p.includes("failed to fetch") || p.includes("networkerror")) {
     return "Tidak bisa menghubungi server. Periksa koneksi dan alamat Supabase.";
@@ -107,6 +110,30 @@ export default function AuthScreen() {
     setGalat(null);
     setKabar(null);
     setSandi("");
+  }
+
+  /**
+   * Masuk sebagai tamu memakai Anonymous sign-in Supabase: akunnya nyata di
+   * auth.users, jadi pemicu profil dan seluruh kebijakan RLS berlaku sama
+   * seperti akun biasa. Nama dan handle diacak agar tiap tamu tetap dikenali.
+   */
+  async function masukTamu() {
+    if (sibuk) return;
+    setGalat(null);
+    setKabar(null);
+    setSibuk(true);
+
+    const nomor = String(Math.floor(1000 + Math.random() * 9000));
+    const { error } = await supabase.auth.signInAnonymously({
+      options: { data: { name: `Tamu ${nomor}`, handle: `tamu${nomor}` } },
+    });
+    setSibuk(false);
+
+    if (error) {
+      setGalat(terjemahkan(error.message));
+      return;
+    }
+    router.refresh();
   }
 
   async function kirim(e: FormEvent) {
@@ -335,6 +362,28 @@ export default function AuthScreen() {
                   : "Kirim tautan"}
           </button>
         </form>
+
+        {mode !== "lupa" && (
+          <>
+            <div className="gerbang-pisah">
+              <span>atau</span>
+            </div>
+
+            <button
+              type="button"
+              className="tombol tombol-garis tombol-lebar"
+              onClick={masukTamu}
+              disabled={sibuk}
+            >
+              <IkonTamu size={19} />
+              <span>Masuk sebagai tamu</span>
+            </button>
+            <p className="gerbang-catatan">
+              Tanpa email dan kata sandi. Kamu bisa langsung menulis komentar, dan
+              akun tamu bisa diubah jadi permanen kapan saja dari dalam aplikasi.
+            </p>
+          </>
+        )}
 
         <div className="gerbang-kaki">
           {mode === "masuk" && (

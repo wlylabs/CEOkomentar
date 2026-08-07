@@ -6,12 +6,14 @@ import Composer from "./Composer";
 import {
   IkonBagikan,
   IkonBalas,
+  IkonJam,
   IkonSampah,
   IkonSuka,
   IkonTerverifikasi,
   IkonUlang,
 } from "./Icons";
-import { ringkasAngka, waktuLengkap, waktuRelatif } from "@/lib/time";
+import { MASA_KOMENTAR_MS } from "@/lib/kebijakan";
+import { ringkasAngka, sisaWaktu, waktuLengkap, waktuRelatif } from "@/lib/time";
 import type { Comment, User } from "@/lib/types";
 
 type AksiProps = {
@@ -77,6 +79,7 @@ export default function CommentCard({
 }: Props) {
   const [konfirmasiHapus, setKonfirmasiHapus] = useState(false);
   const milikSaya = komentar.authorId === akunSaya.id;
+  const sisa = sisaWaktu(komentar.createdAt, MASA_KOMENTAR_MS, sekarang);
 
   return (
     <article className="komentar">
@@ -101,6 +104,18 @@ export default function CommentCard({
             >
               {waktuRelatif(komentar.createdAt, sekarang)}
             </time>
+
+            {sisa && (
+              <span
+                className="komentar-sisa"
+                title={`Terhapus otomatis pada ${waktuLengkap(
+                  komentar.createdAt + MASA_KOMENTAR_MS,
+                )}`}
+              >
+                <IkonJam size={13} />
+                <span>{sisa}</span>
+              </span>
+            )}
 
             {milikSaya && (
               <button
