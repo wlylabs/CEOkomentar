@@ -108,9 +108,35 @@ export default function CommentCard({
   const sebagaiAdmin = !milikSaya && akunSaya.admin;
   const bisaHapus = milikSaya || sebagaiAdmin;
   const sisa = sisaWaktu(komentar.createdAt, MASA_KOMENTAR_MS, sekarang, bahasa);
+  /* Balasan dan komentar awal dulu tampil serupa, jadi daftar campuran sulit
+     dibaca. Balasan kini menjorok, bergaris tepi, dan menyebut yang dibalas
+     di baris paling atas — sebelum nama penulisnya, bukan di tengah kartu. */
+  const balasan = komentar.parentId !== null;
 
   return (
-    <article className={`komentar${sorot ? " komentar-sorot" : ""}`}>
+    <article
+      className={`komentar${balasan ? " komentar-balasan" : ""}${sorot ? " komentar-sorot" : ""}`}
+    >
+      {balasan && (
+        <p className="komentar-konteks">
+          <IkonBalas size={14} />
+          {komentar.parentHandle ? (
+            <span>
+              {t("komentar.membalas")}{" "}
+              <button
+                type="button"
+                className="sebut sebut-tombol"
+                onClick={() => onSebut(komentar.parentHandle ?? "")}
+              >
+                @{komentar.parentHandle}
+              </button>
+            </span>
+          ) : (
+            <span>{t("komentar.balasan")}</span>
+          )}
+        </p>
+      )}
+
       <div className="komentar-baris">
         <button
           type="button"
@@ -118,7 +144,7 @@ export default function CommentCard({
           onClick={() => onBukaProfil(penulis)}
           aria-label={t("profil.buka", { handle: penulis.handle })}
         >
-          <Avatar pengguna={penulis} />
+          <Avatar pengguna={penulis} ukuran={balasan ? 38 : 44} />
         </button>
 
         <div className="komentar-isi">
@@ -173,19 +199,6 @@ export default function CommentCard({
               </button>
             )}
           </header>
-
-          {komentar.parentHandle && (
-            <p className="komentar-konteks">
-              {t("komentar.membalas")}{" "}
-              <button
-                type="button"
-                className="sebut sebut-tombol"
-                onClick={() => onSebut(komentar.parentHandle ?? "")}
-              >
-                @{komentar.parentHandle}
-              </button>
-            </p>
-          )}
 
           <TeksKomentar teks={komentar.text} onTagar={onTagar} onSebut={onSebut} />
 

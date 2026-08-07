@@ -509,19 +509,6 @@ input::-webkit-strong-password-auto-fill-button {
   }
 }
 
-.kepala-profil-nama {
-  display: block;
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.2px;
-}
-
-.kepala-profil-sub {
-  display: block;
-  font-size: 13px;
-  color: var(--teks-samar);
-}
-
 .kepala-kolom {
   padding: 12px 16px;
 }
@@ -897,9 +884,39 @@ input::-webkit-strong-password-auto-fill-button {
   font-variant-numeric: tabular-nums;
 }
 
+/* Balasan menjorok ke dalam dan bergaris tepi supaya tidak terbaca sama
+   dengan komentar awal ketika keduanya berjajar di daftar yang sama. */
+.komentar-balasan {
+  position: relative;
+  padding-left: 34px;
+  background: var(--lapis-hover);
+}
+
+/* Latarnya sudah terangkat sedikit, jadi sorotan kursornya dinaikkan lagi
+   supaya tetap terasa. */
+.komentar-balasan:hover {
+  background: var(--lapis-hover-kuat);
+}
+
+.komentar-balasan::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 16px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--garis-kuat);
+}
+
+/* Baris "Membalas @siapa" berdiri di atas nama penulis, jadi asal balasannya
+   terbaca sebelum isinya. */
 .komentar-konteks {
-  margin-top: 1px;
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 13.5px;
   color: var(--teks-samar);
 }
 

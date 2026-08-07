@@ -92,6 +92,7 @@ const KAMUS_ID = {
 
   /* ------------------------------------------------------------ komentar */
   "komentar.membalas": "Membalas",
+  "komentar.balasan": "Balasan",
   "komentar.hapusLabel": "Hapus komentar",
   "komentar.hapusLabelAdmin": "Hapus komentar ini sebagai admin",
   "komentar.konfirmasiLabel": "Konfirmasi hapus",
@@ -408,6 +409,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
 
   /* ------------------------------------------------------------ komentar */
   "komentar.membalas": "Replying to",
+  "komentar.balasan": "Reply",
   "komentar.hapusLabel": "Delete comment",
   "komentar.hapusLabelAdmin": "Delete this comment as an admin",
   "komentar.konfirmasiLabel": "Confirm deletion",
