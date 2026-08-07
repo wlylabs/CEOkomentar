@@ -1,6 +1,7 @@
 "use client";
 
 import Avatar from "./Avatar";
+import JamEmas from "./JamEmas";
 import TombolPasang from "./TombolPasang";
 import { IkonKeluar, IkonTren } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
@@ -11,6 +12,8 @@ type Props = {
   statistik: Statistik;
   tren: Tren[];
   pengguna: User;
+  /** epoch ms dari jam aplikasi; jam emas ikut berdetak bersamanya */
+  sekarang: number;
   onTagar: (tagar: string) => void;
   onKeluar: () => void;
 };
@@ -19,6 +22,7 @@ export default function RightRail({
   statistik,
   tren,
   pengguna,
+  sekarang,
   onTagar,
   onKeluar,
 }: Props) {
@@ -31,6 +35,10 @@ export default function RightRail({
   return (
     <aside className="rel" aria-label={t("rel.label")}>
       <div className="rel-isi">
+        {/* Kapan menulis lebih menentukan jangkauan daripada apa pun yang ada
+            di kartu-kartu di bawahnya, jadi tempatnya paling atas. */}
+        <JamEmas sekarang={sekarang} />
+
         {/* Tren hanya muncul kalau memang ada yang sedang ramai; kartu kosong
             berisi kalimat "belum ada apa-apa" cuma menambah kebisingan. */}
         {tren.length > 0 && (
@@ -68,10 +76,6 @@ export default function RightRail({
             <li>
               <span>{t("rel.komentar")}</span>
               {angka(statistik.komentar)}
-            </li>
-            <li>
-              <span>{t("rel.balasan")}</span>
-              {angka(statistik.balasan)}
             </li>
             <li>
               <span>{t("rel.disukai")}</span>

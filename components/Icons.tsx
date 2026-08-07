@@ -45,14 +45,6 @@ export function IkonProfil({ aktif, ...p }: IkonProps & { aktif?: boolean }) {
   );
 }
 
-export function IkonBalas(p: IkonProps) {
-  return (
-    <Dasar {...p}>
-      <path d="M20.5 12.4c0 4-3.8 7.2-8.5 7.2a9.8 9.8 0 0 1-2.6-.35L4.2 21l1.3-3.6A6.8 6.8 0 0 1 3.5 12.4c0-4 3.8-7.2 8.5-7.2s8.5 3.2 8.5 7.2Z" />
-    </Dasar>
-  );
-}
-
 export function IkonUlang(p: IkonProps) {
   return (
     <Dasar {...p}>

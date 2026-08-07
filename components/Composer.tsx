@@ -2,7 +2,6 @@
 
 import {
   useCallback,
-  useEffect,
   useId,
   useRef,
   useState,
@@ -20,20 +19,14 @@ type Props = {
   /** teks bayangan; bila kosong dipakai ajakan bawaan */
   placeholder?: string;
   labelTombol?: string;
-  kompak?: boolean;
-  fokusOtomatis?: boolean;
   onKirim: (teks: string) => void;
-  onBatal?: () => void;
 };
 
 export default function Composer({
   pengguna,
   placeholder,
   labelTombol,
-  kompak = false,
-  fokusOtomatis = false,
   onKirim,
-  onBatal,
 }: Props) {
   const { t, tk } = useBahasa();
   const bayangan = placeholder ?? t("komposer.bawaan");
@@ -53,10 +46,6 @@ export default function Composer({
     el.style.height = `${el.scrollHeight}px`;
   }, []);
 
-  useEffect(() => {
-    if (fokusOtomatis) areaRef.current?.focus();
-  }, [fokusOtomatis]);
-
   function ubah(e: ChangeEvent<HTMLTextAreaElement>) {
     setTeks(e.target.value);
     sesuaikanTinggi();
@@ -74,7 +63,6 @@ export default function Composer({
       e.preventDefault();
       kirim();
     }
-    if (e.key === "Escape" && onBatal) onBatal();
   }
 
   const rasio = Math.min(teks.length / BATAS, 1);
@@ -82,13 +70,13 @@ export default function Composer({
 
   return (
     <form
-      className={`komposer${kompak ? " komposer-kompak" : ""}`}
+      className="komposer"
       onSubmit={(e) => {
         e.preventDefault();
         kirim();
       }}
     >
-      <Avatar pengguna={pengguna} ukuran={kompak ? 36 : 44} />
+      <Avatar pengguna={pengguna} ukuran={44} />
 
       <div className="komposer-badan">
         <label className="sr-only" htmlFor={idArea}>
@@ -102,7 +90,7 @@ export default function Composer({
           onChange={ubah}
           onKeyDown={tombol}
           placeholder={bayangan}
-          rows={kompak ? 1 : 2}
+          rows={2}
           maxLength={BATAS + 40}
         />
 
@@ -144,12 +132,6 @@ export default function Composer({
                   {t("komposer.sisa", { sisa })}
                 </span>
               </span>
-            )}
-
-            {onBatal && (
-              <button type="button" className="tombol tombol-sunyi" onClick={onBatal}>
-                {t("umum.batal")}
-              </button>
             )}
 
             <button type="submit" className="tombol tombol-utama" disabled={!bisaKirim}>

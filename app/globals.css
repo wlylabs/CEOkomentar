@@ -5,8 +5,6 @@
 :root {
   /* tinggi bilah atas: acuan offset untuk semua elemen lengket */
   --tinggi-bilah: 53px;
-  /* sejauh mana balasan menjorok dari tepi kartu komentar utama */
-  --jorok: 18px;
 }
 
 :root[data-tema="gelap"] {
@@ -746,12 +744,6 @@ input::-webkit-strong-password-auto-fill-button {
   line-height: 1.4;
 }
 
-.komposer-kompak .komposer-area {
-  min-height: 38px;
-  padding: 7px 0;
-  font-size: 16px;
-}
-
 .komposer-area::placeholder {
   color: var(--teks-samar);
 }
@@ -828,12 +820,6 @@ input::-webkit-strong-password-auto-fill-button {
   background: var(--lapis-hover);
 }
 
-/* Kartu yang badannya menuju utas. Tombol dan tautan di dalamnya tetap
-   memakai kursornya sendiri. */
-.komentar-dapat-dibuka {
-  cursor: pointer;
-}
-
 /* Avatar duduk sebaris dengan nama penulisnya. Dibiarkan meregang, ia melayang
    di tengah kartu dan tiap baris daftar jadi tampak tidak rata. */
 .komentar-baris {
@@ -878,81 +864,6 @@ input::-webkit-strong-password-auto-fill-button {
   font-variant-numeric: tabular-nums;
 }
 
-/* Balasan menjorok ke dalam, bergaris tepi, dan seluruhnya satu ukuran lebih
-   kecil daripada komentar yang dibalasnya — di daftar campuran, mana yang
-   pokok dan mana yang menanggapi harus terbaca sebelum satu kata pun dibaca.
-   Sedalam apa pun letaknya dalam percakapan, semua balasan berhenti di satu
-   garis yang sama: indentasi bertingkat membuat tiap baris mulai di tempat
-   berbeda, dan justru itu yang membuat daftarnya sulit ditelusuri. Yang
-   membedakan balasan atas balasan bukan lagi jaraknya, melainkan baris
-   "Membalas @siapa" di atasnya. */
-.komentar-balasan {
-  position: relative;
-  padding-top: 9px;
-  padding-bottom: 9px;
-  padding-left: calc(16px + var(--jorok));
-  background: var(--lapis-hover);
-  font-size: 14px;
-}
-
-/* Latarnya sudah terangkat sedikit, jadi sorotan kursornya dinaikkan lagi
-   supaya tetap terasa. */
-.komentar-balasan:hover {
-  background: var(--lapis-hover-kuat);
-}
-
-.komentar-balasan::before {
-  content: "";
-  position: absolute;
-  top: 10px;
-  bottom: 10px;
-  left: calc(var(--jorok) + 1px);
-  width: 2px;
-  border-radius: 2px;
-  background: var(--garis-kuat);
-}
-
-.komentar-balasan .komentar-baris {
-  gap: 10px;
-}
-
-.komentar-balasan .komentar-teks {
-  font-size: 14.5px;
-}
-
-.komentar-balasan .aksi {
-  font-size: 12px;
-}
-
-.komentar-balasan .aksi-ikon {
-  width: 30px;
-  height: 30px;
-}
-
-.komentar-balasan .komentar-aksi {
-  margin-top: 6px;
-}
-
-/* Baris "Membalas @siapa" berdiri di atas nama penulis, jadi asal balasannya
-   terbaca sebelum isinya. Menekannya membuka komentar yang dibalas. */
-.komentar-konteks {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 5px;
-  font-size: 13px;
-  color: var(--teks-samar);
-  text-align: start;
-}
-
-.komentar-konteks:hover {
-  color: var(--aksen);
-}
-
-.komentar-konteks:hover .sebut {
-  text-decoration: underline;
-}
-
 .sebut {
   color: var(--aksen);
 }
@@ -965,8 +876,8 @@ input::-webkit-strong-password-auto-fill-button {
   overflow-wrap: anywhere;
 }
 
-/* Empat penghitung, bukan tujuh benda: sisanya pindah ke menu titik tiga.
-   Keempatnya berkelompok di kiri, tidak lagi direntang selebar kartu. Angka nol
+/* Tiga penghitung, bukan tujuh benda: sisanya pindah ke menu titik tiga.
+   Ketiganya berkelompok di kiri, tidak lagi direntang selebar kartu. Angka nol
    tidak ditulis, jadi merentangnya membuat komentar yang belum punya suka
    maupun posting ulang menyisakan jarak menganga di antara ketiga ikonnya —
    dan jaraknya berubah-ubah dari satu kartu ke kartu berikutnya. Berkelompok
@@ -1012,14 +923,6 @@ input::-webkit-strong-password-auto-fill-button {
   cursor: default;
 }
 
-.aksi-biru:hover,
-.aksi-biru.aksi-aktif {
-  color: var(--aksen);
-}
-
-.aksi-biru:hover .aksi-ikon {
-  background: var(--aksen-lembut);
-}
 
 .aksi-hijau:hover,
 .aksi-hijau.aksi-aktif {
@@ -1057,11 +960,6 @@ input::-webkit-strong-password-auto-fill-button {
   100% {
     transform: scale(1);
   }
-}
-
-.komentar-balas {
-  margin-top: 4px;
-  border-top: 1px solid var(--garis);
 }
 
 /* Sisa umur komentar sebelum dihapus otomatis. */
@@ -2257,44 +2155,6 @@ input::-webkit-strong-password-auto-fill-button {
   text-decoration: underline;
 }
 
-/* Komentar yang jadi pusat perhatian: hurufnya sedikit lebih besar dan
-   latarnya diangkat, seperti komentar yang dibuka sendiri di Twitter. Dipakai
-   halaman utas untuk komentar yang dituju, dan beranda untuk menandai sebentar
-   komentar yang baru saja dilompati dari sebuah balasan. */
-.komentar-sorot {
-  background: var(--lapis-hover);
-  animation: sorot 2.4s ease-out;
-}
-
-/* Sebuah balasan pun tampil seukuran penuh ketika ia yang sedang dibaca —
-   pengecilannya untuk membedakannya di dalam daftar, bukan hukuman tetap. */
-.komentar-sorot.komentar-balasan {
-  font-size: inherit;
-}
-
-.komentar-sorot .komentar-teks {
-  font-size: 17.5px;
-}
-
-.komentar-sorot.komentar-balasan .aksi {
-  font-size: 13px;
-}
-
-.komentar-sorot.komentar-balasan .aksi-ikon {
-  width: 34px;
-  height: 34px;
-}
-
-@keyframes sorot {
-  0%,
-  45% {
-    background: var(--aksen-lembut);
-  }
-  100% {
-    background: var(--lapis-hover);
-  }
-}
-
 /* ============================================================
    Tombol ikuti
    ============================================================ */
@@ -2383,8 +2243,8 @@ input::-webkit-strong-password-auto-fill-button {
   background: var(--aksen-lembut);
 }
 
-/* Hanya kabar balasan dan pengikut baru yang membawa ikon; suka dan posting
-   ulang tampil tanpanya, jadi kolom ini memang tidak selalu ada. */
+/* Hanya kabar pengikut baru yang membawa ikon; suka dan posting ulang tampil
+   tanpanya, jadi kolom ini memang tidak selalu ada. */
 .notif-ikon {
   flex: none;
   display: grid;
@@ -2482,7 +2342,271 @@ input::-webkit-strong-password-auto-fill-button {
 }
 
 /* ============================================================
-   Halaman utas
+   Jam emas
+   ============================================================ */
+
+/* Satu warna per tingkat, dipasang di wadahnya lalu dipakai ulang oleh titik,
+   meter, dan tiap batang kurva. Batang mewarisi nadanya sendiri, jadi kelas
+   yang sama menempel di dua tempat dengan arti yang sama. */
+.jam-nada-puncak {
+  --nada: var(--emas);
+}
+
+.jam-nada-tinggi {
+  --nada: var(--ulang);
+}
+
+.jam-nada-bagus {
+  --nada: var(--aksen);
+}
+
+.jam-nada-sedang {
+  --nada: var(--teks-samar);
+}
+
+.jam-nada-sepi {
+  --nada: var(--garis-kuat);
+}
+
+.jam-kepala {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.jam-label {
+  color: var(--teks-samar);
+  font-size: 14px;
+}
+
+.jam-angka {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 24px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--nada);
+}
+
+.jam-dari {
+  color: var(--teks-samar);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.jam-meter {
+  height: 6px;
+  margin: 8px 0 10px;
+  border-radius: 999px;
+  background: var(--lapis-hover-kuat);
+  overflow: hidden;
+}
+
+.jam-meter-isi {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--nada);
+  transition: width 0.4s ease;
+}
+
+.jam-titik {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--nada);
+}
+
+.jam-keadaan {
+  font-size: 14.5px;
+}
+
+.jam-jarak,
+.jam-saran {
+  color: var(--teks-samar);
+  font-size: 13.5px;
+}
+
+.jam-jarak {
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.jam-saran {
+  margin-top: 6px;
+}
+
+/* Bentuk hari ini: satu batang tiap jam, tingginya potensi jam itu. Batangnya
+   duduk di dasar yang sama supaya kurvanya terbaca sekali lihat. */
+.jam-kurva {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 46px;
+  margin-top: 14px;
+}
+
+.jam-batang {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  height: 100%;
+}
+
+.jam-batang span {
+  display: block;
+  width: 100%;
+  border-radius: 2px;
+  background: var(--nada);
+  opacity: 0.55;
+}
+
+/* Jam yang sedang berjalan diberi garis penuh, bukan warna lain: warnanya sudah
+   dipakai untuk menyatakan seberapa ramai jam itu. */
+.jam-batang-kini span {
+  opacity: 1;
+  box-shadow: 0 0 0 1.5px var(--latar-naik), 0 0 0 3px var(--nada);
+}
+
+.jam-sumbu {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  color: var(--teks-samar);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.jam-jendela {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--garis);
+}
+
+.jam-jendela-kepala {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14.5px;
+}
+
+.jam-rentang {
+  color: var(--teks-samar);
+  font-variant-numeric: tabular-nums;
+}
+
+.jam-catatan {
+  display: block;
+  color: var(--teks-samar);
+  font-size: 12.5px;
+}
+
+/* Jendela yang sedang berlangsung ditandai dari tepi kiri, tanpa mengubah
+   ukuran huruf — daftarnya tetap satu blok yang rata. */
+.jam-jendela-kini {
+  margin-left: -10px;
+  padding-left: 8px;
+  border-left: 2px solid var(--nada);
+}
+
+.jam-pekan {
+  display: flex;
+  gap: 3px;
+  margin-top: 12px;
+}
+
+.jam-hari {
+  flex: 1;
+  padding: 4px 0;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.jam-hari-terbaik {
+  background: var(--aksen-lembut);
+  color: var(--aksen);
+}
+
+.jam-hari-biasa {
+  background: var(--lapis-hover-kuat);
+  color: var(--teks-samar);
+}
+
+.jam-hari-lemah {
+  color: var(--teks-samar);
+}
+
+.jam-hari-kini {
+  outline: 1.5px solid var(--garis-kuat);
+  outline-offset: -1.5px;
+}
+
+.jam-pekan-teks {
+  margin-top: 8px;
+  color: var(--teks-samar);
+  font-size: 12.5px;
+}
+
+/* Baris ringkas untuk layar sempit, tempat panel kanan tidak pernah muncul.
+   Duduk tepat di atas kotak tulis di beranda. */
+.jam-ringkas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--garis);
+  font-size: 13.5px;
+  color: var(--teks-samar);
+}
+
+@media (min-width: 880px) {
+  .jam-ringkas {
+    display: none;
+  }
+}
+
+.jam-ringkas .jam-titik {
+  margin-right: 0;
+}
+
+.jam-ringkas-teks {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jam-ringkas-teks strong {
+  color: var(--nada);
+}
+
+.jam-ringkas-pisah {
+  padding: 0 5px;
+}
+
+.jam-ringkas-skor {
+  flex: none;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--lapis-hover-kuat);
+  color: var(--nada);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   Halaman satu komentar
    ============================================================ */
 
 .kerangka-tunggal {
@@ -2495,8 +2619,8 @@ input::-webkit-strong-password-auto-fill-button {
   margin: 0 auto;
 }
 
-/* Bilah atas halaman utas tetap ada di layar lebar — halaman ini tidak punya
-   kolom kiri yang bisa menggantikan tombol kembalinya. */
+/* Bilah atas halaman ini tetap ada di layar lebar — tidak ada kolom kiri yang
+   bisa menggantikan tombol kembalinya. */
 @media (min-width: 768px) {
   .bilah-mobil.bilah-tunggal {
     display: flex;
@@ -2507,12 +2631,7 @@ input::-webkit-strong-password-auto-fill-button {
   color: var(--aksen);
 }
 
-.utas-kosong {
-  padding: 16px 16px 20px;
-  color: var(--teks-samar);
-}
-
-/* Halaman utas tidak punya bilah bawah maupun tombol tulis yang mengambang,
+/* Halaman ini tidak punya bilah bawah maupun tombol tulis yang mengambang,
    jadi kabarnya tidak perlu menghindari keduanya dan duduk di dekat tepi. */
 .kerangka-tunggal .kabar-wadah {
   bottom: calc(24px + env(safe-area-inset-bottom));
