@@ -5,6 +5,7 @@ import Brand from "./Brand";
 import {
   IkonBeranda,
   IkonBulan,
+  IkonKeluar,
   IkonMatahari,
   IkonProfil,
   IkonTulis,
@@ -18,6 +19,7 @@ type Props = {
   pengguna: User;
   tema: "terang" | "gelap";
   onGantiTema: () => void;
+  onKeluar: () => void;
 };
 
 const MENU: { kunci: View; label: string }[] = [
@@ -32,6 +34,7 @@ export default function Sidebar({
   pengguna,
   tema,
   onGantiTema,
+  onKeluar,
 }: Props) {
   return (
     <header className="samping">
@@ -63,16 +66,32 @@ export default function Sidebar({
             type="button"
             className="menu-butir"
             onClick={onGantiTema}
-            aria-label={tema === "gelap" ? "Beralih ke tema terang" : "Beralih ke tema gelap"}
+            aria-label={
+              tema === "gelap" ? "Beralih ke tema terang" : "Beralih ke tema gelap"
+            }
           >
             {tema === "gelap" ? <IkonMatahari size={24} /> : <IkonBulan size={24} />}
             <span className="menu-label">
               {tema === "gelap" ? "Tema terang" : "Tema gelap"}
             </span>
           </button>
+
+          <button
+            type="button"
+            className="menu-butir"
+            onClick={onKeluar}
+            aria-label="Keluar dari akun"
+          >
+            <IkonKeluar size={24} />
+            <span className="menu-label">Keluar</span>
+          </button>
         </nav>
 
-        <button type="button" className="tombol tombol-utama tombol-tulis" onClick={onTulis}>
+        <button
+          type="button"
+          className="tombol tombol-utama tombol-tulis"
+          onClick={onTulis}
+        >
           <IkonTulis size={20} className="tombol-tulis-ikon" />
           <span className="tombol-tulis-teks">Tulis komentar</span>
         </button>

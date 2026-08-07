@@ -66,6 +66,11 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Chrome dan peramban seluler berbasis Chromium mengecat kotak biru sekilas
+     di setiap sentuhan. Sorotan itu melompat mengikuti jari dan tidak pernah
+     sejalan dengan bentuk tombol di sini, jadi dimatikan; umpan baliknya sudah
+     ditangani :hover, :active, dan :focus-visible. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -103,9 +108,56 @@ ul {
   color: #ffffff;
 }
 
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Klik tetikus tidak perlu cincin fokus; navigasi papan tik tetap dapat. */
+:focus {
+  outline: none;
+}
+
 :focus-visible {
   outline: 2px solid var(--aksen);
   outline-offset: 2px;
+}
+
+/*
+ * Isian otomatis Chrome memaksa latar biru muda beserta warna teksnya sendiri,
+ * yang menabrak tema gelap dan berkedip saat isian dipilih. Bayangan dalam
+ * menutup lapisan itu, dan transisi sepanjang itu menahan Chrome mengecatnya
+ * ulang setelah beberapa saat.
+ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--teks);
+  caret-color: var(--teks);
+  box-shadow: 0 0 0 100px var(--latar) inset;
+  transition:
+    background-color 600000s 0s,
+    color 600000s 0s;
+}
+
+/* Pemilih tanggal, tombol bersih, dan panah bawaan Chrome ikut disamakan. */
+input::-webkit-calendar-picker-indicator,
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+/* Kunci sandi bawaan Chrome menggeser lebar isian saat muncul. */
+input::-webkit-credentials-auto-fill-button,
+input::-webkit-strong-password-auto-fill-button {
+  margin: 0;
+  background-color: var(--teks-samar);
 }
 
 .sr-only {
@@ -357,6 +409,12 @@ ul {
   text-overflow: ellipsis;
 }
 
+.bilah-aksi {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
 .bulat {
   display: grid;
   place-items: center;
@@ -556,6 +614,25 @@ ul {
 
 .tombol-sunyi:hover {
   color: var(--teks);
+}
+
+.tombol-bahaya {
+  background: var(--suka);
+  color: #ffffff;
+}
+
+.tombol-bahaya:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+.tombol-lebar {
+  width: 100%;
+  height: 44px;
+}
+
+.tombol:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ============================================================
@@ -817,21 +894,178 @@ ul {
   border-top: 1px solid var(--garis);
 }
 
+.komentar-hapus {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  border-radius: 50%;
+  color: var(--teks-samar);
+  opacity: 0;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.komentar:hover .komentar-hapus,
+.komentar-hapus:focus-visible {
+  opacity: 1;
+}
+
+/* Layar sentuh tidak punya :hover, jadi tombolnya selalu terlihat di sana. */
+@media (hover: none) {
+  .komentar-hapus {
+    opacity: 1;
+  }
+}
+
+.komentar-hapus:hover {
+  background: var(--suka-lembut);
+  color: var(--suka);
+}
+
+.komentar-konfirmasi {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--garis);
+  border-radius: 14px;
+  background: var(--latar-naik);
+  font-size: 14px;
+}
+
+.komentar-konfirmasi-aksi {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ============================================================
+   Rangka muat dan tombol halaman berikutnya
+   ============================================================ */
+
+.rangka {
+  display: grid;
+}
+
+.rangka-butir {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--garis);
+}
+
+.rangka-bulat {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+
+.rangka-baris {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding-top: 4px;
+}
+
+.rangka-garis {
+  display: block;
+  height: 11px;
+  border-radius: 999px;
+}
+
+.rangka-garis-pendek {
+  width: 38%;
+}
+
+.rangka-garis-sedang {
+  width: 64%;
+}
+
+.rangka-bulat,
+.rangka-garis {
+  background: linear-gradient(
+    90deg,
+    var(--latar-naik) 0%,
+    var(--lapis-hover-kuat) 50%,
+    var(--latar-naik) 100%
+  );
+  background-size: 220% 100%;
+  animation: kilau 1.3s ease-in-out infinite;
+}
+
+@keyframes kilau {
+  from {
+    background-position: 140% 0;
+  }
+  to {
+    background-position: -40% 0;
+  }
+}
+
+.muat-lagi {
+  display: flex;
+  justify-content: center;
+  padding: 18px 16px;
+  border-bottom: 1px solid var(--garis);
+}
+
 /* ============================================================
    Profil
    ============================================================ */
 
 .profil-sampul {
+  position: relative;
   height: 140px;
   background:
     radial-gradient(120% 140% at 15% 0%, rgba(29, 155, 240, 0.85), transparent 60%),
     linear-gradient(120deg, #0b3a5c, #123b63 40%, #1d9bf0);
 }
 
+/* Sampul unggahan: rasio 3:1, jadi lebar penuh selalu terisi tanpa dipaksa. */
+.profil-sampul-foto {
+  background: var(--latar-naik) center / cover no-repeat;
+}
+
 @media (min-width: 768px) {
   .profil-sampul {
     height: 190px;
   }
+}
+
+.sampul-aksi {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.sampul-tombol {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(15, 20, 25, 0.62);
+  color: #ffffff;
+  transition: background-color 0.15s ease;
+}
+
+.sampul-tombol:hover:not(:disabled) {
+  background: rgba(15, 20, 25, 0.85);
+}
+
+.sampul-tombol:disabled {
+  cursor: progress;
 }
 
 .profil-atas {
@@ -1064,6 +1298,55 @@ ul {
   line-height: 1.5;
 }
 
+.bidang-baik {
+  color: var(--ulang);
+  font-weight: 600;
+}
+
+/* Isian dengan hiasan di kiri (@) atau tombol di kanan (lihat kata sandi). */
+.bidang-awalan {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding-left: 12px;
+  border: 1px solid var(--garis-kuat);
+  border-radius: 12px;
+  color: var(--teks-samar);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.bidang-awalan:focus-within {
+  border-color: var(--aksen);
+  box-shadow: 0 0 0 1px var(--aksen);
+}
+
+.bidang-awalan .bidang-masukan {
+  border: 0;
+  border-radius: 0;
+  padding-left: 4px;
+}
+
+.bidang-awalan .bidang-masukan:focus {
+  box-shadow: none;
+}
+
+.bidang-ikon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--teks-samar);
+  transition: color 0.15s ease;
+}
+
+.bidang-ikon:hover {
+  color: var(--teks);
+}
+
 /* ============================================================
    Kolom kanan
    ============================================================ */
@@ -1165,6 +1448,39 @@ ul {
   color: var(--teks);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+.kartu-akun {
+  display: grid;
+  gap: 12px;
+}
+
+.akun-baris {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.akun-teks {
+  min-width: 0;
+}
+
+.akun-nama,
+.akun-handle {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.akun-nama {
+  font-weight: 700;
+}
+
+.akun-handle {
+  font-size: 14px;
+  color: var(--teks-samar);
 }
 
 .rel-kaki {
@@ -1309,6 +1625,142 @@ ul {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ============================================================
+   Gerbang masuk: daftar, masuk, dan penggantian kata sandi
+   ============================================================ */
+
+.gerbang {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 24px 18px calc(24px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(90% 60% at 50% -10%, var(--aksen-lembut), transparent 70%),
+    var(--latar);
+}
+
+.gerbang-kartu {
+  width: 100%;
+  max-width: 420px;
+  padding: 26px 22px 22px;
+  border: 1px solid var(--garis);
+  border-radius: 20px;
+  background: var(--latar);
+  box-shadow: var(--bayang);
+}
+
+.gerbang-merek {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--aksen);
+}
+
+.gerbang-merek-teks {
+  color: var(--teks);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+
+.gerbang-judul {
+  margin-top: 18px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.gerbang-sub {
+  margin-top: 6px;
+  color: var(--teks-samar);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.gerbang-sub code,
+.gerbang-galat code {
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--latar-naik);
+  font-size: 0.92em;
+}
+
+.gerbang-kode {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--garis);
+  border-radius: 12px;
+  background: var(--latar-naik);
+  overflow-x: auto;
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre;
+}
+
+.gerbang-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.gerbang-galat,
+.gerbang-kabar {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.gerbang-galat {
+  border: 1px solid var(--suka);
+  background: var(--suka-lembut);
+  color: var(--teks);
+}
+
+.gerbang-galat svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--suka);
+}
+
+.gerbang-kabar {
+  border: 1px solid var(--ulang);
+  background: var(--ulang-lembut);
+  color: var(--teks);
+}
+
+.gerbang-form .gerbang-galat,
+.gerbang-form .gerbang-kabar {
+  margin-top: 0;
+}
+
+.gerbang-kaki {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--garis);
+  color: var(--teks-samar);
+  font-size: 14px;
+  text-align: center;
+}
+
+.tautan {
+  color: var(--aksen);
+  font-weight: 600;
+  font-size: inherit;
+}
+
+.tautan:hover {
+  text-decoration: underline;
 }
 
 @media (prefers-reduced-motion: reduce) {

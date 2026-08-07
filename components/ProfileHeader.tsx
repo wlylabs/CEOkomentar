@@ -1,21 +1,38 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import Avatar from "./Avatar";
-import { IkonKalender, IkonKamera, IkonLokasi, IkonTerverifikasi } from "./Icons";
-import { GalatFoto, siapkanFotoProfil } from "@/lib/image";
-import { angkaPenuh, ringkasAngka } from "@/lib/time";
+import {
+  IkonGambar,
+  IkonKalender,
+  IkonKamera,
+  IkonLokasi,
+  IkonTerverifikasi,
+  IkonTutup,
+} from "./Icons";
+import { klienPeramban } from "@/lib/supabase/client";
+import { hapusMedia, simpanProfil, unggahMedia } from "@/lib/api";
+import {
+  GalatFoto,
+  bebaskanPratinjau,
+  siapkanGambar,
+  type Gambar,
+  type JenisMedia,
+} from "@/lib/image";
+import { angkaPenuh, bulanTahun, ringkasAngka } from "@/lib/time";
 import type { User } from "@/lib/types";
 
 const BATAS_BIO = 160;
+
+/** Media yang menunggu disimpan: berkas baru, dihapus, atau tidak diubah. */
+type Tertunda = { gambar: Gambar } | { hapus: true } | null;
 
 type Props = {
   pengguna: User;
   jumlahKomentar: number;
   jumlahSukaDiterima: number;
-  onSimpan: (
-    perubahan: Pick<User, "name" | "bio" | "location" | "avatar">,
-  ) => void;
+  onSimpan: (pengguna: User) => void;
+  onKabar: (pesan: string) => void;
 };
 
 export default function ProfileHeader({
@@ -23,92 +40,228 @@ export default function ProfileHeader({
   jumlahKomentar,
   jumlahSukaDiterima,
   onSimpan,
+  onKabar,
 }: Props) {
+  const supabase = klienPeramban();
+
   const [menyunting, setMenyunting] = useState(false);
   const [nama, setNama] = useState(pengguna.name);
   const [bio, setBio] = useState(pengguna.bio);
   const [lokasi, setLokasi] = useState(pengguna.location);
-  const [foto, setFoto] = useState(pengguna.avatar);
+
+  const [avatarTertunda, setAvatarTertunda] = useState<Tertunda>(null);
+  const [sampulTertunda, setSampulTertunda] = useState<Tertunda>(null);
+
   const [galat, setGalat] = useState<string | null>(null);
-  const [memuat, setMemuat] = useState(false);
+  const [memuat, setMemuat] = useState<JenisMedia | null>(null);
+  const [menyimpan, setMenyimpan] = useState(false);
 
-  const berkasRef = useRef<HTMLInputElement>(null);
+  const avatarRef = useRef<HTMLInputElement>(null);
+  const sampulRef = useRef<HTMLInputElement>(null);
 
-  /* Saat menyunting, avatar menampilkan pratinjau foto yang belum disimpan. */
-  const pratinjau: User = menyunting ? { ...pengguna, avatar: foto } : pengguna;
+  function nilaiTertunda(tertunda: Tertunda, asli: string | null) {
+    if (!tertunda) return asli;
+    return "hapus" in tertunda ? null : tertunda.gambar.pratinjau;
+  }
+
+  const avatarTampil = menyunting
+    ? nilaiTertunda(avatarTertunda, pengguna.avatar)
+    : pengguna.avatar;
+  const sampulTampil = menyunting
+    ? nilaiTertunda(sampulTertunda, pengguna.banner)
+    : pengguna.banner;
+
+  /* Object URL pratinjau dilepas begitu digantikan atau saat form ditinggalkan.
+     Dua efek terpisah supaya mengganti sampul tidak ikut membatalkan pratinjau
+     avatar yang masih dipakai. */
+  const pratinjauAvatar =
+    avatarTertunda && "gambar" in avatarTertunda ? avatarTertunda.gambar.pratinjau : null;
+  const pratinjauSampul =
+    sampulTertunda && "gambar" in sampulTertunda ? sampulTertunda.gambar.pratinjau : null;
+
+  useEffect(() => () => bebaskanPratinjau(pratinjauAvatar), [pratinjauAvatar]);
+  useEffect(() => () => bebaskanPratinjau(pratinjauSampul), [pratinjauSampul]);
+
+  const pratinjauAkun: User = { ...pengguna, avatar: avatarTampil };
 
   function buka() {
     setNama(pengguna.name);
     setBio(pengguna.bio);
     setLokasi(pengguna.location);
-    setFoto(pengguna.avatar);
+    setAvatarTertunda(null);
+    setSampulTertunda(null);
     setGalat(null);
     setMenyunting(true);
   }
 
   function tutup() {
+    setAvatarTertunda(null);
+    setSampulTertunda(null);
     setGalat(null);
     setMenyunting(false);
   }
 
-  async function pilihFoto(e: ChangeEvent<HTMLInputElement>) {
+  async function pilihBerkas(e: ChangeEvent<HTMLInputElement>, jenis: JenisMedia) {
     const berkas = e.target.files?.[0];
     // Kosongkan nilainya agar memilih berkas yang sama dua kali tetap memicu onChange.
     e.target.value = "";
     if (!berkas) return;
 
     setGalat(null);
-    setMemuat(true);
+    setMemuat(jenis);
     try {
-      setFoto(await siapkanFotoProfil(berkas));
+      const gambar = await siapkanGambar(berkas, jenis);
+      const setter = jenis === "avatar" ? setAvatarTertunda : setSampulTertunda;
+      setter({ gambar });
     } catch (kesalahan) {
       setGalat(
         kesalahan instanceof GalatFoto
           ? kesalahan.message
-          : "Foto gagal diproses. Coba gambar lain.",
+          : "Gambar gagal diproses. Coba berkas lain.",
       );
     } finally {
-      setMemuat(false);
+      setMemuat(null);
     }
   }
 
-  function simpan() {
+  function hapusTertunda(jenis: JenisMedia) {
+    const setter = jenis === "avatar" ? setAvatarTertunda : setSampulTertunda;
+    setter({ hapus: true });
+    setGalat(null);
+  }
+
+  async function simpan() {
     const namaBersih = nama.trim();
-    if (!namaBersih) return;
-    onSimpan({
-      name: namaBersih,
-      bio: bio.trim(),
-      location: lokasi.trim(),
-      avatar: foto,
-    });
-    setMenyunting(false);
+    if (!namaBersih || bio.length > BATAS_BIO || menyimpan) return;
+
+    setGalat(null);
+    setMenyimpan(true);
+
+    /* Berkas yang sudah diunggah dicatat supaya bisa dibersihkan bila
+       penyimpanan profil gagal di langkah berikutnya. */
+    const baruDiunggah: { jenis: JenisMedia; alamat: string }[] = [];
+
+    try {
+      let alamatAvatar = pengguna.avatar;
+      let alamatSampul = pengguna.banner;
+
+      if (avatarTertunda) {
+        alamatAvatar =
+          "hapus" in avatarTertunda
+            ? null
+            : await unggahMedia(supabase, pengguna.id, "avatar", avatarTertunda.gambar);
+        if (alamatAvatar) baruDiunggah.push({ jenis: "avatar", alamat: alamatAvatar });
+      }
+
+      if (sampulTertunda) {
+        alamatSampul =
+          "hapus" in sampulTertunda
+            ? null
+            : await unggahMedia(supabase, pengguna.id, "sampul", sampulTertunda.gambar);
+        if (alamatSampul) baruDiunggah.push({ jenis: "sampul", alamat: alamatSampul });
+      }
+
+      const tersimpan = await simpanProfil(supabase, pengguna.id, {
+        name: namaBersih,
+        bio: bio.trim(),
+        location: lokasi.trim(),
+        avatar_url: alamatAvatar,
+        banner_url: alamatSampul,
+      });
+
+      /* Berkas lama baru dibuang setelah baris profil benar-benar tersimpan.
+         Kegagalan di sini hanya menyisakan berkas yatim, bukan alasan untuk
+         menganggap penyuntingan gagal. */
+      if (avatarTertunda && pengguna.avatar && pengguna.avatar !== alamatAvatar) {
+        await hapusMedia(supabase, "avatar", pengguna.avatar).catch(() => {});
+      }
+      if (sampulTertunda && pengguna.banner && pengguna.banner !== alamatSampul) {
+        await hapusMedia(supabase, "sampul", pengguna.banner).catch(() => {});
+      }
+
+      setAvatarTertunda(null);
+      setSampulTertunda(null);
+      setMenyunting(false);
+      onSimpan(tersimpan);
+    } catch (kesalahan) {
+      for (const { jenis, alamat } of baruDiunggah) {
+        await hapusMedia(supabase, jenis, alamat).catch(() => {});
+      }
+      const pesan =
+        kesalahan && typeof kesalahan === "object" && "message" in kesalahan
+          ? String((kesalahan as { message: unknown }).message)
+          : "Profil gagal disimpan.";
+      setGalat(
+        pesan.includes("row-level security")
+          ? "Tidak punya izin menyimpan perubahan ini."
+          : pesan,
+      );
+      onKabar("Profil gagal disimpan");
+    } finally {
+      setMenyimpan(false);
+    }
   }
 
   return (
     <section className="profil" aria-label="Profil">
-      <div className="profil-sampul" />
+      <div
+        className={`profil-sampul${sampulTampil ? " profil-sampul-foto" : ""}`}
+        style={sampulTampil ? { backgroundImage: `url("${sampulTampil}")` } : undefined}
+      >
+        {menyunting && (
+          <>
+            <input
+              ref={sampulRef}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={(e) => pilihBerkas(e, "sampul")}
+            />
+            <div className="sampul-aksi">
+              <button
+                type="button"
+                className="sampul-tombol"
+                onClick={() => sampulRef.current?.click()}
+                disabled={memuat !== null || menyimpan}
+                aria-label={sampulTampil ? "Ganti sampul" : "Unggah sampul"}
+              >
+                <IkonGambar size={20} />
+              </button>
+              {sampulTampil && (
+                <button
+                  type="button"
+                  className="sampul-tombol"
+                  onClick={() => hapusTertunda("sampul")}
+                  disabled={memuat !== null || menyimpan}
+                  aria-label="Hapus sampul"
+                >
+                  <IkonTutup size={20} />
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </div>
 
       <div className="profil-atas">
         <div className="profil-avatar">
-          <Avatar pengguna={pratinjau} ukuran={128} />
+          <Avatar pengguna={pratinjauAkun} ukuran={128} />
 
           {menyunting && (
             <>
               <input
-                ref={berkasRef}
+                ref={avatarRef}
                 type="file"
                 accept="image/*"
                 className="sr-only"
-                onChange={pilihFoto}
+                onChange={(e) => pilihBerkas(e, "avatar")}
               />
               <button
                 type="button"
                 className="foto-lapis"
-                onClick={() => berkasRef.current?.click()}
-                disabled={memuat}
-                aria-label={
-                  foto ? "Ganti foto profil" : "Unggah foto profil"
-                }
+                onClick={() => avatarRef.current?.click()}
+                disabled={memuat !== null || menyimpan}
+                aria-label={avatarTampil ? "Ganti foto profil" : "Unggah foto profil"}
               >
                 <span className="foto-bulat">
                   <IkonKamera size={22} />
@@ -118,29 +271,37 @@ export default function ProfileHeader({
           )}
         </div>
 
-        {menyunting ? (
-          <div className="profil-tombol">
-            <button type="button" className="tombol tombol-garis" onClick={tutup}>
-              Batal
-            </button>
-            <button
-              type="button"
-              className="tombol tombol-utama"
-              onClick={simpan}
-              disabled={
-                memuat || nama.trim().length === 0 || bio.length > BATAS_BIO
-              }
-            >
-              Simpan
-            </button>
-          </div>
-        ) : (
-          <div className="profil-tombol">
+        <div className="profil-tombol">
+          {menyunting ? (
+            <>
+              <button
+                type="button"
+                className="tombol tombol-garis"
+                onClick={tutup}
+                disabled={menyimpan}
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                className="tombol tombol-utama"
+                onClick={simpan}
+                disabled={
+                  menyimpan ||
+                  memuat !== null ||
+                  nama.trim().length === 0 ||
+                  bio.length > BATAS_BIO
+                }
+              >
+                {menyimpan ? "Menyimpan…" : "Simpan"}
+              </button>
+            </>
+          ) : (
             <button type="button" className="tombol tombol-garis" onClick={buka}>
               Edit profil
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {menyunting ? (
@@ -157,28 +318,52 @@ export default function ProfileHeader({
               <button
                 type="button"
                 className="tombol tombol-garis"
-                onClick={() => berkasRef.current?.click()}
-                disabled={memuat}
+                onClick={() => avatarRef.current?.click()}
+                disabled={memuat !== null || menyimpan}
               >
-                {memuat ? "Memproses…" : foto ? "Ganti foto" : "Unggah foto"}
+                {memuat === "avatar" ? "Memproses…" : avatarTampil ? "Ganti foto" : "Unggah foto"}
               </button>
-              {foto && (
+              {avatarTampil && (
                 <button
                   type="button"
                   className="tombol tombol-sunyi"
-                  onClick={() => {
-                    setFoto(null);
-                    setGalat(null);
-                  }}
-                  disabled={memuat}
+                  onClick={() => hapusTertunda("avatar")}
+                  disabled={memuat !== null || menyimpan}
                 >
                   Hapus foto
                 </button>
               )}
             </div>
             <p className="bidang-bantuan">
-              JPG, PNG, atau WebP hingga 8 MB. Gambar dipangkas persegi dari bagian
-              tengah.
+              Dipangkas persegi dari bagian tengah, lalu dikecilkan ke 400 px.
+            </p>
+          </div>
+
+          <div className="bidang">
+            <span className="bidang-label">Sampul</span>
+            <div className="foto-aksi">
+              <button
+                type="button"
+                className="tombol tombol-garis"
+                onClick={() => sampulRef.current?.click()}
+                disabled={memuat !== null || menyimpan}
+              >
+                {memuat === "sampul" ? "Memproses…" : sampulTampil ? "Ganti sampul" : "Unggah sampul"}
+              </button>
+              {sampulTampil && (
+                <button
+                  type="button"
+                  className="tombol tombol-sunyi"
+                  onClick={() => hapusTertunda("sampul")}
+                  disabled={memuat !== null || menyimpan}
+                >
+                  Hapus sampul
+                </button>
+              )}
+            </div>
+            <p className="bidang-bantuan">
+              JPG, PNG, atau WebP hingga 8 MB. Dipangkas 3:1 lalu dikecilkan ke
+              1500 × 500 px.
             </p>
             {galat && (
               <p className="bidang-galat" role="alert">
@@ -201,7 +386,9 @@ export default function ProfileHeader({
           <label className="bidang">
             <span className="bidang-label">
               Bio
-              <span className={`bidang-sisa${bio.length > BATAS_BIO ? " bidang-sisa-lebih" : ""}`}>
+              <span
+                className={`bidang-sisa${bio.length > BATAS_BIO ? " bidang-sisa-lebih" : ""}`}
+              >
                 {BATAS_BIO - bio.length}
               </span>
             </span>
@@ -242,7 +429,7 @@ export default function ProfileHeader({
             )}
             <li>
               <IkonKalender size={17} />
-              <span>Bergabung {pengguna.joinedAt}</span>
+              <span>Bergabung {bulanTahun(pengguna.joinedAt)}</span>
             </li>
           </ul>
 

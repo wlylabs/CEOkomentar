@@ -38,9 +38,10 @@ export default function Avatar({ pengguna, ukuran = 44 }: Props) {
       aria-hidden="true"
     >
       {pengguna.avatar ? (
-        // Sumbernya data URL hasil pemrosesan di peramban, jadi <img> biasa sudah tepat.
+        // Sumbernya URL Supabase Storage atau object URL pratinjau, keduanya di
+        // luar jangkauan pengoptimal gambar Next.js, jadi <img> biasa sudah tepat.
         // eslint-disable-next-line @next/next/no-img-element
-        <img className="avatar-foto" src={pengguna.avatar} alt="" />
+        <img className="avatar-foto" src={pengguna.avatar} alt="" loading="lazy" />
       ) : (
         inisial(pengguna.name)
       )}

@@ -2,11 +2,13 @@ export type User = {
   id: string;
   name: string;
   handle: string;
-  /** foto profil sebagai data URL; null berarti memakai avatar inisial */
+  /** URL publik foto profil di Supabase Storage; null berarti avatar inisial */
   avatar: string | null;
+  /** URL publik sampul profil; null berarti gradien bawaan */
+  banner: string | null;
   bio: string;
   location: string;
-  /** Bulan bergabung, mis. "Maret 2021" */
+  /** waktu pendaftaran dalam ISO 8601 */
   joinedAt: string;
   following: number;
   followers: number;
@@ -18,13 +20,24 @@ export type Comment = {
   authorId: string;
   /** id komentar yang dibalas, null untuk komentar utama */
   parentId: string | null;
+  /** handle penulis komentar induk, dipakai untuk label "Membalas @…" */
+  parentHandle: string | null;
   text: string;
   /** waktu pembuatan dalam epoch ms */
   createdAt: number;
   likes: number;
   reposts: number;
+  replies: number;
   liked: boolean;
   reposted: boolean;
+};
+
+export type Statistik = {
+  komentar: number;
+  balasan: number;
+  disukai: number;
+  sukaDiterima: number;
+  ulangDiterima: number;
 };
 
 export type Tab = "komentar" | "balasan" | "disukai";

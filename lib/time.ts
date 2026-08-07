@@ -36,6 +36,28 @@ export function waktuRelatif(createdAt: number, now: number = Date.now()) {
     : `${hari} ${bulan} ${tahun}`;
 }
 
+const BULAN_PANJANG = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+];
+
+/** "Maret 2021" — dipakai pada baris "Bergabung …" di profil. */
+export function bulanTahun(iso: string) {
+  const t = new Date(iso);
+  if (Number.isNaN(t.getTime())) return "";
+  return `${BULAN_PANJANG[t.getMonth()]} ${t.getFullYear()}`;
+}
+
 /** Label lengkap untuk atribut title/datetime. */
 export function waktuLengkap(createdAt: number) {
   const t = new Date(createdAt);

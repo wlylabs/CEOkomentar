@@ -164,6 +164,54 @@ export function IkonTutup(p: IkonProps) {
   );
 }
 
+export function IkonKeluar(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <path d="M14.6 3.6H6.2a1.9 1.9 0 0 0-1.9 1.9v13a1.9 1.9 0 0 0 1.9 1.9h8.4" />
+      <path d="M16.4 8.4 20 12l-3.6 3.6M20 12H9.2" />
+    </Dasar>
+  );
+}
+
+export function IkonSampah(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <path d="M4.6 6.6h14.8M9.4 6.6V4.8a1.2 1.2 0 0 1 1.2-1.2h2.8a1.2 1.2 0 0 1 1.2 1.2v1.8" />
+      <path d="M6.6 6.6 7.5 19a1.5 1.5 0 0 0 1.5 1.4h6a1.5 1.5 0 0 0 1.5-1.4l.9-12.4" />
+      <path d="M10.4 10.2v6.4M13.6 10.2v6.4" />
+    </Dasar>
+  );
+}
+
+export function IkonMata({ tertutup, ...p }: IkonProps & { tertutup?: boolean }) {
+  return (
+    <Dasar {...p}>
+      <path d="M2.6 12s3.5-6.2 9.4-6.2S21.4 12 21.4 12s-3.5 6.2-9.4 6.2S2.6 12 2.6 12Z" />
+      <circle cx="12" cy="12" r="2.9" />
+      {tertutup && <path d="M4 20 20 4" />}
+    </Dasar>
+  );
+}
+
+export function IkonGambar(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <rect x="3.4" y="5" width="17.2" height="14" rx="2.3" />
+      <circle cx="8.6" cy="10" r="1.7" />
+      <path d="m4.2 17.4 4.6-4.3 3.5 3.2 3-2.7 4.5 4" />
+    </Dasar>
+  );
+}
+
+export function IkonPeringatan(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <path d="M12 4.2 21 19.4H3z" />
+      <path d="M12 9.6v4.2M12 16.6h.01" />
+    </Dasar>
+  );
+}
+
 export function IkonTerverifikasi({ size = 18, ...sisa }: IkonProps) {
   return (
     <svg
