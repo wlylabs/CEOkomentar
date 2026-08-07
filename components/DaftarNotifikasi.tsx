@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Avatar from "./Avatar";
 import Lencana from "./Lencana";
-import { IkonBalas, IkonProfil } from "./Icons";
+import { IkonProfil } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import type { KunciTeks } from "@/lib/i18n/kamus";
 import { waktuLengkap, waktuRelatif } from "@/lib/time";
@@ -12,18 +12,16 @@ import type { JenisNotifikasi, Notifikasi, User } from "@/lib/types";
 const KALIMAT: Record<JenisNotifikasi, KunciTeks> = {
   suka: "notif.suka",
   ulang: "notif.ulang",
-  balas: "notif.balas",
   ikut: "notif.ikut",
 };
 
 /**
  * Kabar suka dan posting ulang sengaja tanpa ikon: kalimatnya sudah menyebut
  * apa yang terjadi, dan hati merah berjajar di sepanjang daftar lebih ramai
- * daripada memberi tahu. Yang tersisa hanya dua kabar yang bentuknya berbeda —
- * balasan dan pengikut baru.
+ * daripada memberi tahu. Yang tersisa hanya pengikut baru — satu-satunya kabar
+ * yang tidak menunjuk ke sebuah komentar.
  */
 function ikonKabar(jenis: JenisNotifikasi) {
-  if (jenis === "balas") return <IkonBalas size={19} />;
   if (jenis === "ikut") return <IkonProfil size={19} aktif />;
   return null;
 }

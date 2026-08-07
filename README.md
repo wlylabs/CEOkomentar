@@ -2,9 +2,9 @@
 
 Antarmuka bergaya Twitter yang dibangun dengan Next.js (App Router), TypeScript,
 dan **Supabase**: feed komentar berumur 24 jam, profil yang bisa diikuti,
-notifikasi, simpanan, dan papan tren. Hampir seluruh aplikasi berjalan di satu
-rute (`/`) tanpa perpindahan halaman; satu rute lagi (`/komentar/[id]`) melayani
-tautan tetap untuk satu komentar beserta utasnya.
+notifikasi, simpanan, papan tren, dan penunjuk jam emas audiens X Indonesia.
+Hampir seluruh aplikasi berjalan di satu rute (`/`) tanpa perpindahan halaman;
+satu rute lagi (`/komentar/[id]`) melayani tautan tetap satu komentar.
 
 Aplikasinya juga sebuah **PWA** — bisa dipasang ke layar utama dan punya halaman
 luring sendiri.
@@ -40,23 +40,41 @@ lewat pengalih di navigasi.
 - **Komentar hidup 24 jam** lalu terhapus otomatis. Setiap kartu menampilkan
   sisa umurnya, dan komentar yang lewat batas langsung hilang dari layar tanpa
   perlu memuat ulang
-- Linimasa komentar dan balasan, terbaru di atas, dengan pemuatan bertahap
+- Linimasa komentar, terbaru di atas, dengan pemuatan bertahap. Komentar berdiri
+  sendiri — tidak ada balasan, tidak ada utas
 - Komposer dengan penghitung 280 karakter, tinggi menyesuaikan isi, dan pintasan
   `Ctrl`/`Cmd` + `Enter`
-- Balasan langsung di dalam kartu komentar, ditandai dengan konteks "Membalas @…"
 - Suka dan posting ulang yang tersimpan permanen, diterapkan optimistis dan
   dibatalkan sendiri bila server menolak
-- Hapus komentar sendiri, beserta seluruh balasannya
+- Hapus komentar sendiri
 - Komentar baru dari orang lain muncul sendiri lewat Supabase Realtime
 - Waktu relatif (`9m`, `5j`, `3h`) yang menyegarkan sendiri tiap menit
 - **Simpan komentar** untuk dibaca lagi; daftarnya pribadi dan tidak terlihat
   siapa pun, dijaga kebijakan RLS, bukan hanya disembunyikan di antarmuka
-- **Tautan tetap** `/komentar/[id]`: satu komentar beserta rantai yang dibalasnya
-  dan balasan yang sudah masuk, dengan judul dan deskripsi halaman mengikuti
-  isinya sehingga tautannya sudah bercerita sebelum dibuka
+- **Tautan tetap** `/komentar/[id]`: satu komentar di halamannya sendiri, dengan
+  judul dan deskripsi halaman mengikuti isinya sehingga tautannya sudah bercerita
+  sebelum dibuka
 - **Tagar dan sebutan bisa ditekan**: `#tagar` menyaring beranda ke komentar
   yang memuatnya — kepingan saringan di atas daftar menyebutkannya dan
   melepaskannya — sedangkan `@handle` membuka profil orang itu
+
+**Jam emas**
+
+- **Kapan menulis** supaya komentar terbaca paling banyak orang, mengikuti
+  kebiasaan audiens X/Twitter Indonesia: pagi 07.00–10.00 (terkuat 08.00–09.30),
+  siang 12.00–14.00, dan sore–malam 19.00–21.30 — puncak yang paling stabil dan
+  paling lama
+- **Potensi viral 0–100** untuk saat ini juga, lengkap dengan tingkatnya
+  (Puncak, Tinggi, Cukup bagus, Sedang, Sepi) dan satu kalimat saran: kirim
+  sekarang, atau tunggu jendela berikutnya
+- **Kurva 24 jam** hari ini, satu batang tiap jam, dengan jam yang sedang
+  berjalan ditandai
+- **Kekuatan tiap hari**: Selasa–Kamis paling kuat, Sabtu dan Minggu paling
+  lemah — terutama paginya, titik terendah sepanjang pekan
+- Semuanya dihitung dalam **WIB (UTC+7)**, bukan jam perangkat: yang menentukan
+  adalah kapan audiensnya membuka linimasa, bukan di zona mana penulisnya duduk
+- Tampil sebagai kartu di panel kanan pada layar lebar, dan sebagai satu baris
+  ringkas tepat di atas kotak tulis di ponsel
 
 **Ikuti, notifikasi, dan tren**
 
@@ -65,7 +83,7 @@ lewat pengalih di navigasi.
   berganti "Berhenti mengikuti" saat kursor menyentuhnya
 - Profil orang lain dibuka dengan menekan nama, foto, atau sebutan `@handle` di
   mana pun ia muncul
-- **Notifikasi** untuk suka, posting ulang, balasan, dan pengikut baru. Barisnya
+- **Notifikasi** untuk suka, posting ulang, dan pengikut baru. Barisnya
   ditulis pemicu basis data — aplikasi tidak punya izin membuatnya — dan
   membatalkan suka atau berhenti mengikuti ikut menarik kabarnya kembali
 - Lencana angka di navigasi menyala lewat Realtime dan padam begitu daftarnya
@@ -81,7 +99,7 @@ lewat pengalih di navigasi.
   diunggah ke Supabase Storage. Berkas lama dibuang setelah baris profil
   tersimpan
 - Penyuntingan nama, bio, dan lokasi langsung di halaman
-- Tab **Komentar**, **Balasan**, **Disukai**, dan **Disimpan** yang menyaring
+- Tab **Komentar**, **Disukai**, dan **Disimpan** yang menyaring
   feed lewat kueri terpisah, bukan penyaringan di sisi peramban. Tab "Disimpan"
   hanya ada di profil sendiri
 - **Avatar bawaan DiceBear** bergaya *adventurer-neutral*, dibangkitkan dari
@@ -114,7 +132,7 @@ lewat pengalih di navigasi.
 ## Menyiapkan Supabase
 
 1. Buat proyek di [supabase.com](https://supabase.com).
-2. Buka **SQL Editor**, lalu jalankan kelima berkas di `supabase/migrations/`
+2. Buka **SQL Editor**, lalu jalankan keenam berkas di `supabase/migrations/`
    secara berurutan:
 
    - `20260807090000_awal.sql` — tabel, pemicu penghitung, kebijakan RLS, dua
@@ -128,8 +146,12 @@ lewat pengalih di navigasi.
    - `20260807210000_jejaring.sql` — tabel simpanan, tabel notifikasi beserta
      pemicunya, fungsi tren tagar, kebijakan RLS untuk keduanya, dan penyapu
      notifikasi lama
+   - `20260807230000_tanpa-balasan.sql` — pembongkaran fitur balasan: kolom
+     `parent_id` dan `reply_count`, pemicu penghitung dan pemicu notifikasinya,
+     kabar berjenis `balas`, serta kolom "balasan" pada `statistik_pengguna()`.
+     Balasan yang telanjur ada ikut terhapus
 
-   Kelimanya aman dijalankan ulang. Bila memakai Supabase CLI: `supabase db push`.
+   Keenamnya aman dijalankan ulang. Bila memakai Supabase CLI: `supabase db push`.
 3. Aktifkan **pg_cron** di **Database → Extensions** supaya komentar
    kedaluwarsa benar-benar terhapus. Migrasi mencoba memasangnya sendiri dan
    hanya memberi catatan bila tidak bisa. Lihat "Masa hidup komentar" di bawah
@@ -219,7 +241,7 @@ npm run typecheck
 app/
   layout.tsx        kerangka dokumen, metadata, bahasa awal, penetapan tema
   page.tsx          rute utama: penyiapan, gerbang masuk, atau aplikasi
-  komentar/[id]/    tautan tetap satu komentar beserta utasnya
+  komentar/[id]/    tautan tetap satu komentar
   manifest.ts       keterangan aplikasi untuk pemasangan (PWA)
   sandi-baru/       halaman penggantian kata sandi dari tautan email
   auth/callback/    penukaran kode tautan email menjadi sesi
@@ -236,12 +258,13 @@ components/
   ProfileHeader.tsx kepala profil, tombol ikuti, form penyuntingan, unggah media
   CommentCard.tsx   kartu komentar beserta aksinya
   TeksKomentar.tsx  isi komentar dengan tagar dan sebutan yang bisa ditekan
-  Utas.tsx          halaman satu komentar: induk, komentar itu, dan balasannya
-  DaftarNotifikasi.tsx daftar suka, posting ulang, balasan, dan pengikut baru
+  Utas.tsx          halaman tautan tetap satu komentar
+  JamEmas.tsx       jam emas audiens Indonesia: kartu panel kanan dan baris ringkas
+  DaftarNotifikasi.tsx daftar suka, posting ulang, dan pengikut baru
   LencanaKabar.tsx  titik merah berisi jumlah kabar yang belum dibaca
   Kabar.tsx         kabar sekilas di sudut layar: berhasil, info, dan galat
   TombolTema.tsx    pengalih tema terang/gelap dalam dua bentuk
-  Composer.tsx      kotak tulis untuk komentar dan balasan
+  Composer.tsx      kotak tulis komentar
   Avatar.tsx        foto profil bila ada, jika tidak avatar DiceBear
   PemilihBahasa.tsx pengalih Indonesia/Inggris dalam tiga bentuk
   TombolPasang.tsx  ajakan memasang aplikasi, muncul bila peramban menawarkannya
@@ -253,6 +276,7 @@ lib/
   api.ts            seluruh baca-tulis ke Supabase dan pemetaan ke tipe aplikasi
   akun.ts           akun yang sedang masuk, dibaca di server sebelum merender
   avatar.ts         avatar bawaan DiceBear yang dibangkitkan dari handle
+  jamEmas.ts        jendela jam emas WIB dan hitungan potensi jangkauannya
   kebijakan.ts      masa hidup komentar, disamakan dengan basis data
   tema.ts           tema terang/gelap: skrip pra-lukis, peralihan, warna bilah
   i18n/             daftar bahasa, kamus ID/EN, konteks React, dan teks berformat
@@ -312,9 +336,6 @@ menumpuk di basis data. Untuk menyapunya manual:
 select public.sapu_komentar_kedaluwarsa();
 ```
 
-Menghapus komentar induk ikut menghapus balasannya, termasuk balasan yang belum
-24 jam. Aturannya sama dengan penghapusan manual di aplikasi, dan karena penyapu
-berjalan tiap 10 menit, balasan yatim paling lama terlihat selama itu.
 
 ## Akun tamu
 
@@ -453,6 +474,9 @@ migrasi, `service_role` — tetap bisa mengubahnya.
 - Notifikasi 'ikut' tidak punya komentar yang membawanya pergi, jadi hanya jenis
   itu yang menumpuk; `sapu_notifikasi_lama()` dijadwalkan tiap hari bila pg_cron
   tersedia.
+- Jam emas adalah pola kebiasaan, bukan ramalan: angkanya tetap dari hari ke
+  hari (`lib/jamEmas.ts`), tidak dihitung dari data pemakaian aplikasi ini, dan
+  selalu memakai WIB berapa pun jam perangkat pembacanya.
 - Avatar bawaan memakai gaya *Adventurer Neutral* karya Lisa Wischofsky
   (CC BY 4.0) lewat DiceBear. Keterangannya ada di kaki panel kanan aplikasi.
 - Gambar tidak pernah dikirim mentah-mentah: pemangkasan dan pengecilan memakai

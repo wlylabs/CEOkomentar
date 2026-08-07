@@ -20,30 +20,25 @@ export type User = {
 export type Comment = {
   id: string;
   authorId: string;
-  /** id komentar yang dibalas, null untuk komentar utama */
-  parentId: string | null;
-  /** handle penulis komentar induk, dipakai untuk label "Membalas @…" */
-  parentHandle: string | null;
   text: string;
   /** waktu pembuatan dalam epoch ms */
   createdAt: number;
   likes: number;
   reposts: number;
-  replies: number;
   liked: boolean;
   reposted: boolean;
   /** disimpan oleh akun yang sedang masuk; simpanan tidak terlihat orang lain */
   saved: boolean;
 };
 
-export type JenisNotifikasi = "suka" | "ulang" | "balas" | "ikut";
+export type JenisNotifikasi = "suka" | "ulang" | "ikut";
 
 export type Notifikasi = {
   id: string;
   jenis: JenisNotifikasi;
   /** id pelaku; profilnya ikut dibawa dalam `pengguna` */
   aktorId: string;
-  /** komentar yang disukai/diulang atau balasannya; null untuk 'ikut' */
+  /** komentar yang disukai atau diulang; null untuk 'ikut' */
   komentarId: string | null;
   /** kutipan isi komentar, secukupnya untuk satu baris daftar */
   kutipan: string | null;
@@ -60,11 +55,10 @@ export type Tren = {
 
 export type Statistik = {
   komentar: number;
-  balasan: number;
   disukai: number;
   sukaDiterima: number;
   ulangDiterima: number;
 };
 
-export type Tab = "komentar" | "balasan" | "disukai" | "disimpan";
+export type Tab = "komentar" | "disukai" | "disimpan";
 export type View = "beranda" | "profil" | "notifikasi";

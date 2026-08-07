@@ -131,6 +131,26 @@ export function sisaWaktu(
   return teks(bahasa, "waktu.sisaJam", { nilai: Math.floor(sisa / JAM) });
 }
 
+/** "07.00" / "07:00" — jam dinding dari menit sejak tengah malam. */
+export function jamMenit(menit: number, bahasa: Bahasa) {
+  const utuh = ((Math.round(menit) % (24 * 60)) + 24 * 60) % (24 * 60);
+  const jam = String(Math.floor(utuh / 60)).padStart(2, "0");
+  const sisa = String(utuh % 60).padStart(2, "0");
+  return `${jam}${bahasa === "en" ? ":" : "."}${sisa}`;
+}
+
+/** "3j 20m" / "3h 20m"; di bawah satu jam cukup menitnya saja. */
+export function durasiSingkat(menit: number, bahasa: Bahasa) {
+  const utuh = Math.max(0, Math.round(menit));
+  const jam = Math.floor(utuh / 60);
+  const sisa = utuh % 60;
+
+  if (jam === 0) return teks(bahasa, "waktu.menit", { nilai: Math.max(1, sisa) });
+  if (sisa === 0) return teks(bahasa, "waktu.jam", { nilai: jam });
+
+  return `${teks(bahasa, "waktu.jam", { nilai: jam })} ${teks(bahasa, "waktu.menit", { nilai: sisa })}`;
+}
+
 /** Label lengkap untuk atribut title/datetime. */
 export function waktuLengkap(createdAt: number, bahasa: Bahasa) {
   const t = new Date(createdAt);
@@ -166,7 +186,7 @@ const SATUAN_RINGKAS: Record<Bahasa, [number, string][]> = {
 
 /**
  * Angka bergaya Twitter untuk seluruh penghitung sosial — suka, posting ulang,
- * balasan, pengikut: utuh sampai 9.999, di atas itu disingkat satu angka
+ * tayangan, pengikut: utuh sampai 9.999, di atas itu disingkat satu angka
  * desimal. Desimalnya dipotong, bukan dibulatkan, supaya sebuah angka tak
  * pernah tampak lebih besar dari yang sebenarnya — 1.999.999 → "1,9 jt".
  * Desimal nol ikut hilang: 10.000 → "10 rb".

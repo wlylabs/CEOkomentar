@@ -30,7 +30,7 @@ const KAMUS_ID = {
 
   /* --------------------------------------------------------------- meta */
   "meta.deskripsi":
-    "Antarmuka bergaya Twitter: komentar berumur 24 jam, profil, notifikasi, simpanan, dan tren.",
+    "Antarmuka bergaya Twitter: komentar berumur 24 jam, jam emas audiens Indonesia, profil, notifikasi, simpanan, dan tren.",
   "meta.judulSandi": "Kata sandi baru — Twitter Mini",
   "meta.judulUtas": "Komentar @{handle} — Twitter Mini",
   "meta.deskripsiUtas": "“{kutipan}” — @{handle} di Twitter Mini.",
@@ -58,7 +58,6 @@ const KAMUS_ID = {
 
   /* ----------------------------------------------------------------- tab */
   "tab.komentar": "Komentar",
-  "tab.balasan": "Balasan",
   "tab.disukai": "Disukai",
   "tab.disimpan": "Disimpan",
   "tab.saringan": "Saringan komentar",
@@ -66,9 +65,7 @@ const KAMUS_ID = {
   /* ------------------------------------------------------------ komposer */
   "komposer.bawaan": "Apa komentarmu?",
   "komposer.komentar": "Tulis komentar",
-  "komposer.balasKe": "Balas ke @{handle}",
   "komposer.kirim": "Kirim",
-  "komposer.balas": "Balas",
   "komposer.petunjuk":
     "Tekan <kbd>Ctrl</kbd> + <kbd>Enter</kbd> untuk mengirim",
   "komposer.sisa": "{sisa} karakter tersisa",
@@ -80,7 +77,6 @@ const KAMUS_ID = {
   "kosong.judul": "Belum ada yang ditampilkan",
   "kosong.cari": "Tidak ada komentar yang cocok dengan “{kueri}”.",
   "kosong.disukai": "Komentar yang kamu sukai akan muncul di sini.",
-  "kosong.balasan": "Balasan yang kamu kirim akan muncul di sini.",
   "kosong.komentar": "Komentar yang kamu tulis akan muncul di sini.",
   "kosong.disimpan": "Komentar yang kamu simpan akan muncul di sini.",
   "kosong.profilOrang": "Tidak ada komentar @{handle} dalam 24 jam terakhir.",
@@ -88,15 +84,11 @@ const KAMUS_ID = {
   "kosong.hapusCari": "Hapus pencarian",
 
   /* ------------------------------------------------------------ komentar */
-  "komentar.membalas": "Membalas",
-  "komentar.balasan": "Balasan",
-  "komentar.bukaInduk": "Buka komentar yang dibalas",
   "komentar.konfirmasiLabel": "Konfirmasi hapus",
-  "komentar.konfirmasi": "Hapus komentar ini beserta seluruh balasannya?",
+  "komentar.konfirmasi": "Hapus komentar ini?",
   "komentar.konfirmasiAdmin":
-    "Hapus komentar @{handle} beserta seluruh balasannya? Kamu melakukannya sebagai admin.",
+    "Hapus komentar @{handle}? Kamu melakukannya sebagai admin.",
   "komentar.terhapusPada": "Terhapus otomatis pada {waktu}",
-  "aksi.balas": "Balas",
   "aksi.ulang": "Posting ulang",
   "aksi.batalUlang": "Batalkan posting ulang",
   "aksi.suka": "Suka",
@@ -114,28 +106,69 @@ const KAMUS_ID = {
 
   /* ----------------------------------------------------------------- utas */
   "utas.judul": "Komentar",
-  "utas.kosong": "Belum ada balasan. Jadilah yang pertama.",
-  "utas.memuat": "Memuat utas…",
+  "utas.memuat": "Memuat komentar…",
   "utas.takAdaJudul": "Komentar tidak ditemukan",
   "utas.takAdaTeks":
     "Komentar ini sudah dihapus atau umurnya sudah lewat {jam} jam.",
   "utas.keBeranda": "Ke beranda",
 
   /* ----------------------------------------------------------- notifikasi */
-  "notif.sub": "Suka, posting ulang, balasan, dan pengikut baru.",
+  "notif.sub": "Suka, posting ulang, dan pengikut baru.",
   "notif.suka": "menyukai komentarmu",
   "notif.ulang": "memposting ulang komentarmu",
-  "notif.balas": "membalas komentarmu",
   "notif.ikut": "mulai mengikutimu",
   "notif.belumDibaca": "{jumlah} kabar belum dibaca",
   "notif.kosongJudul": "Belum ada kabar",
   "notif.kosongTeks":
-    "Begitu ada yang menyukai, membalas, atau mengikutimu, kabarnya muncul di sini.",
+    "Begitu ada yang menyukai, memposting ulang, atau mengikutimu, kabarnya muncul di sini.",
 
   /* ----------------------------------------------------------------- tren */
   "tren.judul": "Sedang ramai",
   "tren.jumlah": "{komentar} komentar · {penulis} orang",
   "tren.masa": "Dihitung dari 24 jam terakhir.",
+
+  /* ------------------------------------------------------------ jam emas */
+  "jam.judul": "Jam emas",
+  "jam.potensi": "Potensi viral",
+  "jam.dari": "dari 100",
+  "jam.tingkat.puncak": "Puncak",
+  "jam.tingkat.tinggi": "Tinggi",
+  "jam.tingkat.bagus": "Cukup bagus",
+  "jam.tingkat.sedang": "Sedang",
+  "jam.tingkat.sepi": "Sepi",
+  "jam.jendela.pagi": "Pagi",
+  "jam.jendela.siang": "Siang",
+  "jam.jendela.malam": "Sore–Malam",
+  "jam.catatan.pagi": "Puncak tinggi, terkuat {inti}",
+  "jam.catatan.siang": "Cukup bagus, jeda makan siang",
+  "jam.catatan.malam": "Puncak paling stabil dan paling lama",
+  "jam.berlangsung": "Jam emas {jendela} sedang berlangsung",
+  "jam.inti": "Sedang di bagian terkuatnya",
+  "jam.sisa": "Berakhir {waktu} · {sisa} lagi",
+  "jam.berikut": "Berikutnya {jendela} pukul {waktu}",
+  "jam.berikutBesok": "Berikutnya {jendela} pukul {waktu} besok",
+  "jam.jarak": "{sisa} lagi",
+  "jam.ringkas.kini": "{jendela} sampai {waktu}, {sisa} lagi",
+  "jam.ringkas.nanti": "{jendela} mulai {waktu}, {sisa} lagi",
+  "jam.saran.kirim": "Waktu terbaik untuk mengirim komentar.",
+  "jam.saran.layak": "Layak dikirim, tapi yang terbaik simpan untuk jam puncak.",
+  "jam.saran.tunda": "Tunda dulu kalau bisa — {jendela} jauh lebih ramai.",
+  "jam.hariTerbaik": "Hari terbaik: Selasa–Kamis",
+  "jam.hari.terbaik": "Hari ini termasuk hari terkuat.",
+  "jam.hari.biasa": "Hari ini sedang-sedang saja.",
+  "jam.hari.lemah": "Akhir pekan — jangkauannya cenderung turun, apalagi pagi.",
+  "jam.kurva": "Potensi tiap jam sepanjang hari ini, waktu WIB",
+  "jam.kurvaJam": "Pukul {waktu} · potensi {skor} dari 100",
+  "jam.hariLabel": "Kekuatan tiap hari dalam sepekan",
+  "jam.hariIniLabel": "hari ini",
+  "jam.zona": "Waktu WIB (UTC+7), mengikuti kebiasaan audiens X Indonesia.",
+  "hari.0": "Min",
+  "hari.1": "Sen",
+  "hari.2": "Sel",
+  "hari.3": "Rab",
+  "hari.4": "Kam",
+  "hari.5": "Jum",
+  "hari.6": "Sab",
 
   /* -------------------------------------------------------------- pasang */
   "pasang.judul": "Pasang aplikasinya",
@@ -147,7 +180,6 @@ const KAMUS_ID = {
   "rel.label": "Panel samping",
   "rel.ringkasan": "Ringkasan aktivitas",
   "rel.komentar": "Komentar",
-  "rel.balasan": "Balasan",
   "rel.disukai": "Disukai",
   "rel.sukaDiterima": "Suka diterima",
   "rel.ulangDiterima": "Posting ulang diterima",
@@ -198,7 +230,6 @@ const KAMUS_ID = {
 
   /* --------------------------------------------------------------- pesan */
   "pesan.komentarTerkirim": "Komentar terkirim",
-  "pesan.balasanTerkirim": "Balasan terkirim",
   "pesan.komentarDihapus": "Komentar dihapus",
   "pesan.komentarDisimpan": "Komentar disimpan",
   "pesan.simpananDibuang": "Dihapus dari simpanan",
@@ -237,7 +268,7 @@ const KAMUS_ID = {
   "gerbang.judulLupa": "Atur ulang kata sandi",
   "gerbang.subLupa":
     "Masukkan email akunmu. Kami kirimkan tautan untuk membuat kata sandi baru.",
-  "gerbang.sub": "Komentar, balasan, dan profilmu tersimpan di akun ini.",
+  "gerbang.sub": "Komentar dan profilmu tersimpan di akun ini.",
   "gerbang.nama": "Nama tampilan",
   "gerbang.handle": "Handle",
   "gerbang.email": "Email",
@@ -347,7 +378,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
 
   /* --------------------------------------------------------------- meta */
   "meta.deskripsi":
-    "A Twitter-style interface: comments that live 24 hours, profiles, notifications, saved posts, and trends.",
+    "A Twitter-style interface: comments that live 24 hours, golden hours for the Indonesian audience, profiles, notifications, saved posts, and trends.",
   "meta.judulSandi": "New password — Twitter Mini",
   "meta.judulUtas": "@{handle}'s comment — Twitter Mini",
   "meta.deskripsiUtas": "“{kutipan}” — @{handle} on Twitter Mini.",
@@ -375,7 +406,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
 
   /* ----------------------------------------------------------------- tab */
   "tab.komentar": "Comments",
-  "tab.balasan": "Replies",
   "tab.disukai": "Likes",
   "tab.disimpan": "Saved",
   "tab.saringan": "Comment filters",
@@ -383,9 +413,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   /* ------------------------------------------------------------ komposer */
   "komposer.bawaan": "What's your comment?",
   "komposer.komentar": "Write a comment",
-  "komposer.balasKe": "Reply to @{handle}",
   "komposer.kirim": "Post",
-  "komposer.balas": "Reply",
   "komposer.petunjuk": "Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to post",
   "komposer.sisa": "{sisa} characters left",
 
@@ -396,7 +424,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "kosong.judul": "Nothing to show yet",
   "kosong.cari": "No comments match “{kueri}”.",
   "kosong.disukai": "Comments you like will show up here.",
-  "kosong.balasan": "Replies you post will show up here.",
   "kosong.komentar": "Comments you write will show up here.",
   "kosong.disimpan": "Comments you save will show up here.",
   "kosong.profilOrang": "Nothing from @{handle} in the last 24 hours.",
@@ -404,15 +431,11 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "kosong.hapusCari": "Clear the search",
 
   /* ------------------------------------------------------------ komentar */
-  "komentar.membalas": "Replying to",
-  "komentar.balasan": "Reply",
-  "komentar.bukaInduk": "Open the comment being replied to",
   "komentar.konfirmasiLabel": "Confirm deletion",
-  "komentar.konfirmasi": "Delete this comment and all of its replies?",
+  "komentar.konfirmasi": "Delete this comment?",
   "komentar.konfirmasiAdmin":
-    "Delete @{handle}'s comment and all of its replies? You are doing this as an admin.",
+    "Delete @{handle}'s comment? You are doing this as an admin.",
   "komentar.terhapusPada": "Deleted automatically at {waktu}",
-  "aksi.balas": "Reply",
   "aksi.ulang": "Repost",
   "aksi.batalUlang": "Undo repost",
   "aksi.suka": "Like",
@@ -429,28 +452,69 @@ const KAMUS_EN: Record<KunciTeks, string> = {
 
   /* ----------------------------------------------------------------- utas */
   "utas.judul": "Comment",
-  "utas.kosong": "No replies yet. Be the first.",
-  "utas.memuat": "Loading the thread…",
+  "utas.memuat": "Loading the comment…",
   "utas.takAdaJudul": "Comment not found",
   "utas.takAdaTeks":
     "This comment was deleted or is already older than {jam} hours.",
   "utas.keBeranda": "Go home",
 
   /* ----------------------------------------------------------- notifikasi */
-  "notif.sub": "Likes, reposts, replies, and new followers.",
+  "notif.sub": "Likes, reposts, and new followers.",
   "notif.suka": "liked your comment",
   "notif.ulang": "reposted your comment",
-  "notif.balas": "replied to your comment",
   "notif.ikut": "started following you",
   "notif.belumDibaca": "{jumlah} unread notifications",
   "notif.kosongJudul": "Nothing here yet",
   "notif.kosongTeks":
-    "The moment someone likes, replies to, or follows you, it shows up here.",
+    "The moment someone likes, reposts, or follows you, it shows up here.",
 
   /* ----------------------------------------------------------------- tren */
   "tren.judul": "Trending",
   "tren.jumlah": "{komentar} comments · {penulis} people",
   "tren.masa": "Counted over the last 24 hours.",
+
+  /* ------------------------------------------------------------ jam emas */
+  "jam.judul": "Golden hours",
+  "jam.potensi": "Viral potential",
+  "jam.dari": "out of 100",
+  "jam.tingkat.puncak": "Peak",
+  "jam.tingkat.tinggi": "High",
+  "jam.tingkat.bagus": "Decent",
+  "jam.tingkat.sedang": "Moderate",
+  "jam.tingkat.sepi": "Quiet",
+  "jam.jendela.pagi": "Morning",
+  "jam.jendela.siang": "Midday",
+  "jam.jendela.malam": "Evening",
+  "jam.catatan.pagi": "High peak, strongest {inti}",
+  "jam.catatan.siang": "Decent — the lunch break",
+  "jam.catatan.malam": "The steadiest and longest peak",
+  "jam.berlangsung": "{jendela} golden hours are running",
+  "jam.inti": "Right in the strongest stretch",
+  "jam.sisa": "Ends at {waktu} · {sisa} left",
+  "jam.berikut": "Next: {jendela} at {waktu}",
+  "jam.berikutBesok": "Next: {jendela} at {waktu} tomorrow",
+  "jam.jarak": "in {sisa}",
+  "jam.ringkas.kini": "{jendela} until {waktu}, {sisa} left",
+  "jam.ringkas.nanti": "{jendela} from {waktu}, in {sisa}",
+  "jam.saran.kirim": "The best moment to post a comment.",
+  "jam.saran.layak": "Worth posting, but save your best for a peak.",
+  "jam.saran.tunda": "Hold it if you can — {jendela} is far busier.",
+  "jam.hariTerbaik": "Best days: Tuesday–Thursday",
+  "jam.hari.terbaik": "Today is one of the strongest days.",
+  "jam.hari.biasa": "Today is an average day.",
+  "jam.hari.lemah": "Weekend — reach tends to drop, mornings most of all.",
+  "jam.kurva": "Hour-by-hour potential for today, Jakarta time",
+  "jam.kurvaJam": "{waktu} · potential {skor} out of 100",
+  "jam.hariLabel": "How strong each day of the week is",
+  "jam.hariIniLabel": "today",
+  "jam.zona": "Jakarta time (UTC+7), following Indonesian X audience habits.",
+  "hari.0": "Sun",
+  "hari.1": "Mon",
+  "hari.2": "Tue",
+  "hari.3": "Wed",
+  "hari.4": "Thu",
+  "hari.5": "Fri",
+  "hari.6": "Sat",
 
   /* -------------------------------------------------------------- pasang */
   "pasang.judul": "Install the app",
@@ -462,7 +526,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "rel.label": "Side panel",
   "rel.ringkasan": "Activity summary",
   "rel.komentar": "Comments",
-  "rel.balasan": "Replies",
   "rel.disukai": "Likes",
   "rel.sukaDiterima": "Likes received",
   "rel.ulangDiterima": "Reposts received",
@@ -513,7 +576,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
 
   /* --------------------------------------------------------------- pesan */
   "pesan.komentarTerkirim": "Comment posted",
-  "pesan.balasanTerkirim": "Reply posted",
   "pesan.komentarDihapus": "Comment deleted",
   "pesan.komentarDisimpan": "Comment saved",
   "pesan.simpananDibuang": "Removed from saved",
@@ -552,7 +614,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "gerbang.judulLupa": "Reset your password",
   "gerbang.subLupa":
     "Enter your account email. We will send you a link to set a new password.",
-  "gerbang.sub": "Your comments, replies, and profile live in this account.",
+  "gerbang.sub": "Your comments and profile live in this account.",
   "gerbang.nama": "Display name",
   "gerbang.handle": "Handle",
   "gerbang.email": "Email",

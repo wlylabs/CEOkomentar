@@ -28,7 +28,7 @@ export const KOLOM_PROFIL =
   "id, handle, name, bio, location, avatar_url, banner_url, verified, is_admin, following_count, followers_count, created_at, updated_at";
 
 const KOLOM_KOMENTAR =
-  "id, author_id, parent_id, body, created_at, like_count, repost_count, reply_count";
+  "id, author_id, body, created_at, like_count, repost_count";
 
 type BarisFeed = BarisKomentar & { author: BarisProfil | null };
 
@@ -61,13 +61,10 @@ function keComment(baris: BarisKomentar): Comment {
   return {
     id: baris.id,
     authorId: baris.author_id,
-    parentId: baris.parent_id,
-    parentHandle: null,
     text: baris.body,
     createdAt: new Date(baris.created_at).getTime(),
     likes: baris.like_count,
     reposts: baris.repost_count,
-    replies: baris.reply_count,
     liked: false,
     reposted: false,
     saved: false,
@@ -200,20 +197,7 @@ export async function ambilFeed(
       .order("created_at", { ascending: false })
       .limit(batas);
 
-    if (diProfil) {
-      kueri = kueri.eq("author_id", pemilik);
-      kueri =
-        opsi.tab === "balasan"
-          ? kueri.not("parent_id", "is", null)
-          : kueri.is("parent_id", null);
-    } else if (!cari) {
-      /* Beranda hanya memuat komentar utama. Balasan hidup di dalam utasnya
-         sendiri, terbuka setelah komentar yang dibalasnya ditekan — satu
-         percakapan dibaca utuh di satu tempat, bukan berserak di linimasa.
-         Pencarian dikecualikan: kalimat yang dicari orang bisa saja ada di
-         sebuah balasan, dan menyembunyikannya berarti menghilangkannya. */
-      kueri = kueri.is("parent_id", null);
-    }
+    if (diProfil) kueri = kueri.eq("author_id", pemilik);
 
     if (opsi.kursor) kueri = kueri.lt("created_at", opsi.kursor);
     if (saringPencarian) kueri = kueri.or(saringPencarian);
@@ -232,7 +216,6 @@ export async function ambilFeed(
     if (b.author) pengguna[b.author.id] = keUser(b.author);
   }
 
-  await lengkapiKonteks(sb, komentar, pengguna);
   await tandaiInteraksi(sb, komentar, opsi.akunId);
 
   return {
@@ -241,44 +224,6 @@ export async function ambilFeed(
     kursor: kursorBerikut,
     habis: kursorBerikut === null,
   };
-}
-
-/** Mengisi handle penulis komentar induk untuk label "Membalas @…". */
-async function lengkapiKonteks(
-  sb: KlienSupabase,
-  komentar: Comment[],
-  pengguna: Record<string, User>,
-) {
-  const idInduk = [
-    ...new Set(komentar.map((k) => k.parentId).filter((id): id is string => !!id)),
-  ];
-  if (idInduk.length === 0) return;
-
-  const { data: induk } = await sb
-    .from("comments")
-    .select("id, author_id")
-    .in("id", idInduk);
-  if (!induk?.length) return;
-
-  const penulisInduk = new Map(induk.map((b) => [b.id, b.author_id]));
-  const belumDikenal = [
-    ...new Set(induk.map((b) => b.author_id).filter((id) => !pengguna[id])),
-  ];
-
-  if (belumDikenal.length > 0) {
-    const { data: profil } = await sb
-      .from("profiles")
-      .select(KOLOM_PROFIL)
-      .in("id", belumDikenal)
-      .returns<BarisProfil[]>();
-    for (const b of profil ?? []) pengguna[b.id] = keUser(b);
-  }
-
-  for (const k of komentar) {
-    if (!k.parentId) continue;
-    const idPenulis = penulisInduk.get(k.parentId);
-    k.parentHandle = idPenulis ? (pengguna[idPenulis]?.handle ?? null) : null;
-  }
 }
 
 /** Menandai komentar mana yang sudah disukai, diulang, atau disimpan akun ini. */
@@ -325,7 +270,6 @@ export async function ambilKomentar(
   const pengguna: Record<string, User> = {};
   if (data.author) pengguna[data.author.id] = keUser(data.author);
 
-  await lengkapiKonteks(sb, [komentar], pengguna);
   await tandaiInteraksi(sb, [komentar], akunId);
 
   return { komentar, pengguna };
@@ -376,7 +320,6 @@ export async function ambilStatistik(
     .returns<
       {
         komentar: number;
-        balasan: number;
         disukai: number;
         suka_diterima: number;
         ulang_diterima: number;
@@ -388,85 +331,9 @@ export async function ambilStatistik(
 
   return {
     komentar: Number(baris?.komentar ?? 0),
-    balasan: Number(baris?.balasan ?? 0),
     disukai: Number(baris?.disukai ?? 0),
     sukaDiterima: Number(baris?.suka_diterima ?? 0),
     ulangDiterima: Number(baris?.ulang_diterima ?? 0),
-  };
-}
-
-export type Utas = {
-  /** rantai komentar di atasnya, urut dari yang paling awal */
-  induk: Comment[];
-  komentar: Comment;
-  balasan: Comment[];
-  pengguna: Record<string, User>;
-};
-
-/** Sedalam apa rantai "Membalas @…" ditelusuri ke atas di halaman utas. */
-const DALAM_UTAS = 4;
-const BATAS_BALASAN = 50;
-
-/**
- * Satu komentar beserta konteksnya untuk halaman tautan tetap: rantai komentar
- * yang dibalasnya dan balasan yang sudah masuk. Mengembalikan null bila
- * komentarnya tidak ada — termasuk ketika umurnya sudah lewat 24 jam, karena
- * kebijakan RLS menyembunyikannya sama seperti dari feed.
- */
-export async function ambilUtas(
-  sb: KlienSupabase,
-  id: string,
-  akunId: string,
-): Promise<Utas | null> {
-  const pilih = `${KOLOM_KOMENTAR}, author:profiles!comments_author_id_fkey ( ${KOLOM_PROFIL} )`;
-
-  const { data: pusat, error } = await sb
-    .from("comments")
-    .select(pilih)
-    .eq("id", id)
-    .maybeSingle<BarisFeed>();
-
-  if (error) throw error;
-  if (!pusat) return null;
-
-  const induk: BarisFeed[] = [];
-  let indukBerikut = pusat.parent_id;
-  while (indukBerikut && induk.length < DALAM_UTAS) {
-    const { data } = await sb
-      .from("comments")
-      .select(pilih)
-      .eq("id", indukBerikut)
-      .maybeSingle<BarisFeed>();
-    if (!data) break;
-    induk.unshift(data);
-    indukBerikut = data.parent_id;
-  }
-
-  /* Balasan urut naik: percakapan dibaca dari atas ke bawah, tidak seperti
-     beranda yang selalu menaruh yang terbaru di puncak. */
-  const { data: balasan } = await sb
-    .from("comments")
-    .select(pilih)
-    .eq("parent_id", id)
-    .order("created_at", { ascending: true })
-    .limit(BATAS_BALASAN)
-    .returns<BarisFeed[]>();
-
-  const baris = [...induk, pusat, ...(balasan ?? [])];
-  const komentar = baris.map(keComment);
-  const pengguna: Record<string, User> = {};
-  for (const b of baris) {
-    if (b.author) pengguna[b.author.id] = keUser(b.author);
-  }
-
-  await lengkapiKonteks(sb, komentar, pengguna);
-  await tandaiInteraksi(sb, komentar, akunId);
-
-  return {
-    induk: komentar.slice(0, induk.length),
-    komentar: komentar[induk.length],
-    balasan: komentar.slice(induk.length + 1),
-    pengguna,
   };
 }
 
@@ -597,11 +464,10 @@ export async function kirimKomentar(
   sb: KlienSupabase,
   akunId: string,
   teks: string,
-  parentId: string | null,
 ): Promise<Comment> {
   const { data, error } = await sb
     .from("comments")
-    .insert({ author_id: akunId, body: teks, parent_id: parentId })
+    .insert({ author_id: akunId, body: teks })
     .select(KOLOM_KOMENTAR)
     .single<BarisKomentar>();
 

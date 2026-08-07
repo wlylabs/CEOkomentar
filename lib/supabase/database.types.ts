@@ -23,12 +23,10 @@ export type BarisProfil = {
 export type BarisKomentar = {
   id: string;
   author_id: string;
-  parent_id: string | null;
   body: string;
   created_at: string;
   like_count: number;
   repost_count: number;
-  reply_count: number;
 };
 
 type BarisTanda = {
@@ -37,7 +35,7 @@ type BarisTanda = {
   created_at: string;
 };
 
-export type JenisNotifikasi = "suka" | "ulang" | "balas" | "ikut";
+export type JenisNotifikasi = "suka" | "ulang" | "ikut";
 
 export type BarisNotifikasi = {
   id: string;
@@ -122,7 +120,6 @@ export type Database = {
         Args: { pengguna: string };
         Returns: {
           komentar: number;
-          balasan: number;
           disukai: number;
           suka_diterima: number;
           ulang_diterima: number;

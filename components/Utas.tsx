@@ -1,73 +1,53 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Brand from "./Brand";
 import CommentCard from "./CommentCard";
-import Composer from "./Composer";
 import Kabar, { type IsiKabar, type JenisKabar } from "./Kabar";
 import { IkonKembali } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import { klienPeramban } from "@/lib/supabase/client";
 import {
-  ambilUtas,
+  ambilKomentar,
   hapusKomentar,
-  kirimKomentar,
   setSimpan,
   setSuka,
   setUlang,
-  type Utas as IsiUtas,
 } from "@/lib/api";
 import { MASA_KOMENTAR_JAM } from "@/lib/kebijakan";
 import type { Comment, User } from "@/lib/types";
 
+type Isi = { komentar: Comment; pengguna: Record<string, User> };
+
 /**
- * Halaman satu komentar: rantai yang dibalasnya di atas, komentarnya sendiri di
- * tengah, balasannya di bawah.
+ * Halaman satu komentar.
  *
  * Berdiri sendiri di rutenya sendiri supaya tautan komentar bisa dibagikan dan
- * dibuka langsung. Menekan nama atau tagar di sini kembali ke aplikasi utama
- * lewat query string, jadi tidak ada layar profil kedua yang perlu dirawat.
- *
- * Sejak beranda hanya memuat komentar utama, halaman inilah satu-satunya tempat
- * balasan terbaca — dan tempat balasan ditulis.
+ * dibuka langsung — itu pula yang dituju kabar suka dan posting ulang. Menekan
+ * nama atau tagar di sini kembali ke aplikasi utama lewat query string, jadi
+ * tidak ada layar profil kedua yang perlu dirawat.
  */
 export default function Utas({ id, akun }: { id: string; akun: User }) {
   const router = useRouter();
   const supabase = klienPeramban();
   const { t } = useBahasa();
 
-  const [utas, setUtas] = useState<IsiUtas | null>(null);
+  const [isi, setIsi] = useState<Isi | null>(null);
   const [memuat, setMemuat] = useState(true);
   const [kabar, setKabar] = useState<IsiKabar | null>(null);
-  const [balasUntuk, setBalasUntuk] = useState<string | null>(null);
   const [sekarang, setSekarang] = useState(() => Date.now());
-
-  /* Datang lewat tombol "Balas" di beranda, bukan lewat tautan biasa: komposer
-     di bawah komentar utama langsung siap diketik. Dibaca sekali saat halaman
-     dibuka, lalu penandanya dibuang dari alamat supaya menyegarkan halaman
-     tidak membuka papan ketik lagi. */
-  const [siapMembalas, setSiapMembalas] = useState(false);
-
-  useEffect(() => {
-    const alamat = new URL(window.location.href);
-    if (alamat.searchParams.get("balas") !== "1") return;
-
-    setSiapMembalas(true);
-    alamat.searchParams.delete("balas");
-    window.history.replaceState(null, "", alamat.pathname + alamat.search);
-  }, []);
 
   useEffect(() => {
     let batal = false;
     setMemuat(true);
 
-    ambilUtas(supabase, id, akun.id)
+    ambilKomentar(supabase, id, akun.id)
       .then((hasil) => {
-        if (!batal) setUtas(hasil);
+        if (!batal) setIsi(hasil);
       })
       .catch(() => {
-        if (!batal) setUtas(null);
+        if (!batal) setIsi(null);
       })
       .finally(() => {
         if (!batal) setMemuat(false);
@@ -94,208 +74,96 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
 
   const tutupKabar = useCallback(() => setKabar(null), []);
 
-  /* Satu komentar bisa berada di rantai induk, di tengah, atau di daftar
-     balasan; perubahannya diterapkan ke ketiganya sekaligus. */
-  const ubah = useCallback(
-    (idKomentar: string, ganti: (k: Comment) => Comment) => {
-      setUtas((sebelum) => {
-        if (!sebelum) return sebelum;
-        const sesuaikan = (k: Comment) => (k.id === idKomentar ? ganti(k) : k);
-        return {
-          ...sebelum,
-          induk: sebelum.induk.map(sesuaikan),
-          komentar: sesuaikan(sebelum.komentar),
-          balasan: sebelum.balasan.map(sesuaikan),
-        };
-      });
-    },
-    [],
-  );
+  const ubah = useCallback((ganti: (k: Comment) => Comment) => {
+    setIsi((sebelum) =>
+      sebelum ? { ...sebelum, komentar: ganti(sebelum.komentar) } : sebelum,
+    );
+  }, []);
 
-  const semua = useMemo(
-    () => (utas ? [...utas.induk, utas.komentar, ...utas.balasan] : []),
-    [utas],
-  );
-
-  function cari(idKomentar: string) {
-    return semua.find((k) => k.id === idKomentar);
-  }
-
-  async function alihkanSuka(idKomentar: string) {
-    const sebelumnya = cari(idKomentar);
+  async function alihkanSuka() {
+    const sebelumnya = isi?.komentar;
     if (!sebelumnya) return;
     const suka = !sebelumnya.liked;
 
-    ubah(idKomentar, (k) => ({
+    ubah((k) => ({
       ...k,
       liked: suka,
       likes: Math.max(0, k.likes + (suka ? 1 : -1)),
     }));
 
     try {
-      await setSuka(supabase, idKomentar, akun.id, suka);
+      await setSuka(supabase, sebelumnya.id, akun.id, suka);
     } catch {
-      ubah(idKomentar, () => sebelumnya);
+      ubah(() => sebelumnya);
       beriKabar(t("galat.suka"), "galat");
     }
   }
 
-  async function alihkanUlang(idKomentar: string) {
-    const sebelumnya = cari(idKomentar);
+  async function alihkanUlang() {
+    const sebelumnya = isi?.komentar;
     if (!sebelumnya) return;
     const ulang = !sebelumnya.reposted;
 
-    ubah(idKomentar, (k) => ({
+    ubah((k) => ({
       ...k,
       reposted: ulang,
       reposts: Math.max(0, k.reposts + (ulang ? 1 : -1)),
     }));
 
     try {
-      await setUlang(supabase, idKomentar, akun.id, ulang);
+      await setUlang(supabase, sebelumnya.id, akun.id, ulang);
     } catch {
-      ubah(idKomentar, () => sebelumnya);
+      ubah(() => sebelumnya);
       beriKabar(t("galat.ulang"), "galat");
     }
   }
 
-  async function alihkanSimpan(idKomentar: string) {
-    const sebelumnya = cari(idKomentar);
+  async function alihkanSimpan() {
+    const sebelumnya = isi?.komentar;
     if (!sebelumnya) return;
     const simpan = !sebelumnya.saved;
 
-    ubah(idKomentar, (k) => ({ ...k, saved: simpan }));
+    ubah((k) => ({ ...k, saved: simpan }));
 
     try {
-      await setSimpan(supabase, idKomentar, akun.id, simpan);
+      await setSimpan(supabase, sebelumnya.id, akun.id, simpan);
       beriKabar(
         t(simpan ? "pesan.komentarDisimpan" : "pesan.simpananDibuang"),
         "berhasil",
       );
     } catch {
-      ubah(idKomentar, () => sebelumnya);
+      ubah(() => sebelumnya);
       beriKabar(t("galat.simpan"), "galat");
     }
   }
 
-  async function balas(teks: string, parentId: string) {
+  /* Menghapus komentar yang jadi pusat halaman berarti halamannya tidak punya
+     isi lagi, jadi jalannya pulang ke beranda. */
+  async function hapus() {
+    if (!isi) return;
+
     try {
-      const baru = await kirimKomentar(supabase, akun.id, teks, parentId);
-      const induk = cari(parentId);
-      baru.parentHandle = induk
-        ? (utas?.pengguna[induk.authorId]?.handle ?? akun.handle)
-        : null;
-
-      ubah(parentId, (k) => ({ ...k, replies: k.replies + 1 }));
-      /* Balasan untuk komentar utama langsung menyusul di bawahnya; balasan
-         untuk komentar lain hidup di utasnya sendiri. */
-      if (parentId === utas?.komentar.id) {
-        setUtas((sebelum) =>
-          sebelum ? { ...sebelum, balasan: [...sebelum.balasan, baru] } : sebelum,
-        );
-      }
-
-      setBalasUntuk(null);
-      beriKabar(t("pesan.balasanTerkirim"), "berhasil");
-    } catch {
-      beriKabar(t("galat.kirimKomentar"), "galat");
-    }
-  }
-
-  async function hapus(idKomentar: string) {
-    try {
-      await hapusKomentar(supabase, idKomentar);
-
-      /* Menghapus komentar yang jadi pusat halaman berarti halamannya tidak
-         punya isi lagi. */
-      if (idKomentar === utas?.komentar.id) {
-        router.push("/");
-        return;
-      }
-
-      setUtas((sebelum) =>
-        sebelum
-          ? {
-              ...sebelum,
-              balasan: sebelum.balasan.filter((k) => k.id !== idKomentar),
-              komentar: {
-                ...sebelum.komentar,
-                replies: Math.max(0, sebelum.komentar.replies - 1),
-              },
-            }
-          : sebelum,
-      );
-      beriKabar(t("pesan.komentarDihapus"), "berhasil");
+      await hapusKomentar(supabase, isi.komentar.id);
+      router.push("/");
     } catch {
       beriKabar(t("galat.hapusKomentar"), "galat");
     }
   }
 
-  async function salinTautan(idKomentar: string) {
+  async function salinTautan() {
     try {
-      await navigator.clipboard.writeText(
-        `${window.location.origin}/komentar/${idKomentar}`,
-      );
+      await navigator.clipboard.writeText(window.location.href);
       beriKabar(t("pesan.tautanDisalin"), "berhasil");
     } catch {
       beriKabar(t("pesan.papanKlipDitolak"), "galat");
     }
   }
 
-  /* Induk yang sudah ada di halaman ini cukup digulir ke tempatnya; yang tidak
-     ikut termuat — rantainya lebih panjang dari yang ditelusuri — dibuka di
-     halamannya sendiri. */
-  function bukaInduk(indukId: string) {
-    const dihalaman = semua.some((k) => k.id === indukId);
-    if (!dihalaman) {
-      router.push(`/komentar/${indukId}`);
-      return;
-    }
-    document
-      .getElementById(indukId)
-      ?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
-  function kartu(komentar: Comment, konteksJelas: boolean, sorot = false) {
-    const penulis =
-      komentar.authorId === akun.id
-        ? akun
-        : utas?.pengguna[komentar.authorId];
-    if (!penulis) return null;
-
-    return (
-      <div className="daftar-butir" id={komentar.id} key={komentar.id}>
-        <CommentCard
-          komentar={komentar}
-          penulis={penulis}
-          akunSaya={akun}
-          sekarang={sekarang}
-          konteksJelas={konteksJelas}
-          sorot={sorot}
-          balasTerbuka={balasUntuk === komentar.id}
-          onSuka={() => alihkanSuka(komentar.id)}
-          onUlang={() => alihkanUlang(komentar.id)}
-          onSimpan={() => alihkanSimpan(komentar.id)}
-          onBukaBalas={() =>
-            setBalasUntuk(balasUntuk === komentar.id ? null : komentar.id)
-          }
-          onKirimBalasan={(teks) => balas(teks, komentar.id)}
-          onBagikan={() => salinTautan(komentar.id)}
-          onHapus={() => hapus(komentar.id)}
-          onBukaProfil={(orang) => router.push(`/?profil=${orang.handle}`)}
-          onBukaInduk={bukaInduk}
-          /* Balasan bisa punya balasannya sendiri, dan halaman ini hanya memuat
-             balasan langsung; menekan kartunya membuka percakapan di bawahnya.
-             Kartu yang sedang jadi pusat halaman tentu tidak menuju ke mana-mana. */
-          onBukaUtas={
-            sorot ? undefined : () => router.push(`/komentar/${komentar.id}`)
-          }
-          onTagar={(tagar) => router.push(`/?tagar=${encodeURIComponent(tagar)}`)}
-          onSebut={(handle) => router.push(`/?profil=${handle}`)}
-        />
-      </div>
-    );
-  }
+  const penulis = isi
+    ? isi.komentar.authorId === akun.id
+      ? akun
+      : isi.pengguna[isi.komentar.authorId]
+    : undefined;
 
   return (
     <div className="kerangka kerangka-tunggal">
@@ -317,19 +185,17 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
 
         {memuat ? (
           <div className="rangka" aria-hidden="true">
-            {[0, 1].map((i) => (
-              <div className="rangka-butir" key={i}>
-                <span className="rangka-bulat" />
-                <span className="rangka-baris">
-                  <span className="rangka-garis rangka-garis-pendek" />
-                  <span className="rangka-garis" />
-                  <span className="rangka-garis rangka-garis-sedang" />
-                </span>
-              </div>
-            ))}
+            <div className="rangka-butir">
+              <span className="rangka-bulat" />
+              <span className="rangka-baris">
+                <span className="rangka-garis rangka-garis-pendek" />
+                <span className="rangka-garis" />
+                <span className="rangka-garis rangka-garis-sedang" />
+              </span>
+            </div>
             <span className="sr-only">{t("utas.memuat")}</span>
           </div>
-        ) : !utas ? (
+        ) : !isi || !penulis ? (
           <div className="kosong">
             <h1 className="kosong-judul">{t("utas.takAdaJudul")}</h1>
             <p className="kosong-teks">
@@ -345,32 +211,22 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
           </div>
         ) : (
           <section className="daftar" aria-label={t("utas.judul")}>
-            {/* Di rantai induk tiap kartu membalas kartu tepat di atasnya, jadi
-                "Membalas @siapa" cukup disebut sekali di kartu paling awal —
-                itu pun hanya bila rantainya masih berlanjut ke atas. */}
-            {utas.induk.map((k, i) => kartu(k, i > 0))}
-            {kartu(utas.komentar, utas.induk.length > 0, true)}
-
-            <div className="komposer-utama">
-              <Composer
-                pengguna={akun}
-                placeholder={t("komposer.balasKe", {
-                  handle: utas.pengguna[utas.komentar.authorId]?.handle ?? "",
-                })}
-                labelTombol={t("komposer.balas")}
-                fokusOtomatis={siapMembalas}
-                onKirim={(teks) => balas(teks, utas.komentar.id)}
+            <div className="daftar-butir">
+              <CommentCard
+                komentar={isi.komentar}
+                penulis={penulis}
+                akunSaya={akun}
+                sekarang={sekarang}
+                onSuka={alihkanSuka}
+                onUlang={alihkanUlang}
+                onSimpan={alihkanSimpan}
+                onBagikan={salinTautan}
+                onHapus={hapus}
+                onBukaProfil={(orang) => router.push(`/?profil=${orang.handle}`)}
+                onTagar={(tagar) => router.push(`/?tagar=${encodeURIComponent(tagar)}`)}
+                onSebut={(handle) => router.push(`/?profil=${handle}`)}
               />
             </div>
-
-            {utas.balasan.length === 0 ? (
-              <p className="utas-kosong">{t("utas.kosong")}</p>
-            ) : (
-              /* Tanpa judul "Balasan" di atasnya: semuanya membalas komentar
-                 yang barusan dibaca, dan kotak tulis tepat di atas daftar ini
-                 sudah mengatakan komentar yang mana. */
-              utas.balasan.map((k) => kartu(k, true))
-            )}
           </section>
         )}
 

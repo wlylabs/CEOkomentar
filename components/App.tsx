@@ -8,6 +8,7 @@ import Brand from "./Brand";
 import CommentCard from "./CommentCard";
 import Composer from "./Composer";
 import DaftarNotifikasi from "./DaftarNotifikasi";
+import JamEmas from "./JamEmas";
 import Kabar, { type IsiKabar, type JenisKabar } from "./Kabar";
 import ProfileHeader from "./ProfileHeader";
 import RightRail from "./RightRail";
@@ -47,7 +48,6 @@ import {
 import { jangkauanTerkumpul, type JejakKomentar } from "@/lib/jangkauan";
 import { MASA_KOMENTAR_JAM, MASA_KOMENTAR_MS } from "@/lib/kebijakan";
 import { bacaPilihan, beralihTema, temaTerpasang } from "@/lib/tema";
-import { susunUtas } from "@/lib/utas";
 import { angkaSosial } from "@/lib/time";
 import type {
   Comment,
@@ -61,14 +61,12 @@ import type {
 
 const TAB: { kunci: Tab; label: KunciTeks }[] = [
   { kunci: "komentar", label: "tab.komentar" },
-  { kunci: "balasan", label: "tab.balasan" },
   { kunci: "disukai", label: "tab.disukai" },
   { kunci: "disimpan", label: "tab.disimpan" },
 ];
 
 const STATISTIK_KOSONG: Statistik = {
   komentar: 0,
-  balasan: 0,
   disukai: 0,
   sukaDiterima: 0,
   ulangDiterima: 0,
@@ -150,9 +148,6 @@ export default function App({
   const [kueriTertunda, setKueriTertunda] = useState("");
   const [kabar, setKabar] = useState<IsiKabar | null>(null);
   const [sekarang, setSekarang] = useState(() => Date.now());
-  /* Komentar yang baru saja dituju dari sebuah balasan; sorotannya padam
-     sendiri setelah cukup lama untuk mengikuti mata ke sana. */
-  const [sorotId, setSorotId] = useState<string | null>(null);
 
   /* Profil yang sedang dibuka. Sama dengan akun sendiri sampai ada nama atau
      foto orang lain yang ditekan. */
@@ -512,15 +507,8 @@ export default function App({
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "comments" },
         async (muatan) => {
-          const baris = muatan.new as {
-            id: string;
-            author_id: string;
-            parent_id: string | null;
-          };
+          const baris = muatan.new as { id: string; author_id: string };
           if (baris.author_id === akun.id) return;
-          /* Balasan orang lain tidak menyela beranda; tempatnya di utas
-             komentar yang dibalasnya. */
-          if (baris.parent_id !== null) return;
 
           const hasil = await ambilKomentar(supabase, baris.id, akun.id);
           if (!hasil) return;
@@ -548,15 +536,9 @@ export default function App({
     setKomentar((sebelum) => sebelum.map((k) => (k.id === id ? ubah(k) : k)));
   }
 
-  /**
-   * Mengirim komentar utama.
-   *
-   * Hanya komentar utama: balasan ditulis di halaman utas, tempat komentar yang
-   * dibalas terpampang di atas komposernya, dan tidak pernah lewat sini.
-   */
   async function buatKomentar(teks: string) {
     try {
-      const baru = await kirimKomentar(supabase, akun.id, teks, null);
+      const baru = await kirimKomentar(supabase, akun.id, teks);
 
       /* Daftar yang sedang terbuka belum tentu tempatnya: tab "Disukai" dan
          hasil pencarian punya syaratnya sendiri, dan komentar baru tidak
@@ -681,17 +663,10 @@ export default function App({
 
   async function hapus(id: string) {
     const sebelumnya = komentar;
-    const sasaran = komentar.find((k) => k.id === id);
     setKomentar((daftar) => daftar.filter((k) => k.id !== id));
 
     try {
       await hapusKomentar(supabase, id);
-      if (sasaran?.parentId) {
-        ubahKomentar(sasaran.parentId, (k) => ({
-          ...k,
-          replies: Math.max(0, k.replies - 1),
-        }));
-      }
       beriKabar(t("pesan.komentarDihapus"), "berhasil");
       segarkanStatistik();
     } catch (kesalahan) {
@@ -784,44 +759,6 @@ export default function App({
     }
   }
 
-  /**
-   * Membuka satu komentar beserta seluruh balasannya di halamannya sendiri.
-   *
-   * Beranda hanya memuat komentar utama, jadi ke sinilah jalan menuju
-   * percakapannya — sekaligus jalan untuk ikut membalas. `siapMembalas`
-   * menyalakan komposer di sana begitu halamannya terbuka, supaya menekan
-   * "Balas" di beranda terasa satu gerakan, bukan dua.
-   */
-  function bukaUtas(id: string, siapMembalas = false) {
-    router.push(`/komentar/${id}${siapMembalas ? "?balas=1" : ""}`);
-  }
-
-  /* Dari sebuah balasan, yang dicari adalah percakapan asalnya. Kalau komentar
-     itu memang sedang ada di layar, cukup digulir ke sana dan disorot sebentar;
-     kalau tidak — halamannya sudah lewat, atau daftarnya sedang tersaring —
-     utasnya yang dibuka. */
-  function bukaInduk(indukId: string) {
-    setSorotId(null);
-
-    if (!daftar.some(({ komentar: k }) => k.id === indukId)) {
-      bukaUtas(indukId);
-      return;
-    }
-
-    document
-      .getElementById(indukId)
-      ?.scrollIntoView({ behavior: "smooth", block: "center" });
-    requestAnimationFrame(() => setSorotId(indukId));
-  }
-
-  /* Sorotan dipadamkan lewat efek, bukan lewat penghitung waktu di dalam
-     penangan tekan, supaya berpindah halaman tidak meninggalkannya menyala. */
-  useEffect(() => {
-    if (!sorotId) return;
-    const jam = window.setTimeout(() => setSorotId(null), 2400);
-    return () => window.clearTimeout(jam);
-  }, [sorotId]);
-
   function pilihTagar(tagar: string) {
     setKueri(`#${tagar}`);
     setTampilan("beranda");
@@ -862,14 +799,9 @@ export default function App({
 
   /* Basis data yang menentukan, tetapi daftar di layar tetap disaring sendiri
      supaya komentar yang lewat 24 jam hilang tanpa menunggu muat ulang. Jam
-     `sekarang` berdetak tiap menit, jadi ini ikut menyegarkan sendiri.
-     Sesudah disaring, balasan dikumpulkan tepat di bawah komentar yang
-     dibalasnya alih-alih tersebar menurut waktu kirim. */
+     `sekarang` berdetak tiap menit, jadi ini ikut menyegarkan sendiri. */
   const daftar = useMemo(
-    () =>
-      susunUtas(
-        komentar.filter((k) => sekarang - k.createdAt < MASA_KOMENTAR_MS),
-      ),
+    () => komentar.filter((k) => sekarang - k.createdAt < MASA_KOMENTAR_MS),
     [komentar, sekarang],
   );
 
@@ -886,9 +818,7 @@ export default function App({
           ? t("kosong.disukai")
           : tab === "disimpan"
             ? t("kosong.disimpan")
-            : tab === "balasan"
-              ? t("kosong.balasan")
-              : t("kosong.komentar")
+            : t("kosong.komentar")
         : t("kosong.profilOrang", { handle: penggunaProfil?.handle ?? "" })
       : t("kosong.beranda");
 
@@ -956,9 +886,7 @@ export default function App({
             milikSaya={profilSaya}
             mengikuti={mengikuti}
             menungguIkut={menungguIkut}
-            jumlahKomentar={
-              statistikProfilTampil.komentar + statistikProfilTampil.balasan
-            }
+            jumlahKomentar={statistikProfilTampil.komentar}
             jumlahSukaDiterima={statistikProfilTampil.sukaDiterima}
             onIkuti={alihkanIkut}
             onSimpan={simpanProfilLokal}
@@ -1023,14 +951,22 @@ export default function App({
         )}
 
         {tampilan === "beranda" && (
-          <div className="komposer-utama" ref={komposerRef}>
-            <Composer
-              pengguna={akun}
-              placeholder={t("komposer.komentar")}
-              labelTombol={t("komposer.kirim")}
-              onKirim={buatKomentar}
-            />
-          </div>
+          <>
+            {/* Panel kanan tidak pernah muncul di layar sempit, jadi jam
+                emasnya ikut turun ke kolom utama — satu baris tepat di atas
+                kotak tulis, tempat keputusan "kirim sekarang atau nanti"
+                diambil. */}
+            <JamEmas sekarang={sekarang} varian="ringkas" />
+
+            <div className="komposer-utama" ref={komposerRef}>
+              <Composer
+                pengguna={akun}
+                placeholder={t("komposer.komentar")}
+                labelTombol={t("komposer.kirim")}
+                onKirim={buatKomentar}
+              />
+            </div>
+          </>
         )}
 
         <section
@@ -1107,21 +1043,9 @@ export default function App({
             </div>
           ) : (
             <>
-              {daftar.map(({ komentar: k }, i) => {
+              {daftar.map((k) => {
                 const penulis = daftarPengguna[k.authorId];
                 if (!penulis) return null;
-
-                /* "Membalas @siapa" hanya ditulis kalau ia menambah sesuatu.
-                   Pada balasan langsung atas komentar utama yang persis di
-                   atasnya, kalimat itu cuma mengeja ulang susunan yang sudah
-                   terlihat. Balasan atas balasan tetap menyebutkannya — semua
-                   balasan berdiri di garis yang sama, jadi tanpa baris itu tak
-                   ada lagi yang membedakannya. */
-                const atas = daftar[i - 1];
-                const konteksJelas =
-                  atas !== undefined &&
-                  atas.kedalaman === 0 &&
-                  atas.komentar.id === k.parentId;
 
                 return (
                   <div className="daftar-butir" id={k.id} key={k.id}>
@@ -1130,17 +1054,12 @@ export default function App({
                       penulis={penulis}
                       akunSaya={akun}
                       sekarang={sekarang}
-                      konteksJelas={konteksJelas}
-                      sorot={sorotId === k.id}
                       onSuka={() => alihkanSuka(k.id)}
                       onUlang={() => alihkanUlang(k.id)}
                       onSimpan={() => alihkanSimpan(k.id)}
-                      onBukaBalas={() => bukaUtas(k.id, true)}
-                      onBukaUtas={() => bukaUtas(k.id)}
                       onBagikan={() => salinTautan(k.id)}
                       onHapus={() => hapus(k.id)}
                       onBukaProfil={bukaProfil}
-                      onBukaInduk={bukaInduk}
                       onTagar={pilihTagar}
                       onSebut={bukaProfilHandle}
                     />
@@ -1171,6 +1090,7 @@ export default function App({
         statistik={statistikTampil}
         tren={tren}
         pengguna={akun}
+        sekarang={sekarang}
         onTagar={pilihTagar}
         onKeluar={mintaKeluar}
       />
