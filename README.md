@@ -1,9 +1,13 @@
 # Twitter Mini
 
-Antarmuka satu halaman bergaya Twitter yang dibangun dengan Next.js (App Router),
-TypeScript, dan **Supabase**. Ruang lingkupnya sengaja dibatasi pada dua fitur:
-**profil** dan **feed komentar**. Seluruh aplikasi berjalan di satu rute (`/`)
-tanpa perpindahan halaman.
+Antarmuka bergaya Twitter yang dibangun dengan Next.js (App Router), TypeScript,
+dan **Supabase**: feed komentar berumur 24 jam, profil yang bisa diikuti,
+notifikasi, simpanan, dan papan tren. Hampir seluruh aplikasi berjalan di satu
+rute (`/`) tanpa perpindahan halaman; satu rute lagi (`/komentar/[id]`) melayani
+tautan tetap untuk satu komentar beserta utasnya.
+
+Aplikasinya juga sebuah **PWA** — bisa dipasang ke layar utama dan punya halaman
+luring sendiri.
 
 Tidak ada data contoh di dalam kode. Akun, komentar, suka, posting ulang, foto
 profil, dan sampul semuanya tersimpan di Supabase, dan feed yang tampil adalah
@@ -46,6 +50,28 @@ lewat pengalih di navigasi.
 - Pencarian yang menyaring berdasarkan isi komentar, nama, atau handle penulis
 - Komentar baru dari orang lain muncul sendiri lewat Supabase Realtime
 - Waktu relatif (`9m`, `5j`, `3h`) yang menyegarkan sendiri tiap menit
+- **Simpan komentar** untuk dibaca lagi; daftarnya pribadi dan tidak terlihat
+  siapa pun, dijaga kebijakan RLS, bukan hanya disembunyikan di antarmuka
+- **Tautan tetap** `/komentar/[id]`: satu komentar beserta rantai yang dibalasnya
+  dan balasan yang sudah masuk, dengan judul dan deskripsi halaman mengikuti
+  isinya sehingga tautannya sudah bercerita sebelum dibuka
+- **Tagar dan sebutan bisa ditekan**: `#tagar` membuka pencarian, `@handle`
+  membuka profil orang itu
+
+**Ikuti, notifikasi, dan tren**
+
+- **Ikuti dan berhenti mengikuti** siapa pun dari profilnya. Angka pengikut
+  berubah seketika di layar lalu dikukuhkan pemicu basis data; label "Mengikuti"
+  berganti "Berhenti mengikuti" saat kursor menyentuhnya
+- Profil orang lain dibuka dengan menekan nama, foto, atau sebutan `@handle` di
+  mana pun ia muncul
+- **Notifikasi** untuk suka, posting ulang, balasan, dan pengikut baru. Barisnya
+  ditulis pemicu basis data — aplikasi tidak punya izin membuatnya — dan
+  membatalkan suka atau berhenti mengikuti ikut menarik kabarnya kembali
+- Lencana angka di navigasi menyala lewat Realtime dan padam begitu daftarnya
+  dibuka
+- **Tren 24 jam** di panel kanan: tagar teramai dihitung langsung dari komentar
+  yang masih hidup lewat satu fungsi SQL, tanpa tabel yang perlu dijaga sinkron
 
 **Profil**
 
@@ -55,8 +81,13 @@ lewat pengalih di navigasi.
   diunggah ke Supabase Storage. Berkas lama dibuang setelah baris profil
   tersimpan
 - Penyuntingan nama, bio, dan lokasi langsung di halaman
-- Tab **Komentar**, **Balasan**, dan **Disukai** yang menyaring feed lewat kueri
-  terpisah, bukan penyaringan di sisi peramban
+- Tab **Komentar**, **Balasan**, **Disukai**, dan **Disimpan** yang menyaring
+  feed lewat kueri terpisah, bukan penyaringan di sisi peramban. Tab "Disimpan"
+  hanya ada di profil sendiri
+- **Avatar bawaan DiceBear** bergaya *adventurer-neutral*, dibangkitkan dari
+  handle sehingga satu orang selalu mendapat wajah yang sama. SVG-nya dirakit di
+  dalam aplikasi, jadi tidak ada permintaan ke server DiceBear dan avatarnya
+  tetap muncul saat luring
 - Ringkasan aktivitas dihitung di basis data lewat satu fungsi
 
 **Antarmuka**
@@ -72,11 +103,18 @@ lewat pengalih di navigasi.
 - Sorotan sentuh biru bawaan Chrome, cincin fokus pada klik tetikus, dan latar
   biru isian otomatis Chrome semuanya dinetralkan; fokus papan tik tetap terlihat
 - Label ARIA, status tombol yang bisa ditekan, dan dukungan `prefers-reduced-motion`
+- **Satu aturan angka ala Twitter** di seluruh aplikasi: utuh sampai 9.999, di
+  atas itu disingkat satu desimal yang dipotong — bukan dibulatkan — sehingga
+  tidak ada angka yang pernah tampak lebih besar dari yang sebenarnya. Angka
+  penuhnya tetap terbaca lewat judul saat kursor berhenti di atasnya
+- **Rasa aplikasi**: bilah atas turun melewati poni layar saat dipasang, tarikan
+  berlebih tidak memantul, tombol menekan sedikit saat disentuh, dan kerangka
+  aplikasi tidak ikut tersorot saat teks komentar diseret
 
 ## Menyiapkan Supabase
 
 1. Buat proyek di [supabase.com](https://supabase.com).
-2. Buka **SQL Editor**, lalu jalankan keempat berkas di `supabase/migrations/`
+2. Buka **SQL Editor**, lalu jalankan kelima berkas di `supabase/migrations/`
    secara berurutan:
 
    - `20260807090000_awal.sql` — tabel, pemicu penghitung, kebijakan RLS, dua
@@ -87,8 +125,11 @@ lewat pengalih di navigasi.
      handle admin, penjaga kolom istimewa, dan hak hapus komentar bagi admin
    - `20260807180000_pengikut-admin.sql` — jumlah pengikut akun resmi disamakan
      dengan jumlah penduduk Indonesia
+   - `20260807210000_jejaring.sql` — tabel simpanan, tabel notifikasi beserta
+     pemicunya, fungsi tren tagar, kebijakan RLS untuk keduanya, dan penyapu
+     notifikasi lama
 
-   Keempatnya aman dijalankan ulang. Bila memakai Supabase CLI: `supabase db push`.
+   Kelimanya aman dijalankan ulang. Bila memakai Supabase CLI: `supabase db push`.
 3. Aktifkan **pg_cron** di **Database → Extensions** supaya komentar
    kedaluwarsa benar-benar terhapus. Migrasi mencoba memasangnya sendiri dan
    hanya memberi catatan bila tidak bisa. Lihat "Masa hidup komentar" di bawah
@@ -177,7 +218,9 @@ npm run typecheck
 ```
 app/
   layout.tsx        kerangka dokumen, metadata, bahasa awal, penetapan tema
-  page.tsx          satu-satunya rute: penyiapan, gerbang masuk, atau aplikasi
+  page.tsx          rute utama: penyiapan, gerbang masuk, atau aplikasi
+  komentar/[id]/    tautan tetap satu komentar beserta utasnya
+  manifest.ts       keterangan aplikasi untuk pemasangan (PWA)
   sandi-baru/       halaman penggantian kata sandi dari tautan email
   auth/callback/    penukaran kode tautan email menjadi sesi
   globals.css       token warna, tata letak, dan seluruh gaya komponen
@@ -190,15 +233,24 @@ components/
   Sidebar.tsx       navigasi kiri (desktop dan tablet)
   BottomNav.tsx     navigasi bawah (ponsel)
   RightRail.tsx     pencarian, ringkasan aktivitas, dan kartu akun (desktop)
-  ProfileHeader.tsx kepala profil beserta form penyuntingan dan unggahan media
+  ProfileHeader.tsx kepala profil, tombol ikuti, form penyuntingan, unggah media
   CommentCard.tsx   kartu komentar beserta aksinya
+  TeksKomentar.tsx  isi komentar dengan tagar dan sebutan yang bisa ditekan
+  Utas.tsx          halaman satu komentar: induk, komentar itu, dan balasannya
+  DaftarNotifikasi.tsx daftar suka, posting ulang, balasan, dan pengikut baru
+  LencanaKabar.tsx  titik merah berisi jumlah kabar yang belum dibaca
   Composer.tsx      kotak tulis untuk komentar dan balasan
-  Avatar.tsx        foto profil bila ada, jika tidak avatar inisial berwarna
+  Avatar.tsx        foto profil bila ada, jika tidak avatar DiceBear
   PemilihBahasa.tsx pengalih Indonesia/Inggris dalam tiga bentuk
+  TombolPasang.tsx  ajakan memasang aplikasi, muncul bila peramban menawarkannya
+  DaftarSW.tsx      pendaftaran service worker
+  menu.ts           tiga tujuan navigasi, dipakai bilah samping dan bilah bawah
   Icons.tsx         kumpulan ikon SVG
   Brand.tsx         tanda visual aplikasi
 lib/
   api.ts            seluruh baca-tulis ke Supabase dan pemetaan ke tipe aplikasi
+  akun.ts           akun yang sedang masuk, dibaca di server sebelum merender
+  avatar.ts         avatar bawaan DiceBear yang dibangkitkan dari handle
   kebijakan.ts      masa hidup komentar, disamakan dengan basis data
   i18n/             daftar bahasa, kamus ID/EN, konteks React, dan teks berformat
   supabase/         klien peramban, klien server, tipe basis data, kredensial
@@ -206,8 +258,34 @@ lib/
   time.ts           format waktu dan angka mengikuti bahasa yang dipakai
   types.ts          tipe bersama
 proxy.ts            penyegaran sesi Supabase tiap permintaan
+public/             ikon PWA, service worker, dan halaman luring
 supabase/migrations/ skema, kebijakan RLS, bucket, masa hidup, dan fungsi bantu
 ```
+
+## PWA
+
+`app/manifest.ts` menghasilkan `/manifest.webmanifest`, ikonnya ada di `public/`
+(192, 512, dan satu versi *maskable* yang digambar penuh sampai tepi), dan
+`public/sw.js` didaftarkan oleh `components/DaftarSW.tsx` setelah halaman selesai
+dimuat. Di peramban yang menawarkannya, kartu "Pasang aplikasinya" muncul di
+panel kanan; Safari memasang lewat menu Bagikan dan tidak pernah mengirim
+tawaran itu, jadi di sana kartunya memang tidak ada.
+
+Service worker-nya sengaja hanya mengerjakan dua hal:
+
+1. Menyimpan berkas build (`/_next/static/*`) dan ikon, yang isinya tidak pernah
+   berubah tanpa ganti nama berkas.
+2. Menjawab permintaan halaman dengan `public/luring.html` ketika jaringan mati.
+
+Yang **tidak** disimpan: HTML halaman dan jawaban Supabase. Keduanya milik satu
+akun yang sedang masuk, dan menyimpannya berarti komentar serta profil orang bisa
+tertinggal di perangkat setelah ia keluar. Karena itu feed tetap memerlukan
+jaringan — yang bekerja luring adalah kerangka aplikasinya.
+
+Versi baru mengambil alih lewat `skipWaiting`, dan halaman yang tadinya dipegang
+versi lama dimuat ulang sekali agar kerangkanya tidak berpasangan dengan berkas
+build yang sudah berganti. Menaikkan `VERSI` di `public/sw.js` membuang seluruh
+simpanan lama.
 
 ## Masa hidup komentar
 
@@ -273,7 +351,7 @@ Yang ikut berganti bukan cuma kalimat:
 | Waktu relatif | `9m`, `5j`, `3h` | `9m`, `5h`, `3d` |
 | Sisa umur komentar | `23j lagi` | `23h left` |
 | Tanggal | `7 Agu 2026` | `Aug 7, 2026` |
-| Angka ringkas | `1,2 rb`, `3,4 jt` | `1.2K`, `3.4M` |
+| Angka ringkas | `12,3 rb`, `3,4 jt` | `12.3K`, `3.4M` |
 | Pemisah ribuan | `3.400` | `3,400` |
 
 Nama bulan ditulis sendiri di `lib/time.ts`, tidak lewat `Intl`, supaya server
@@ -335,9 +413,17 @@ migrasi, `service_role` — tetap bisa mengubahnya.
 
 ## Catatan
 
-- Tabel `follows` beserta penghitungnya sudah ada dan berjalan, tetapi aplikasi
-  belum punya halaman profil pengguna lain, jadi angka mengikuti dan pengikut
-  masih 0 sampai tampilan itu ditambahkan.
+- Angka sosial memakai satu aturan di seluruh aplikasi (`angkaSosial` di
+  `lib/time.ts`): utuh sampai 9.999, lalu disingkat satu desimal yang dipotong,
+  bukan dibulatkan — 1.999.999 menjadi `1,9 jt`, bukan `2 jt`.
+- Simpanan tidak memperpanjang umur komentar. Barisnya ikut terhapus bersama
+  komentarnya, jadi daftar simpanan tidak pernah menunjuk ke komentar yang sudah
+  tidak ada.
+- Notifikasi 'ikut' tidak punya komentar yang membawanya pergi, jadi hanya jenis
+  itu yang menumpuk; `sapu_notifikasi_lama()` dijadwalkan tiap hari bila pg_cron
+  tersedia.
+- Avatar bawaan memakai gaya *Adventurer Neutral* karya Lisa Wischofsky
+  (CC BY 4.0) lewat DiceBear. Keterangannya ada di kaki panel kanan aplikasi.
 - Gambar tidak pernah dikirim mentah-mentah: pemangkasan dan pengecilan memakai
   `<canvas>` di peramban, dan yang diunggah hanya hasil akhirnya.
 - Hak akses seluruhnya bersandar pada RLS. Kunci yang dipakai peramban adalah

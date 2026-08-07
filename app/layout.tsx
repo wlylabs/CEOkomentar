@@ -4,12 +4,29 @@ import "./globals.css";
 import { KUNCI_BAHASA, bacaBahasa } from "@/lib/i18n/bahasa";
 import { teks } from "@/lib/i18n/kamus";
 import { PenyediaBahasa } from "@/lib/i18n/konteks";
+import DaftarSW from "@/components/DaftarSW";
 
 export async function generateMetadata(): Promise<Metadata> {
   const bahasa = bacaBahasa((await cookies()).get(KUNCI_BAHASA)?.value);
+  const merek = teks(bahasa, "umum.merek");
+
   return {
-    title: teks(bahasa, "umum.merek"),
+    /* Halaman anak menulis judulnya sendiri lengkap dengan merek. */
+    title: merek,
     description: teks(bahasa, "meta.deskripsi"),
+    applicationName: merek,
+    appleWebApp: {
+      capable: true,
+      title: merek,
+      /* Bilah status ikut warna halaman, jadi tidak ada garis putih di atas
+         layar saat aplikasi dibuka dari layar utama iOS. */
+      statusBarStyle: "black-translucent",
+    },
+    icons: {
+      icon: "/icon.svg",
+      apple: "/apple-touch-icon.png",
+    },
+    formatDetection: { telephone: false },
   };
 }
 
@@ -40,6 +57,7 @@ export default async function RootLayout({
       </head>
       <body>
         <PenyediaBahasa awal={bahasa}>{children}</PenyediaBahasa>
+        <DaftarSW />
       </body>
     </html>
   );

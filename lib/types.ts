@@ -32,6 +32,30 @@ export type Comment = {
   replies: number;
   liked: boolean;
   reposted: boolean;
+  /** disimpan oleh akun yang sedang masuk; simpanan tidak terlihat orang lain */
+  saved: boolean;
+};
+
+export type JenisNotifikasi = "suka" | "ulang" | "balas" | "ikut";
+
+export type Notifikasi = {
+  id: string;
+  jenis: JenisNotifikasi;
+  /** id pelaku; profilnya ikut dibawa dalam `pengguna` */
+  aktorId: string;
+  /** komentar yang disukai/diulang atau balasannya; null untuk 'ikut' */
+  komentarId: string | null;
+  /** kutipan isi komentar, secukupnya untuk satu baris daftar */
+  kutipan: string | null;
+  createdAt: number;
+  dibaca: boolean;
+};
+
+/** Satu tagar yang sedang ramai beserta jangkauannya dalam 24 jam terakhir. */
+export type Tren = {
+  tagar: string;
+  komentar: number;
+  penulis: number;
 };
 
 export type Statistik = {
@@ -42,5 +66,5 @@ export type Statistik = {
   ulangDiterima: number;
 };
 
-export type Tab = "komentar" | "balasan" | "disukai";
-export type View = "beranda" | "profil";
+export type Tab = "komentar" | "balasan" | "disukai" | "disimpan";
+export type View = "beranda" | "profil" | "notifikasi";

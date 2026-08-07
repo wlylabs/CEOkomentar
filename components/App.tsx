@@ -7,6 +7,7 @@ import BottomNav from "./BottomNav";
 import Brand from "./Brand";
 import CommentCard from "./CommentCard";
 import Composer from "./Composer";
+import DaftarNotifikasi from "./DaftarNotifikasi";
 import ProfileHeader from "./ProfileHeader";
 import RightRail from "./RightRail";
 import Sidebar from "./Sidebar";
@@ -27,20 +28,38 @@ import { klienPeramban } from "@/lib/supabase/client";
 import {
   ambilFeed,
   ambilKomentar,
+  ambilNotifikasi,
+  ambilProfil,
+  ambilProfilHandle,
   ambilStatistik,
+  ambilTren,
+  apakahMengikuti,
   hapusKomentar,
+  hitungBelumDibaca,
   kirimKomentar,
+  setIkut,
+  setSimpan,
   setSuka,
   setUlang,
+  tandaiNotifikasiDibaca,
 } from "@/lib/api";
 import { MASA_KOMENTAR_JAM, MASA_KOMENTAR_MS } from "@/lib/kebijakan";
-import { angkaPenuh } from "@/lib/time";
-import type { Comment, Statistik, Tab, User, View } from "@/lib/types";
+import { angkaSosial } from "@/lib/time";
+import type {
+  Comment,
+  Notifikasi,
+  Statistik,
+  Tab,
+  Tren,
+  User,
+  View,
+} from "@/lib/types";
 
 const TAB: { kunci: Tab; label: KunciTeks }[] = [
   { kunci: "komentar", label: "tab.komentar" },
   { kunci: "balasan", label: "tab.balasan" },
   { kunci: "disukai", label: "tab.disukai" },
+  { kunci: "disimpan", label: "tab.disimpan" },
 ];
 
 const STATISTIK_KOSONG: Statistik = {
@@ -101,6 +120,24 @@ export default function App({
   const [pesan, setPesan] = useState<string | null>(null);
   const [sekarang, setSekarang] = useState(() => Date.now());
 
+  /* Profil yang sedang dibuka. Sama dengan akun sendiri sampai ada nama atau
+     foto orang lain yang ditekan. */
+  const [profilId, setProfilId] = useState(akunAwal.id);
+  const [profilLain, setProfilLain] = useState<User | null>(null);
+  const [statistikProfil, setStatistikProfil] =
+    useState<Statistik>(STATISTIK_KOSONG);
+  const [mengikuti, setMengikuti] = useState(false);
+  const [menungguIkut, setMenungguIkut] = useState(false);
+
+  const [notifikasi, setNotifikasi] = useState<Notifikasi[]>([]);
+  const [memuatKabar, setMemuatKabar] = useState(false);
+  const [belumDibaca, setBelumDibaca] = useState(0);
+  /* Naik setiap ada kabar baru lewat realtime; dipakai sebagai pemicu muat
+     ulang ketika daftar notifikasi sedang terbuka. */
+  const [penandaKabar, setPenandaKabar] = useState(0);
+
+  const [tren, setTren] = useState<Tren[]>([]);
+
   const [tanyaKeluar, setTanyaKeluar] = useState(false);
   const [memuat, setMemuat] = useState(true);
   const [memuatLagi, setMemuatLagi] = useState(false);
@@ -112,6 +149,9 @@ export default function App({
   const utamaRef = useRef<HTMLElement>(null);
   /* Menandai permintaan feed terakhir agar jawaban yang telat diabaikan. */
   const nomorMuat = useRef(0);
+
+  const profilSaya = profilId === akun.id;
+  const penggunaProfil = profilSaya ? akun : profilLain;
 
   /* ----------------------------------------------------------------
      Tema, jam, dan pesan sekilas
@@ -153,6 +193,24 @@ export default function App({
     window.history.replaceState(null, "", alamat.pathname + alamat.search);
   }, []);
 
+  /* Halaman utas mengirim nama dan tagar yang ditekan ke sini lewat query
+     string, karena profil dan pencarian hidup di aplikasi ini. Dijalankan
+     sekali saat halaman dibuka, lalu alamatnya dirapikan kembali. */
+  useEffect(() => {
+    const alamat = new URL(window.location.href);
+    const handle = alamat.searchParams.get("profil");
+    const tagar = alamat.searchParams.get("tagar");
+    if (!handle && !tagar) return;
+
+    if (handle) bukaProfilHandle(handle);
+    else if (tagar) pilihTagar(tagar);
+
+    alamat.searchParams.delete("profil");
+    alamat.searchParams.delete("tagar");
+    window.history.replaceState(null, "", alamat.pathname + alamat.search);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   /* Tunda pencarian supaya tiap ketikan tidak menjadi satu kueri. */
   useEffect(() => {
     const id = window.setTimeout(() => setKueriTertunda(kueri.trim()), 320);
@@ -175,7 +233,18 @@ export default function App({
       });
   }, [supabase, akun.id]);
 
+  const segarkanTren = useCallback(() => {
+    ambilTren(supabase)
+      .then(setTren)
+      .catch(() => {
+        /* tren hanya pelengkap panel kanan */
+      });
+  }, [supabase]);
+
   useEffect(() => {
+    /* Daftar notifikasi punya jalur muatnya sendiri. */
+    if (tampilan === "notifikasi") return;
+
     let batal = false;
     const nomor = ++nomorMuat.current;
 
@@ -185,6 +254,7 @@ export default function App({
     ambilFeed(supabase, {
       akunId: akun.id,
       tampilan,
+      profilId,
       tab,
       kueri: kueriTertunda,
       kursor: null,
@@ -208,9 +278,123 @@ export default function App({
     return () => {
       batal = true;
     };
-  }, [supabase, akun.id, tampilan, tab, kueriTertunda, gabungPengguna]);
+  }, [supabase, akun.id, profilId, tampilan, tab, kueriTertunda, gabungPengguna]);
 
   useEffect(segarkanStatistik, [segarkanStatistik]);
+  useEffect(segarkanTren, [segarkanTren]);
+
+  /* Profil orang lain: datanya sudah ada sekilas dari kartu komentar, tapi
+     jumlah pengikut dan hubungan "sedang mengikuti" harus ditanyakan. */
+  useEffect(() => {
+    if (profilSaya) {
+      setMengikuti(false);
+      return;
+    }
+
+    let batal = false;
+    Promise.all([
+      ambilProfil(supabase, profilId),
+      apakahMengikuti(supabase, akun.id, profilId),
+    ])
+      .then(([profil, ikut]) => {
+        if (batal) return;
+        if (profil) setProfilLain(profil);
+        setMengikuti(ikut);
+      })
+      .catch(() => {
+        /* kartu profil tetap memakai data seadanya dari feed */
+      });
+
+    return () => {
+      batal = true;
+    };
+  }, [supabase, profilId, akun.id, profilSaya]);
+
+  /* Ringkasan angka di bawah profil. Untuk akun sendiri angkanya sudah ada. */
+  useEffect(() => {
+    if (profilSaya) {
+      setStatistikProfil(statistik);
+      return;
+    }
+
+    let batal = false;
+    ambilStatistik(supabase, profilId)
+      .then((hasil) => {
+        if (!batal) setStatistikProfil(hasil);
+      })
+      .catch(() => {});
+
+    return () => {
+      batal = true;
+    };
+  }, [supabase, profilId, profilSaya, statistik]);
+
+  /* Lencana kabar menyala sejak halaman dibuka, bukan hanya setelah daftarnya
+     dilihat sekali. */
+  useEffect(() => {
+    hitungBelumDibaca(supabase, akun.id)
+      .then(setBelumDibaca)
+      .catch(() => {});
+  }, [supabase, akun.id]);
+
+  useEffect(() => {
+    const saluran = supabase
+      .channel("kabar-langsung")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${akun.id}`,
+        },
+        () => {
+          setBelumDibaca((jumlah) => jumlah + 1);
+          setPenandaKabar((nomor) => nomor + 1);
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(saluran);
+    };
+  }, [supabase, akun.id]);
+
+  /* Membuka daftar notifikasi sekaligus menandainya terbaca — sama seperti
+     aplikasi ponsel: lencananya padam begitu isinya terlihat. */
+  useEffect(() => {
+    if (tampilan !== "notifikasi") return;
+
+    let batal = false;
+    setMemuatKabar(true);
+
+    ambilNotifikasi(supabase, akun.id)
+      .then(({ daftar, pengguna: profil }) => {
+        if (batal) return;
+        setNotifikasi(daftar);
+        gabungPengguna(profil);
+
+        if (daftar.some((kabar) => !kabar.dibaca)) {
+          tandaiNotifikasiDibaca(supabase, akun.id)
+            .then(() => {
+              if (!batal) setBelumDibaca(0);
+            })
+            .catch(() => {});
+        } else {
+          setBelumDibaca(0);
+        }
+      })
+      .catch((kesalahan) => {
+        if (!batal) setPesan(pesanGalat(kesalahan, "galat.muatNotifikasi", t));
+      })
+      .finally(() => {
+        if (!batal) setMemuatKabar(false);
+      });
+
+    return () => {
+      batal = true;
+    };
+  }, [supabase, akun.id, tampilan, penandaKabar, gabungPengguna]);
 
   async function muatLagi() {
     if (memuatLagi || habis || !kursor) return;
@@ -219,6 +403,7 @@ export default function App({
       const halaman = await ambilFeed(supabase, {
         akunId: akun.id,
         tampilan,
+        profilId,
         tab,
         kueri: kueriTertunda,
         kursor,
@@ -287,7 +472,9 @@ export default function App({
       const masukDaftar =
         tampilan === "beranda"
           ? !kueriTertunda
-          : tab === (parentId ? "balasan" : "komentar") && !kueriTertunda;
+          : profilSaya &&
+            tab === (parentId ? "balasan" : "komentar") &&
+            !kueriTertunda;
 
       if (masukDaftar) setKomentar((sebelum) => [baru, ...sebelum]);
       if (parentId) {
@@ -296,6 +483,8 @@ export default function App({
 
       setPesan(t(parentId ? "pesan.balasanTerkirim" : "pesan.komentarTerkirim"));
       segarkanStatistik();
+      /* Tagar di komentar baru bisa langsung mengubah papan tren. */
+      if (teks.includes("#")) segarkanTren();
     } catch (kesalahan) {
       setPesan(pesanGalat(kesalahan, "galat.kirimKomentar", t));
     }
@@ -340,6 +529,65 @@ export default function App({
     }
   }
 
+  async function alihkanSimpan(id: string) {
+    const sebelumnya = komentar.find((k) => k.id === id);
+    if (!sebelumnya) return;
+    const simpan = !sebelumnya.saved;
+
+    ubahKomentar(id, (k) => ({ ...k, saved: simpan }));
+
+    try {
+      await setSimpan(supabase, id, akun.id, simpan);
+      setPesan(t(simpan ? "pesan.komentarDisimpan" : "pesan.simpananDibuang"));
+      /* Tab "Disimpan" adalah daftar itu sendiri, jadi barisnya langsung pergi
+         begitu tandanya dilepas. */
+      if (!simpan && tampilan === "profil" && tab === "disimpan") {
+        setKomentar((daftar) => daftar.filter((k) => k.id !== id));
+      }
+    } catch (kesalahan) {
+      ubahKomentar(id, () => sebelumnya);
+      setPesan(pesanGalat(kesalahan, "galat.simpan", t));
+    }
+  }
+
+  async function alihkanIkut() {
+    const sasaran = profilLain;
+    if (!sasaran || profilSaya || menungguIkut) return;
+
+    const ikut = !mengikuti;
+    const geser = ikut ? 1 : -1;
+
+    setMenungguIkut(true);
+    setMengikuti(ikut);
+    setProfilLain({
+      ...sasaran,
+      followers: Math.max(0, sasaran.followers + geser),
+    });
+    setAkun((sebelum) => ({
+      ...sebelum,
+      following: Math.max(0, sebelum.following + geser),
+    }));
+
+    try {
+      await setIkut(supabase, akun.id, sasaran.id, ikut);
+      setPesan(
+        t(ikut ? "pesan.mulaiMengikuti" : "pesan.berhentiMengikuti", {
+          handle: sasaran.handle,
+        }),
+      );
+    } catch (kesalahan) {
+      setMengikuti(!ikut);
+      setProfilLain(sasaran);
+      setAkun((sebelum) => ({
+        ...sebelum,
+        following: Math.max(0, sebelum.following - geser),
+      }));
+      setPesan(pesanGalat(kesalahan, "galat.ikut", t));
+    } finally {
+      setMenungguIkut(false);
+    }
+  }
+
   async function hapus(id: string) {
     const sebelumnya = komentar;
     const sasaran = komentar.find((k) => k.id === id);
@@ -362,7 +610,7 @@ export default function App({
   }
 
   async function salinTautan(id: string) {
-    const tautan = `${window.location.origin}${window.location.pathname}#${id}`;
+    const tautan = `${window.location.origin}/komentar/${id}`;
     try {
       await navigator.clipboard.writeText(tautan);
       setPesan(t("pesan.tautanDisalin"));
@@ -393,21 +641,65 @@ export default function App({
     setPesan(t("pesan.profilDiperbarui"));
   }
 
+  function keAtas() {
+    utamaRef.current?.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0 });
+  }
+
   function mulaiMenulis() {
     setTampilan("beranda");
     requestAnimationFrame(() => {
       const area = komposerRef.current?.querySelector("textarea");
       area?.focus({ preventScroll: true });
-      utamaRef.current?.scrollTo({ top: 0 });
-      window.scrollTo({ top: 0 });
+      keAtas();
     });
   }
 
   function gantiTampilan(berikut: View) {
+    /* Menekan "Profil" di navigasi selalu berarti profil sendiri, walau yang
+       terakhir dibuka milik orang lain. */
+    if (berikut === "profil") {
+      setProfilId(akun.id);
+      setProfilLain(null);
+      setTab("komentar");
+    }
     setTampilan(berikut);
     setBalasUntuk(null);
-    utamaRef.current?.scrollTo({ top: 0 });
-    window.scrollTo({ top: 0 });
+    keAtas();
+  }
+
+  function bukaProfil(sasaran: User) {
+    setProfilId(sasaran.id);
+    setProfilLain(sasaran.id === akun.id ? null : sasaran);
+    setTab("komentar");
+    setTampilan("profil");
+    setBalasUntuk(null);
+    keAtas();
+  }
+
+  async function bukaProfilHandle(handle: string) {
+    const dikenal = Object.values(daftarPengguna).find(
+      (calon) => calon.handle.toLowerCase() === handle.toLowerCase(),
+    );
+    if (dikenal) {
+      bukaProfil(dikenal);
+      return;
+    }
+
+    try {
+      const profil = await ambilProfilHandle(supabase, handle);
+      if (profil) bukaProfil(profil);
+      else setPesan(t("pesan.profilTakDitemukan", { handle }));
+    } catch {
+      setPesan(t("pesan.profilTakDitemukan", { handle }));
+    }
+  }
+
+  function pilihTagar(tagar: string) {
+    setKueri(`#${tagar}`);
+    setTampilan("beranda");
+    setBalasUntuk(null);
+    keAtas();
   }
 
   /* ----------------------------------------------------------------
@@ -417,7 +709,9 @@ export default function App({
   const judulDaftar = t(
     tampilan === "beranda"
       ? "beranda.judul"
-      : (TAB.find((butir) => butir.kunci === tab)?.label ?? "tab.komentar"),
+      : tampilan === "notifikasi"
+        ? "nav.notifikasi"
+        : (TAB.find((butir) => butir.kunci === tab)?.label ?? "tab.komentar"),
   );
 
   const daftarPengguna = useMemo(
@@ -433,15 +727,31 @@ export default function App({
     [komentar, sekarang],
   );
 
+  /* Simpanan bersifat pribadi, jadi tabnya hanya ada di profil sendiri. */
+  const tabTampil = profilSaya
+    ? TAB
+    : TAB.filter((butir) => butir.kunci !== "disimpan");
+
   const teksKosong = kueriTertunda
     ? t("kosong.cari", { kueri: kueriTertunda })
     : tampilan === "profil"
-      ? tab === "disukai"
-        ? t("kosong.disukai")
-        : tab === "balasan"
-          ? t("kosong.balasan")
-          : t("kosong.komentar")
+      ? profilSaya
+        ? tab === "disukai"
+          ? t("kosong.disukai")
+          : tab === "disimpan"
+            ? t("kosong.disimpan")
+            : tab === "balasan"
+              ? t("kosong.balasan")
+              : t("kosong.komentar")
+        : t("kosong.profilOrang", { handle: penggunaProfil?.handle ?? "" })
       : t("kosong.beranda");
+
+  const judulBilah =
+    tampilan === "profil"
+      ? (penggunaProfil?.name ?? t("nav.profil"))
+      : tampilan === "notifikasi"
+        ? t("nav.notifikasi")
+        : t("umum.merek");
 
   return (
     <div className="kerangka">
@@ -450,6 +760,7 @@ export default function App({
         onPindah={gantiTampilan}
         onTulis={mulaiMenulis}
         pengguna={akun}
+        belumDibaca={belumDibaca}
         tema={tema}
         onGantiTema={() => setTema(tema === "gelap" ? "terang" : "gelap")}
         onKeluar={mintaKeluar}
@@ -457,7 +768,11 @@ export default function App({
 
       <main className="utama" ref={utamaRef}>
         <div className="bilah-mobil">
-          {tampilan === "profil" ? (
+          {tampilan === "beranda" ? (
+            <span className="bilah-merek">
+              <Brand size={26} />
+            </span>
+          ) : (
             <button
               type="button"
               className="bulat"
@@ -466,15 +781,9 @@ export default function App({
             >
               <IkonKembali size={20} />
             </button>
-          ) : (
-            <span className="bilah-merek">
-              <Brand size={26} />
-            </span>
           )}
 
-          <span className="bilah-judul">
-            {tampilan === "profil" ? akun.name : t("umum.merek")}
-          </span>
+          <span className="bilah-judul">{judulBilah}</span>
 
           <span className="bilah-aksi">
             <PemilihBahasa varian="bulat" size={20} />
@@ -506,38 +815,42 @@ export default function App({
           />
         )}
 
-        {tampilan === "profil" && (
-          <div className="kepala-profil">
-            <button
-              type="button"
-              className="bulat"
-              onClick={() => gantiTampilan("beranda")}
-              aria-label={t("nav.kembali")}
-            >
-              <IkonKembali size={20} />
-            </button>
-            <span className="kepala-profil-teks">
-              <span className="kepala-profil-nama">{akun.name}</span>
-              <span className="kepala-profil-sub">
-                {t("umum.jumlahKomentar", {
-                  jumlah: angkaPenuh(
-                    statistik.komentar + statistik.balasan,
-                    bahasa,
-                  ),
-                })}
+        {tampilan === "profil" && penggunaProfil && (
+          <>
+            <div className="kepala-profil">
+              <button
+                type="button"
+                className="bulat"
+                onClick={() => gantiTampilan("beranda")}
+                aria-label={t("nav.kembali")}
+              >
+                <IkonKembali size={20} />
+              </button>
+              <span className="kepala-profil-teks">
+                <span className="kepala-profil-nama">{penggunaProfil.name}</span>
+                <span className="kepala-profil-sub">
+                  {t("umum.jumlahKomentar", {
+                    jumlah: angkaSosial(
+                      statistikProfil.komentar + statistikProfil.balasan,
+                      bahasa,
+                    ),
+                  })}
+                </span>
               </span>
-            </span>
-          </div>
-        )}
+            </div>
 
-        {tampilan === "profil" && (
-          <ProfileHeader
-            pengguna={akun}
-            jumlahKomentar={statistik.komentar + statistik.balasan}
-            jumlahSukaDiterima={statistik.sukaDiterima}
-            onSimpan={simpanProfilLokal}
-            onKabar={setPesan}
-          />
+            <ProfileHeader
+              pengguna={penggunaProfil}
+              milikSaya={profilSaya}
+              mengikuti={mengikuti}
+              menungguIkut={menungguIkut}
+              jumlahKomentar={statistikProfil.komentar + statistikProfil.balasan}
+              jumlahSukaDiterima={statistikProfil.sukaDiterima}
+              onIkuti={alihkanIkut}
+              onSimpan={simpanProfilLokal}
+              onKabar={setPesan}
+            />
+          </>
         )}
 
         {tampilan === "beranda" ? (
@@ -547,7 +860,7 @@ export default function App({
               {memuat
                 ? t("beranda.memuat")
                 : t("umum.jumlahKomentar", {
-                    jumlah: `${angkaPenuh(daftar.length, bahasa)}${habis ? "" : "+"}`,
+                    jumlah: `${angkaSosial(daftar.length, bahasa)}${habis ? "" : "+"}`,
                   })}
               <span className="kepala-tanda">
                 <IkonJam size={13} />
@@ -555,9 +868,14 @@ export default function App({
               </span>
             </p>
           </div>
+        ) : tampilan === "notifikasi" ? (
+          <div className="kepala-kolom">
+            <h1 className="kepala-judul">{t("nav.notifikasi")}</h1>
+            <p className="kepala-sub">{t("notif.sub")}</p>
+          </div>
         ) : (
           <div className="tab" role="tablist" aria-label={t("tab.saringan")}>
-            {TAB.map(({ kunci, label }) => (
+            {tabTampil.map(({ kunci, label }) => (
               <button
                 key={kunci}
                 type="button"
@@ -575,20 +893,22 @@ export default function App({
           </div>
         )}
 
-        <div className="cari cari-mobil">
-          <IkonCari size={18} className="cari-ikon" />
-          <label className="sr-only" htmlFor="cari-mobil">
-            {t("cari.label")}
-          </label>
-          <input
-            id="cari-mobil"
-            className="cari-masukan"
-            type="search"
-            value={kueri}
-            onChange={(e) => setKueri(e.target.value)}
-            placeholder={t("cari.label")}
-          />
-        </div>
+        {tampilan !== "notifikasi" && (
+          <div className="cari cari-mobil">
+            <IkonCari size={18} className="cari-ikon" />
+            <label className="sr-only" htmlFor="cari-mobil">
+              {t("cari.label")}
+            </label>
+            <input
+              id="cari-mobil"
+              className="cari-masukan"
+              type="search"
+              value={kueri}
+              onChange={(e) => setKueri(e.target.value)}
+              placeholder={t("cari.label")}
+            />
+          </div>
+        )}
 
         {tampilan === "beranda" && (
           <div className="komposer-utama" ref={komposerRef}>
@@ -605,7 +925,34 @@ export default function App({
           className="daftar"
           aria-label={t("daftar.label", { judul: judulDaftar.toLowerCase() })}
         >
-          {memuat ? (
+          {tampilan === "notifikasi" ? (
+            memuatKabar && notifikasi.length === 0 ? (
+              <div className="rangka" aria-hidden="true">
+                {[0, 1, 2, 3].map((i) => (
+                  <div className="rangka-butir" key={i}>
+                    <span className="rangka-bulat" />
+                    <span className="rangka-baris">
+                      <span className="rangka-garis rangka-garis-pendek" />
+                      <span className="rangka-garis rangka-garis-sedang" />
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : notifikasi.length === 0 ? (
+              <div className="kosong">
+                <Avatar pengguna={akun} ukuran={56} />
+                <h2 className="kosong-judul">{t("notif.kosongJudul")}</h2>
+                <p className="kosong-teks">{t("notif.kosongTeks")}</p>
+              </div>
+            ) : (
+              <DaftarNotifikasi
+                daftar={notifikasi}
+                pengguna={daftarPengguna}
+                sekarang={sekarang}
+                onBukaProfil={bukaProfil}
+              />
+            )
+          ) : memuat ? (
             <div className="rangka" aria-hidden="true">
               {[0, 1, 2, 3].map((i) => (
                 <div className="rangka-butir" key={i}>
@@ -633,7 +980,7 @@ export default function App({
             </div>
           ) : daftar.length === 0 ? (
             <div className="kosong">
-              <Avatar pengguna={akun} ukuran={56} />
+              <Avatar pengguna={penggunaProfil ?? akun} ukuran={56} />
               <h2 className="kosong-judul">{t("kosong.judul")}</h2>
               <p className="kosong-teks">{teksKosong}</p>
               {kueriTertunda && (
@@ -661,6 +1008,7 @@ export default function App({
                       balasTerbuka={balasUntuk === k.id}
                       onSuka={() => alihkanSuka(k.id)}
                       onUlang={() => alihkanUlang(k.id)}
+                      onSimpan={() => alihkanSimpan(k.id)}
                       onBukaBalas={() =>
                         setBalasUntuk(balasUntuk === k.id ? null : k.id)
                       }
@@ -670,6 +1018,9 @@ export default function App({
                       }}
                       onBagikan={() => salinTautan(k.id)}
                       onHapus={() => hapus(k.id)}
+                      onBukaProfil={bukaProfil}
+                      onTagar={pilihTagar}
+                      onSebut={bukaProfilHandle}
                     />
                   </div>
                 );
@@ -698,11 +1049,13 @@ export default function App({
         kueri={kueri}
         onKueri={setKueri}
         statistik={statistik}
+        tren={tren}
         pengguna={akun}
+        onTagar={pilihTagar}
         onKeluar={mintaKeluar}
       />
 
-      {tampilan === "profil" && (
+      {tampilan !== "beranda" && (
         <button
           type="button"
           className="apung"
@@ -713,7 +1066,11 @@ export default function App({
         </button>
       )}
 
-      <BottomNav tampilan={tampilan} onPindah={gantiTampilan} />
+      <BottomNav
+        tampilan={tampilan}
+        onPindah={gantiTampilan}
+        belumDibaca={belumDibaca}
+      />
 
       {tanyaKeluar && (
         <div className="tirai" onClick={() => setTanyaKeluar(false)}>

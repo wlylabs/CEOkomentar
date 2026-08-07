@@ -3,16 +3,15 @@
 import Avatar from "./Avatar";
 import Brand from "./Brand";
 import PemilihBahasa from "./PemilihBahasa";
+import LencanaKabar from "./LencanaKabar";
+import { IKON_MENU, MENU } from "./menu";
 import {
-  IkonBeranda,
   IkonBulan,
   IkonKeluar,
   IkonMatahari,
-  IkonProfil,
   IkonTulis,
 } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
-import type { KunciTeks } from "@/lib/i18n/kamus";
 import type { User, View } from "@/lib/types";
 
 type Props = {
@@ -20,21 +19,18 @@ type Props = {
   onPindah: (tampilan: View) => void;
   onTulis: () => void;
   pengguna: User;
+  belumDibaca: number;
   tema: "terang" | "gelap";
   onGantiTema: () => void;
   onKeluar: () => void;
 };
-
-const MENU: { kunci: View; label: KunciTeks }[] = [
-  { kunci: "beranda", label: "nav.beranda" },
-  { kunci: "profil", label: "nav.profil" },
-];
 
 export default function Sidebar({
   tampilan,
   onPindah,
   onTulis,
   pengguna,
+  belumDibaca,
   tema,
   onGantiTema,
   onKeluar,
@@ -52,7 +48,8 @@ export default function Sidebar({
         <nav className="samping-menu" aria-label={t("nav.utama")}>
           {MENU.map(({ kunci, label }) => {
             const aktif = tampilan === kunci;
-            const Ikon = kunci === "beranda" ? IkonBeranda : IkonProfil;
+            const Ikon = IKON_MENU[kunci];
+            const kabar = kunci === "notifikasi" ? belumDibaca : 0;
             return (
               <button
                 key={kunci}
@@ -61,7 +58,10 @@ export default function Sidebar({
                 onClick={() => onPindah(kunci)}
                 aria-current={aktif ? "page" : undefined}
               >
-                <Ikon size={24} aktif={aktif} />
+                <span className="menu-ikon">
+                  <Ikon size={24} aktif={aktif} />
+                  <LencanaKabar jumlah={kabar} />
+                </span>
                 <span className="menu-label">{t(label)}</span>
               </button>
             );

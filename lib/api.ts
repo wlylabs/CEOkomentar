@@ -1,8 +1,20 @@
 import type { KlienSupabase } from "./supabase/client";
-import type { BarisKomentar, BarisProfil } from "./supabase/database.types";
+import type {
+  BarisKomentar,
+  BarisNotifikasi,
+  BarisProfil,
+} from "./supabase/database.types";
 import type { Gambar, JenisMedia } from "./image";
 import { PENDUDUK_INDONESIA, ambangKedaluwarsa } from "./kebijakan";
-import type { Comment, Statistik, Tab, User, View } from "./types";
+import type {
+  Comment,
+  Notifikasi,
+  Statistik,
+  Tab,
+  Tren,
+  User,
+  View,
+} from "./types";
 
 export const BATAS_HALAMAN = 25;
 
@@ -11,7 +23,7 @@ const EMBER: Record<JenisMedia, "avatars" | "banners"> = {
   sampul: "banners",
 };
 
-const KOLOM_PROFIL =
+export const KOLOM_PROFIL =
   "id, handle, name, bio, location, avatar_url, banner_url, verified, is_admin, following_count, followers_count, created_at, updated_at";
 
 const KOLOM_KOMENTAR =
@@ -57,6 +69,7 @@ function keComment(baris: BarisKomentar): Comment {
     replies: baris.reply_count,
     liked: false,
     reposted: false,
+    saved: false,
   };
 }
 
@@ -89,8 +102,11 @@ export async function ambilProfil(
 }
 
 export type OpsiFeed = {
+  /** akun yang sedang masuk; penentu tanda suka, posting ulang, dan simpanan */
   akunId: string;
   tampilan: View;
+  /** pemilik profil yang sedang dibuka; kosong berarti profil sendiri */
+  profilId?: string;
   tab: Tab;
   kueri: string;
   /** penanda halaman dari pemanggilan sebelumnya, null untuk halaman pertama */
@@ -112,6 +128,7 @@ export async function ambilFeed(
   const batas = opsi.batas ?? BATAS_HALAMAN;
   const cari = bersihkanKueri(opsi.kueri);
   const diProfil = opsi.tampilan === "profil";
+  const pemilik = opsi.profilId ?? opsi.akunId;
   /* Kebijakan RLS sudah menyembunyikan komentar kedaluwarsa. Penyaring yang
      sama diulang di sini supaya satu halaman tidak pulang setengah kosong dan
      penanda halamannya tetap masuk akal. */
@@ -138,13 +155,24 @@ export async function ambilFeed(
   let baris: BarisFeed[];
   let kursorBerikut: string | null;
 
-  if (diProfil && opsi.tab === "disukai") {
-    /* Tab "Disukai" diurutkan menurut kapan komentar itu disukai, bukan kapan
-       komentar ditulis, sehingga penanda halamannya berasal dari tabel likes. */
+  /* Dua tab tidak berisi tulisan pemilik profil melainkan komentar yang ia
+     tandai, jadi keduanya dibaca dari tabel tandanya. Simpanan hanya terbaca
+     oleh pemiliknya sendiri — itu urusan kebijakan RLS, bukan kueri ini. */
+  const tabelTanda: "likes" | "bookmarks" | null = !diProfil
+    ? null
+    : opsi.tab === "disukai"
+      ? "likes"
+      : opsi.tab === "disimpan"
+        ? "bookmarks"
+        : null;
+
+  if (tabelTanda) {
+    /* Urutannya menurut kapan komentar itu ditandai, bukan kapan komentar
+       ditulis, sehingga penanda halamannya berasal dari tabel tanda. */
     let kueri = sb
-      .from("likes")
+      .from(tabelTanda)
       .select(`created_at, comment:comments!inner ( ${KOLOM_KOMENTAR}, author:profiles!comments_author_id_fkey ( ${KOLOM_PROFIL} ) )`)
-      .eq("user_id", opsi.akunId)
+      .eq("user_id", pemilik)
       .gt("comment.created_at", ambang)
       .order("created_at", { ascending: false })
       .limit(batas);
@@ -172,7 +200,7 @@ export async function ambilFeed(
       .limit(batas);
 
     if (diProfil) {
-      kueri = kueri.eq("author_id", opsi.akunId);
+      kueri = kueri.eq("author_id", pemilik);
       kueri =
         opsi.tab === "balasan"
           ? kueri.not("parent_id", "is", null)
@@ -245,7 +273,7 @@ async function lengkapiKonteks(
   }
 }
 
-/** Menandai komentar mana yang sudah disukai atau diposting ulang akun ini. */
+/** Menandai komentar mana yang sudah disukai, diulang, atau disimpan akun ini. */
 async function tandaiInteraksi(
   sb: KlienSupabase,
   komentar: Comment[],
@@ -254,17 +282,20 @@ async function tandaiInteraksi(
   if (komentar.length === 0) return;
   const id = komentar.map((k) => k.id);
 
-  const [suka, ulang] = await Promise.all([
+  const [suka, ulang, simpan] = await Promise.all([
     sb.from("likes").select("comment_id").eq("user_id", akunId).in("comment_id", id),
     sb.from("reposts").select("comment_id").eq("user_id", akunId).in("comment_id", id),
+    sb.from("bookmarks").select("comment_id").eq("user_id", akunId).in("comment_id", id),
   ]);
 
   const disukai = new Set((suka.data ?? []).map((b) => b.comment_id));
   const diulang = new Set((ulang.data ?? []).map((b) => b.comment_id));
+  const disimpan = new Set((simpan.data ?? []).map((b) => b.comment_id));
 
   for (const k of komentar) {
     k.liked = disukai.has(k.id);
     k.reposted = diulang.has(k.id);
+    k.saved = disimpan.has(k.id);
   }
 }
 
@@ -318,6 +349,200 @@ export async function ambilStatistik(
     sukaDiterima: Number(baris?.suka_diterima ?? 0),
     ulangDiterima: Number(baris?.ulang_diterima ?? 0),
   };
+}
+
+export type Utas = {
+  /** rantai komentar di atasnya, urut dari yang paling awal */
+  induk: Comment[];
+  komentar: Comment;
+  balasan: Comment[];
+  pengguna: Record<string, User>;
+};
+
+/** Sedalam apa rantai "Membalas @…" ditelusuri ke atas di halaman utas. */
+const DALAM_UTAS = 4;
+const BATAS_BALASAN = 50;
+
+/**
+ * Satu komentar beserta konteksnya untuk halaman tautan tetap: rantai komentar
+ * yang dibalasnya dan balasan yang sudah masuk. Mengembalikan null bila
+ * komentarnya tidak ada — termasuk ketika umurnya sudah lewat 24 jam, karena
+ * kebijakan RLS menyembunyikannya sama seperti dari feed.
+ */
+export async function ambilUtas(
+  sb: KlienSupabase,
+  id: string,
+  akunId: string,
+): Promise<Utas | null> {
+  const pilih = `${KOLOM_KOMENTAR}, author:profiles!comments_author_id_fkey ( ${KOLOM_PROFIL} )`;
+
+  const { data: pusat, error } = await sb
+    .from("comments")
+    .select(pilih)
+    .eq("id", id)
+    .maybeSingle<BarisFeed>();
+
+  if (error) throw error;
+  if (!pusat) return null;
+
+  const induk: BarisFeed[] = [];
+  let indukBerikut = pusat.parent_id;
+  while (indukBerikut && induk.length < DALAM_UTAS) {
+    const { data } = await sb
+      .from("comments")
+      .select(pilih)
+      .eq("id", indukBerikut)
+      .maybeSingle<BarisFeed>();
+    if (!data) break;
+    induk.unshift(data);
+    indukBerikut = data.parent_id;
+  }
+
+  /* Balasan urut naik: percakapan dibaca dari atas ke bawah, tidak seperti
+     beranda yang selalu menaruh yang terbaru di puncak. */
+  const { data: balasan } = await sb
+    .from("comments")
+    .select(pilih)
+    .eq("parent_id", id)
+    .order("created_at", { ascending: true })
+    .limit(BATAS_BALASAN)
+    .returns<BarisFeed[]>();
+
+  const baris = [...induk, pusat, ...(balasan ?? [])];
+  const komentar = baris.map(keComment);
+  const pengguna: Record<string, User> = {};
+  for (const b of baris) {
+    if (b.author) pengguna[b.author.id] = keUser(b.author);
+  }
+
+  await lengkapiKonteks(sb, komentar, pengguna);
+  await tandaiInteraksi(sb, komentar, akunId);
+
+  return {
+    induk: komentar.slice(0, induk.length),
+    komentar: komentar[induk.length],
+    balasan: komentar.slice(induk.length + 1),
+    pengguna,
+  };
+}
+
+export async function ambilProfilHandle(
+  sb: KlienSupabase,
+  handle: string,
+): Promise<User | null> {
+  const { data, error } = await sb
+    .from("profiles")
+    .select(KOLOM_PROFIL)
+    .ilike("handle", handle)
+    .maybeSingle<BarisProfil>();
+
+  if (error) throw error;
+  return data ? keUser(data) : null;
+}
+
+/* ============================================================
+   Notifikasi
+   ============================================================ */
+
+export const BATAS_NOTIFIKASI = 40;
+
+type BarisNotifikasiFeed = BarisNotifikasi & {
+  actor: BarisProfil | null;
+  comment: { id: string; body: string } | null;
+};
+
+/** Sepotong isi komentar, cukup untuk satu baris daftar notifikasi. */
+function kutip(isi: string, batas = 90) {
+  const rapat = isi.replace(/\s+/g, " ").trim();
+  return rapat.length > batas ? `${rapat.slice(0, batas - 1)}…` : rapat;
+}
+
+export async function ambilNotifikasi(
+  sb: KlienSupabase,
+  akunId: string,
+): Promise<{ daftar: Notifikasi[]; pengguna: Record<string, User> }> {
+  /* `comment` bisa pulang kosong walau `comment_id` terisi: komentarnya sudah
+     lewat 24 jam dan tersembunyi oleh RLS, sementara barisnya baru dibuang
+     penyapu berikutnya. Kabarnya tetap ditampilkan, hanya tanpa kutipan. */
+  const { data, error } = await sb
+    .from("notifications")
+    .select(
+      `id, user_id, actor_id, jenis, comment_id, created_at, dibaca_at,
+       actor:profiles!notifications_actor_id_fkey ( ${KOLOM_PROFIL} ),
+       comment:comments ( id, body )`,
+    )
+    .eq("user_id", akunId)
+    .order("created_at", { ascending: false })
+    .limit(BATAS_NOTIFIKASI)
+    .returns<BarisNotifikasiFeed[]>();
+
+  if (error) throw error;
+
+  const pengguna: Record<string, User> = {};
+  const daftar: Notifikasi[] = [];
+
+  for (const baris of data ?? []) {
+    if (baris.actor) pengguna[baris.actor.id] = keUser(baris.actor);
+    daftar.push({
+      id: baris.id,
+      jenis: baris.jenis,
+      aktorId: baris.actor_id,
+      komentarId: baris.comment_id,
+      kutipan: baris.comment ? kutip(baris.comment.body) : null,
+      createdAt: new Date(baris.created_at).getTime(),
+      dibaca: baris.dibaca_at !== null,
+    });
+  }
+
+  return { daftar, pengguna };
+}
+
+export async function hitungBelumDibaca(
+  sb: KlienSupabase,
+  akunId: string,
+): Promise<number> {
+  const { count, error } = await sb
+    .from("notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", akunId)
+    .is("dibaca_at", null);
+
+  if (error) throw error;
+  return count ?? 0;
+}
+
+export async function tandaiNotifikasiDibaca(
+  sb: KlienSupabase,
+  akunId: string,
+) {
+  const { error } = await sb
+    .from("notifications")
+    .update({ dibaca_at: new Date().toISOString() })
+    .eq("user_id", akunId)
+    .is("dibaca_at", null);
+
+  if (error) throw error;
+}
+
+/* ============================================================
+   Tren
+   ============================================================ */
+
+export async function ambilTren(
+  sb: KlienSupabase,
+  batas = 6,
+): Promise<Tren[]> {
+  const { data, error } = await sb
+    .rpc("tren_tagar", { batas })
+    .returns<{ tagar: string; komentar: number; penulis: number }[]>();
+
+  if (error) throw error;
+
+  return (data ?? []).map((baris) => ({
+    tagar: baris.tagar,
+    komentar: Number(baris.komentar),
+    penulis: Number(baris.penulis),
+  }));
 }
 
 /* ============================================================
@@ -378,6 +603,60 @@ export async function setUlang(
         .eq("user_id", akunId);
 
   if (error && error.code !== "23505") throw error;
+}
+
+export async function setSimpan(
+  sb: KlienSupabase,
+  komentarId: string,
+  akunId: string,
+  simpan: boolean,
+) {
+  const { error } = simpan
+    ? await sb.from("bookmarks").insert({ comment_id: komentarId, user_id: akunId })
+    : await sb
+        .from("bookmarks")
+        .delete()
+        .eq("comment_id", komentarId)
+        .eq("user_id", akunId);
+
+  if (error && error.code !== "23505") throw error;
+}
+
+export async function setIkut(
+  sb: KlienSupabase,
+  akunId: string,
+  targetId: string,
+  ikut: boolean,
+) {
+  const { error } = ikut
+    ? await sb
+        .from("follows")
+        .insert({ follower_id: akunId, following_id: targetId })
+    : await sb
+        .from("follows")
+        .delete()
+        .eq("follower_id", akunId)
+        .eq("following_id", targetId);
+
+  // Menekan "Ikuti" dua kali dari dua layar tidak perlu dianggap kegagalan.
+  if (error && error.code !== "23505") throw error;
+}
+
+export async function apakahMengikuti(
+  sb: KlienSupabase,
+  akunId: string,
+  targetId: string,
+): Promise<boolean> {
+  if (akunId === targetId) return false;
+
+  const { data } = await sb
+    .from("follows")
+    .select("following_id")
+    .eq("follower_id", akunId)
+    .eq("following_id", targetId)
+    .maybeSingle();
+
+  return Boolean(data);
 }
 
 export type PerubahanProfil = {

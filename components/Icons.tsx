@@ -240,6 +240,48 @@ export function IkonBahasa(p: IkonProps) {
   );
 }
 
+export function IkonLonceng({ aktif, ...p }: IkonProps & { aktif?: boolean }) {
+  return (
+    <Dasar {...p}>
+      <path
+        d="M18.3 16.2V11a6.3 6.3 0 1 0-12.6 0v5.2L4.2 18.4h15.6z"
+        fill={aktif ? "currentColor" : "none"}
+      />
+      <path d="M10 21.2a2.3 2.3 0 0 0 4 0" />
+    </Dasar>
+  );
+}
+
+export function IkonSimpan({ terisi, ...p }: IkonProps & { terisi?: boolean }) {
+  return (
+    <Dasar {...p}>
+      <path
+        d="M6.4 3.9h11.2c.6 0 1 .5 1 1.1v15.2l-6.6-4.4-6.6 4.4V5c0-.6.4-1.1 1-1.1Z"
+        fill={terisi ? "currentColor" : "none"}
+      />
+    </Dasar>
+  );
+}
+
+export function IkonTren(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <path d="M3.6 16.4 9 10.9l3.4 3.4 7-7.2" />
+      <path d="M15.2 7.1h4.2v4.3" />
+    </Dasar>
+  );
+}
+
+export function IkonPasang(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <path d="M12 3.6v11.2" />
+      <path d="m7.8 10.7 4.2 4.1 4.2-4.1" />
+      <path d="M4.4 17.1v2.2c0 .6.5 1.1 1.1 1.1h13c.6 0 1.1-.5 1.1-1.1v-2.2" />
+    </Dasar>
+  );
+}
+
 export function IkonTerverifikasi({ size = 18, ...sisa }: IkonProps) {
   return (
     <svg

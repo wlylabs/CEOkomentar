@@ -1,20 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import Avatar from "./Avatar";
 import Composer from "./Composer";
 import Lencana from "./Lencana";
+import TeksKomentar from "./TeksKomentar";
 import {
   IkonBagikan,
   IkonBalas,
   IkonJam,
   IkonSampah,
+  IkonSimpan,
   IkonSuka,
   IkonUlang,
 } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import { MASA_KOMENTAR_MS } from "@/lib/kebijakan";
-import { ringkasAngka, sisaWaktu, waktuLengkap, waktuRelatif } from "@/lib/time";
+import { angkaPenuh, angkaSosial, sisaWaktu, waktuLengkap, waktuRelatif } from "@/lib/time";
 import type { Comment, User } from "@/lib/types";
 
 type AksiProps = {
@@ -45,10 +48,13 @@ function Aksi({
       onClick={onClick}
       aria-label={`${label}${jumlah > 0 ? `, ${jumlah}` : ""}`}
       aria-pressed={ditekan}
+      title={label}
     >
       <span className="aksi-ikon">{children}</span>
       {jumlah > 0 && (
-        <span className="aksi-jumlah">{ringkasAngka(jumlah, bahasa)}</span>
+        <span className="aksi-jumlah" title={angkaPenuh(jumlah, bahasa)}>
+          {angkaSosial(jumlah, bahasa)}
+        </span>
       )}
     </button>
   );
@@ -61,12 +67,18 @@ type Props = {
   /** epoch ms untuk menghitung label waktu relatif */
   sekarang: number;
   balasTerbuka: boolean;
+  /** komentar yang jadi pusat perhatian di halaman utas */
+  sorot?: boolean;
   onSuka: () => void;
   onUlang: () => void;
+  onSimpan: () => void;
   onBukaBalas: () => void;
   onKirimBalasan: (teks: string) => void;
   onBagikan: () => void;
   onHapus: () => void;
+  onBukaProfil: (pengguna: User) => void;
+  onTagar: (tagar: string) => void;
+  onSebut: (handle: string) => void;
 };
 
 export default function CommentCard({
@@ -75,12 +87,17 @@ export default function CommentCard({
   akunSaya,
   sekarang,
   balasTerbuka,
+  sorot = false,
   onSuka,
   onUlang,
+  onSimpan,
   onBukaBalas,
   onKirimBalasan,
   onBagikan,
   onHapus,
+  onBukaProfil,
+  onTagar,
+  onSebut,
 }: Props) {
   const { bahasa, t } = useBahasa();
   const [konfirmasiHapus, setKonfirmasiHapus] = useState(false);
@@ -93,26 +110,41 @@ export default function CommentCard({
   const sisa = sisaWaktu(komentar.createdAt, MASA_KOMENTAR_MS, sekarang, bahasa);
 
   return (
-    <article className="komentar">
+    <article className={`komentar${sorot ? " komentar-sorot" : ""}`}>
       <div className="komentar-baris">
-        <Avatar pengguna={penulis} />
+        <button
+          type="button"
+          className="komentar-avatar"
+          onClick={() => onBukaProfil(penulis)}
+          aria-label={t("profil.buka", { handle: penulis.handle })}
+        >
+          <Avatar pengguna={penulis} />
+        </button>
 
         <div className="komentar-isi">
           <header className="komentar-kepala">
-            <span className="komentar-nama">{penulis.name}</span>
-            <Lencana pengguna={penulis} size={17} />
-            <span className="komentar-handle">@{penulis.handle}</span>
+            <button
+              type="button"
+              className="komentar-penulis"
+              onClick={() => onBukaProfil(penulis)}
+            >
+              <span className="komentar-nama">{penulis.name}</span>
+              <Lencana pengguna={penulis} size={17} />
+              <span className="komentar-handle">@{penulis.handle}</span>
+            </button>
             <span className="komentar-pemisah" aria-hidden="true">
               ·
             </span>
-            <time
-              className="komentar-waktu"
-              dateTime={new Date(komentar.createdAt).toISOString()}
-              title={waktuLengkap(komentar.createdAt, bahasa)}
-              suppressHydrationWarning
-            >
-              {waktuRelatif(komentar.createdAt, sekarang, bahasa)}
-            </time>
+            <Link className="komentar-tautan-waktu" href={`/komentar/${komentar.id}`}>
+              <time
+                className="komentar-waktu"
+                dateTime={new Date(komentar.createdAt).toISOString()}
+                title={waktuLengkap(komentar.createdAt, bahasa)}
+                suppressHydrationWarning
+              >
+                {waktuRelatif(komentar.createdAt, sekarang, bahasa)}
+              </time>
+            </Link>
 
             {sisa && (
               <span
@@ -145,11 +177,17 @@ export default function CommentCard({
           {komentar.parentHandle && (
             <p className="komentar-konteks">
               {t("komentar.membalas")}{" "}
-              <span className="sebut">@{komentar.parentHandle}</span>
+              <button
+                type="button"
+                className="sebut sebut-tombol"
+                onClick={() => onSebut(komentar.parentHandle ?? "")}
+              >
+                @{komentar.parentHandle}
+              </button>
             </p>
           )}
 
-          <p className="komentar-teks">{komentar.text}</p>
+          <TeksKomentar teks={komentar.text} onTagar={onTagar} onSebut={onSebut} />
 
           {konfirmasiHapus && (
             <div
@@ -215,6 +253,17 @@ export default function CommentCard({
               onClick={onSuka}
             >
               <IkonSuka size={19} terisi={komentar.liked} />
+            </Aksi>
+
+            <Aksi
+              label={komentar.saved ? t("aksi.batalSimpan") : t("aksi.simpan")}
+              jumlah={0}
+              warna="biru"
+              aktif={komentar.saved}
+              ditekan={komentar.saved}
+              onClick={onSimpan}
+            >
+              <IkonSimpan size={19} terisi={komentar.saved} />
             </Aksi>
 
             <Aksi

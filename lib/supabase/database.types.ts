@@ -37,6 +37,21 @@ type BarisTanda = {
   created_at: string;
 };
 
+export type JenisNotifikasi = "suka" | "ulang" | "balas" | "ikut";
+
+export type BarisNotifikasi = {
+  id: string;
+  /** penerima kabar */
+  user_id: string;
+  /** yang melakukan */
+  actor_id: string;
+  jenis: JenisNotifikasi;
+  /** null untuk kabar 'ikut' */
+  comment_id: string | null;
+  created_at: string;
+  dibaca_at: string | null;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -70,6 +85,20 @@ export type Database = {
         Update: Partial<{ follower_id: string; following_id: string }>;
         Relationships: [];
       };
+      bookmarks: {
+        Row: BarisTanda;
+        Insert: Pick<BarisTanda, "comment_id" | "user_id">;
+        Update: Partial<BarisTanda>;
+        Relationships: [];
+      };
+      /* Baris notifikasi hanya ditulis pemicu basis data; aplikasi cuma membaca,
+         menandai terbaca, dan menghapus. */
+      notifications: {
+        Row: BarisNotifikasi;
+        Insert: never;
+        Update: Partial<Pick<BarisNotifikasi, "dibaca_at">>;
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -84,6 +113,10 @@ export type Database = {
       apakah_admin: {
         Args: { pengguna?: string };
         Returns: boolean;
+      };
+      tren_tagar: {
+        Args: { batas?: number };
+        Returns: { tagar: string; komentar: number; penulis: number }[];
       };
       statistik_pengguna: {
         Args: { pengguna: string };
