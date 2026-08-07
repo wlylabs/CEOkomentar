@@ -10,6 +10,7 @@ import {
   IkonLokasi,
   IkonTutup,
 } from "./Icons";
+import type { JenisKabar } from "./Kabar";
 import { useBahasa } from "@/lib/i18n/konteks";
 import { klienPeramban } from "@/lib/supabase/client";
 import { hapusMedia, simpanProfil, unggahMedia } from "@/lib/api";
@@ -38,7 +39,7 @@ type Props = {
   jumlahSukaDiterima: number;
   onIkuti: () => void;
   onSimpan: (pengguna: User) => void;
-  onKabar: (pesan: string) => void;
+  onKabar: (pesan: string, jenis?: JenisKabar) => void;
 };
 
 export default function ProfileHeader({
@@ -203,7 +204,7 @@ export default function ProfileHeader({
       setGalat(
         pesan.includes("row-level security") ? t("profil.galatIzin") : pesan,
       );
-      onKabar(t("pesan.profilGagal"));
+      onKabar(t("pesan.profilGagal"), "galat");
     } finally {
       setMenyimpan(false);
     }

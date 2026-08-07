@@ -8,18 +8,18 @@ import Brand from "./Brand";
 import CommentCard from "./CommentCard";
 import Composer from "./Composer";
 import DaftarNotifikasi from "./DaftarNotifikasi";
+import Kabar, { type IsiKabar, type JenisKabar } from "./Kabar";
 import ProfileHeader from "./ProfileHeader";
 import RightRail from "./RightRail";
 import Sidebar from "./Sidebar";
+import TombolTema from "./TombolTema";
 import BilahTamu from "./BilahTamu";
 import PemilihBahasa from "./PemilihBahasa";
 import {
-  IkonBulan,
   IkonCari,
   IkonJam,
   IkonKeluar,
   IkonKembali,
-  IkonMatahari,
   IkonTulis,
 } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
@@ -44,6 +44,7 @@ import {
   tandaiNotifikasiDibaca,
 } from "@/lib/api";
 import { MASA_KOMENTAR_JAM, MASA_KOMENTAR_MS } from "@/lib/kebijakan";
+import { bacaPilihan, beralihTema, temaTerpasang } from "@/lib/tema";
 import { angkaSosial } from "@/lib/time";
 import type {
   Comment,
@@ -69,8 +70,6 @@ const STATISTIK_KOSONG: Statistik = {
   sukaDiterima: 0,
   ulangDiterima: 0,
 };
-
-type Tema = "terang" | "gelap";
 
 /**
  * Pesan dari Supabase selalu berbahasa Inggris dan lebih tepat daripada
@@ -116,8 +115,7 @@ export default function App({
   const [kueri, setKueri] = useState("");
   const [kueriTertunda, setKueriTertunda] = useState("");
   const [balasUntuk, setBalasUntuk] = useState<string | null>(null);
-  const [tema, setTema] = useState<Tema>("gelap");
-  const [pesan, setPesan] = useState<string | null>(null);
+  const [kabar, setKabar] = useState<IsiKabar | null>(null);
   const [sekarang, setSekarang] = useState(() => Date.now());
 
   /* Profil yang sedang dibuka. Sama dengan akun sendiri sampai ada nama atau
@@ -154,41 +152,53 @@ export default function App({
   const penggunaProfil = profilSaya ? akun : profilLain;
 
   /* ----------------------------------------------------------------
-     Tema, jam, dan pesan sekilas
+     Tema, jam, dan kabar sekilas
      ---------------------------------------------------------------- */
 
-  useEffect(() => {
-    const tersimpan = window.localStorage.getItem("tm-tema");
-    if (tersimpan === "terang" || tersimpan === "gelap") {
-      setTema(tersimpan);
-      return;
-    }
-    const terang = window.matchMedia("(prefers-color-scheme: light)").matches;
-    setTema(terang ? "terang" : "gelap");
-  }, []);
+  /* Tema sepenuhnya tinggal di DOM: SKRIP_TEMA memasangnya sebelum lukisan
+     pertama, dan TombolTema membaca `data-tema` lewat CSS. React sengaja tidak
+     mencerminkannya — cerminan itu baru terisi benar setelah halaman
+     terhidrasi, dan selama jeda itulah dulu warnanya berkedip. */
+  function gantiTema() {
+    beralihTema(temaTerpasang() === "gelap" ? "terang" : "gelap");
+  }
 
+  /* Selama pemakai belum pernah memilih sendiri, temanya mengikuti setelan
+     sistem — termasuk ketika setelan itu berubah saat halaman sedang terbuka. */
   useEffect(() => {
-    document.documentElement.dataset.tema = tema;
-    window.localStorage.setItem("tm-tema", tema);
-  }, [tema]);
+    const media = window.matchMedia("(prefers-color-scheme: light)");
+
+    function ikutSistem() {
+      if (bacaPilihan()) return;
+      beralihTema(media.matches ? "terang" : "gelap", { simpan: false });
+    }
+
+    media.addEventListener("change", ikutSistem);
+    return () => media.removeEventListener("change", ikutSistem);
+  }, []);
 
   useEffect(() => {
     const id = window.setInterval(() => setSekarang(Date.now()), 60_000);
     return () => window.clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    if (!pesan) return;
-    const id = window.setTimeout(() => setPesan(null), 2600);
-    return () => window.clearTimeout(id);
-  }, [pesan]);
+  /* Nomor urut kabar. Dua kali menekan tombol yang sama harus terasa sebagai
+     dua kabar, jadi yang membedakannya bukan kalimatnya. */
+  const nomorKabar = useRef(0);
+
+  const beriKabar = useCallback((teks: string, jenis: JenisKabar = "info") => {
+    nomorKabar.current += 1;
+    setKabar({ id: nomorKabar.current, teks, jenis });
+  }, []);
+
+  const tutupKabar = useCallback(() => setKabar(null), []);
 
   /* Galat dari tautan email dikirim lewat query string oleh /auth/callback. */
   useEffect(() => {
     const alamat = new URL(window.location.href);
     const galat = alamat.searchParams.get("galat");
     if (!galat) return;
-    setPesan(galat);
+    beriKabar(galat, "galat");
     alamat.searchParams.delete("galat");
     window.history.replaceState(null, "", alamat.pathname + alamat.search);
   }, []);
@@ -385,7 +395,9 @@ export default function App({
         }
       })
       .catch((kesalahan) => {
-        if (!batal) setPesan(pesanGalat(kesalahan, "galat.muatNotifikasi", t));
+        if (!batal) {
+          beriKabar(pesanGalat(kesalahan, "galat.muatNotifikasi", t), "galat");
+        }
       })
       .finally(() => {
         if (!batal) setMemuatKabar(false);
@@ -416,7 +428,7 @@ export default function App({
       setKursor(halaman.kursor);
       setHabis(halaman.habis);
     } catch (kesalahan) {
-      setPesan(pesanGalat(kesalahan, "galat.muatLagi", t));
+      beriKabar(pesanGalat(kesalahan, "galat.muatLagi", t), "galat");
     } finally {
       setMemuatLagi(false);
     }
@@ -481,12 +493,15 @@ export default function App({
         ubahKomentar(parentId, (k) => ({ ...k, replies: k.replies + 1 }));
       }
 
-      setPesan(t(parentId ? "pesan.balasanTerkirim" : "pesan.komentarTerkirim"));
+      beriKabar(
+        t(parentId ? "pesan.balasanTerkirim" : "pesan.komentarTerkirim"),
+        "berhasil",
+      );
       segarkanStatistik();
       /* Tagar di komentar baru bisa langsung mengubah papan tren. */
       if (teks.includes("#")) segarkanTren();
     } catch (kesalahan) {
-      setPesan(pesanGalat(kesalahan, "galat.kirimKomentar", t));
+      beriKabar(pesanGalat(kesalahan, "galat.kirimKomentar", t), "galat");
     }
   }
 
@@ -506,7 +521,7 @@ export default function App({
       segarkanStatistik();
     } catch (kesalahan) {
       ubahKomentar(id, () => sebelumnya);
-      setPesan(pesanGalat(kesalahan, "galat.suka", t));
+      beriKabar(pesanGalat(kesalahan, "galat.suka", t), "galat");
     }
   }
 
@@ -525,7 +540,7 @@ export default function App({
       await setUlang(supabase, id, akun.id, ulang);
     } catch (kesalahan) {
       ubahKomentar(id, () => sebelumnya);
-      setPesan(pesanGalat(kesalahan, "galat.ulang", t));
+      beriKabar(pesanGalat(kesalahan, "galat.ulang", t), "galat");
     }
   }
 
@@ -538,7 +553,10 @@ export default function App({
 
     try {
       await setSimpan(supabase, id, akun.id, simpan);
-      setPesan(t(simpan ? "pesan.komentarDisimpan" : "pesan.simpananDibuang"));
+      beriKabar(
+        t(simpan ? "pesan.komentarDisimpan" : "pesan.simpananDibuang"),
+        "berhasil",
+      );
       /* Tab "Disimpan" adalah daftar itu sendiri, jadi barisnya langsung pergi
          begitu tandanya dilepas. */
       if (!simpan && tampilan === "profil" && tab === "disimpan") {
@@ -546,7 +564,7 @@ export default function App({
       }
     } catch (kesalahan) {
       ubahKomentar(id, () => sebelumnya);
-      setPesan(pesanGalat(kesalahan, "galat.simpan", t));
+      beriKabar(pesanGalat(kesalahan, "galat.simpan", t), "galat");
     }
   }
 
@@ -570,10 +588,11 @@ export default function App({
 
     try {
       await setIkut(supabase, akun.id, sasaran.id, ikut);
-      setPesan(
+      beriKabar(
         t(ikut ? "pesan.mulaiMengikuti" : "pesan.berhentiMengikuti", {
           handle: sasaran.handle,
         }),
+        "berhasil",
       );
     } catch (kesalahan) {
       setMengikuti(!ikut);
@@ -582,7 +601,7 @@ export default function App({
         ...sebelum,
         following: Math.max(0, sebelum.following - geser),
       }));
-      setPesan(pesanGalat(kesalahan, "galat.ikut", t));
+      beriKabar(pesanGalat(kesalahan, "galat.ikut", t), "galat");
     } finally {
       setMenungguIkut(false);
     }
@@ -601,11 +620,11 @@ export default function App({
           replies: Math.max(0, k.replies - 1),
         }));
       }
-      setPesan(t("pesan.komentarDihapus"));
+      beriKabar(t("pesan.komentarDihapus"), "berhasil");
       segarkanStatistik();
     } catch (kesalahan) {
       setKomentar(sebelumnya);
-      setPesan(pesanGalat(kesalahan, "galat.hapusKomentar", t));
+      beriKabar(pesanGalat(kesalahan, "galat.hapusKomentar", t), "galat");
     }
   }
 
@@ -613,9 +632,9 @@ export default function App({
     const tautan = `${window.location.origin}/komentar/${id}`;
     try {
       await navigator.clipboard.writeText(tautan);
-      setPesan(t("pesan.tautanDisalin"));
+      beriKabar(t("pesan.tautanDisalin"), "berhasil");
     } catch {
-      setPesan(t("pesan.papanKlipDitolak"));
+      beriKabar(t("pesan.papanKlipDitolak"), "galat");
     }
   }
 
@@ -638,7 +657,7 @@ export default function App({
   function simpanProfilLokal(baru: User) {
     setAkun(baru);
     setPengguna((sebelum) => ({ ...sebelum, [baru.id]: baru }));
-    setPesan(t("pesan.profilDiperbarui"));
+    beriKabar(t("pesan.profilDiperbarui"), "berhasil");
   }
 
   function keAtas() {
@@ -689,9 +708,9 @@ export default function App({
     try {
       const profil = await ambilProfilHandle(supabase, handle);
       if (profil) bukaProfil(profil);
-      else setPesan(t("pesan.profilTakDitemukan", { handle }));
+      else beriKabar(t("pesan.profilTakDitemukan", { handle }));
     } catch {
-      setPesan(t("pesan.profilTakDitemukan", { handle }));
+      beriKabar(t("pesan.profilTakDitemukan", { handle }));
     }
   }
 
@@ -761,8 +780,7 @@ export default function App({
         onTulis={mulaiMenulis}
         pengguna={akun}
         belumDibaca={belumDibaca}
-        tema={tema}
-        onGantiTema={() => setTema(tema === "gelap" ? "terang" : "gelap")}
+        onGantiTema={gantiTema}
         onKeluar={mintaKeluar}
       />
 
@@ -787,16 +805,7 @@ export default function App({
 
           <span className="bilah-aksi">
             <PemilihBahasa varian="bulat" size={20} />
-            <button
-              type="button"
-              className="bulat"
-              onClick={() => setTema(tema === "gelap" ? "terang" : "gelap")}
-              aria-label={
-                tema === "gelap" ? t("nav.keTemaTerang") : t("nav.keTemaGelap")
-              }
-            >
-              {tema === "gelap" ? <IkonMatahari size={20} /> : <IkonBulan size={20} />}
-            </button>
+            <TombolTema varian="bulat" size={20} onGanti={gantiTema} />
             <button
               type="button"
               className="bulat"
@@ -809,10 +818,7 @@ export default function App({
         </div>
 
         {tamu && (
-          <BilahTamu
-            onSelesai={() => router.refresh()}
-            onKabar={setPesan}
-          />
+          <BilahTamu onSelesai={() => router.refresh()} onKabar={beriKabar} />
         )}
 
         {tampilan === "profil" && penggunaProfil && (
@@ -848,7 +854,7 @@ export default function App({
               jumlahSukaDiterima={statistikProfil.sukaDiterima}
               onIkuti={alihkanIkut}
               onSimpan={simpanProfilLokal}
-              onKabar={setPesan}
+              onKabar={beriKabar}
             />
           </>
         )}
@@ -1101,9 +1107,7 @@ export default function App({
         </div>
       )}
 
-      <div className="pesan-wadah" aria-live="polite" role="status">
-        {pesan && <div className="pesan">{pesan}</div>}
-      </div>
+      <Kabar kabar={kabar} onTutup={tutupKabar} />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { IkonMata, IkonPeringatan, IkonTamu, IkonTutup } from "./Icons";
+import type { JenisKabar } from "./Kabar";
 import { useBahasa } from "@/lib/i18n/konteks";
 import { klienPeramban } from "@/lib/supabase/client";
 
@@ -10,7 +11,7 @@ const PANJANG_SANDI = 8;
 type Props = {
   /** dipanggil setelah akun tamu benar-benar menjadi permanen */
   onSelesai: () => void;
-  onKabar: (pesan: string) => void;
+  onKabar: (pesan: string, jenis?: JenisKabar) => void;
 };
 
 /**
@@ -65,11 +66,11 @@ export default function BilahTamu({ onSelesai, onKabar }: Props) {
        dibuka; sampai saat itu sesinya masih sesi tamu. */
     if (data.user?.new_email) {
       setTerbuka(false);
-      onKabar(t("tamu.cekEmail"));
+      onKabar(t("tamu.cekEmail"), "info");
       return;
     }
 
-    onKabar(t("tamu.berhasil"));
+    onKabar(t("tamu.berhasil"), "berhasil");
     onSelesai();
   }
 

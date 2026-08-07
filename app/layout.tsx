@@ -4,6 +4,7 @@ import "./globals.css";
 import { KUNCI_BAHASA, bacaBahasa } from "@/lib/i18n/bahasa";
 import { teks } from "@/lib/i18n/kamus";
 import { PenyediaBahasa } from "@/lib/i18n/konteks";
+import { SKRIP_TEMA, TEMA_BAWAAN } from "@/lib/tema";
 import DaftarSW from "@/components/DaftarSW";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -34,14 +35,9 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
-  ],
+  /* themeColor sengaja tidak diisi di sini: meta itu dipasang SKRIP_TEMA agar
+     mengikuti tema pilihan pemakai, bukan setelan sistemnya. Lihat lib/tema.ts. */
 };
-
-/** Menetapkan tema sebelum lukisan pertama agar tidak ada kedipan warna. */
-const SKRIP_TEMA = `(function(){try{var t=localStorage.getItem("tm-tema");if(t!=="terang"&&t!=="gelap"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"terang":"gelap";}document.documentElement.dataset.tema=t;}catch(e){document.documentElement.dataset.tema="gelap";}})();`;
 
 export default async function RootLayout({
   children,
@@ -51,7 +47,7 @@ export default async function RootLayout({
   const bahasa = bacaBahasa((await cookies()).get(KUNCI_BAHASA)?.value);
 
   return (
-    <html lang={bahasa} data-tema="gelap" suppressHydrationWarning>
+    <html lang={bahasa} data-tema={TEMA_BAWAAN} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: SKRIP_TEMA }} />
       </head>

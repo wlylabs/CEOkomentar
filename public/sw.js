@@ -15,7 +15,9 @@
  * feed tetap memerlukan jaringan; yang bekerja luring adalah kerangkanya.
  */
 
-const VERSI = "tm-v1";
+/* Dinaikkan setiap kali isi BEKAL berubah, supaya perangkat yang sudah
+   menyimpan versi lama mengambil yang baru. */
+const VERSI = "tm-v2";
 const SIMPANAN_STATIS = `${VERSI}-statis`;
 const LURING = "/luring.html";
 

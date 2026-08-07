@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#000000" />
     <title>Tidak ada koneksi — Twitter Mini</title>
     <!--
       Halaman ini disajikan service worker ketika jaringan mati, jadi ia harus
@@ -19,12 +18,27 @@
         --samar: #71767b;
         --aksen: #1d9bf0;
       }
+      /* Tanpa pilihan tersimpan, setelan sistem yang dipakai. */
       @media (prefers-color-scheme: light) {
         :root {
           --latar: #ffffff;
           --teks: #0f1419;
           --samar: #536471;
         }
+      }
+      /* Pilihan pemakai di aplikasi menang atas setelan sistem, sama seperti
+         di halaman biasa; skrip di bawah yang memasang atributnya. */
+      :root[data-tema="gelap"] {
+        color-scheme: dark;
+        --latar: #000000;
+        --teks: #e7e9ea;
+        --samar: #71767b;
+      }
+      :root[data-tema="terang"] {
+        color-scheme: light;
+        --latar: #ffffff;
+        --teks: #0f1419;
+        --samar: #536471;
       }
       * {
         box-sizing: border-box;
@@ -76,6 +90,30 @@
         background: #1a8cd8;
       }
     </style>
+    <!--
+      Kembaran SKRIP_TEMA di lib/tema.ts. Berkas ini tidak boleh mengimpor apa
+      pun, jadi logikanya ditulis ulang; keduanya harus ikut berubah bila salah
+      satu diubah.
+    -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("tm-tema");
+          if (t !== "terang" && t !== "gelap") {
+            t = matchMedia("(prefers-color-scheme: light)").matches
+              ? "terang"
+              : "gelap";
+          }
+          document.documentElement.dataset.tema = t;
+          var m = document.createElement("meta");
+          m.name = "theme-color";
+          m.content = t === "terang" ? "#ffffff" : "#000000";
+          document.head.appendChild(m);
+        } catch (e) {
+          /* Tanpa localStorage halaman ini tetap terbaca lewat @media. */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div class="kotak">

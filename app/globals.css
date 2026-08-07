@@ -24,6 +24,8 @@
   --suka-lembut: rgba(249, 24, 128, 0.12);
   --ulang: #00ba7c;
   --ulang-lembut: rgba(0, 186, 124, 0.12);
+  --bahaya: #f4212e;
+  --bahaya-lembut: rgba(244, 33, 46, 0.14);
   --emas: #f5c518;
   --tanda-dalam: #000000;
   --lencana-tanda: #000000;
@@ -48,6 +50,8 @@
   --suka-lembut: rgba(249, 24, 128, 0.1);
   --ulang: #00ba7c;
   --ulang-lembut: rgba(0, 186, 124, 0.1);
+  --bahaya: #e0245e;
+  --bahaya-lembut: rgba(224, 36, 94, 0.1);
   --emas: #d4a017;
   --tanda-dalam: #ffffff;
   --lencana-tanda: #ffffff;
@@ -1715,41 +1719,126 @@ input::-webkit-strong-password-auto-fill-button {
   }
 }
 
-.pesan-wadah {
+/* ============================================================
+   Kabar sekilas
+   ============================================================ */
+
+.kabar-wadah {
+  display: flex;
+  justify-content: center;
   position: fixed;
-  left: 50%;
-  bottom: calc(74px + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  /* Di atas tombol tulis yang mengambang, yang sendirinya duduk di atas bilah
+     bawah. Kartunya selebar layar, jadi kalau sejajar keduanya pasti bertindih. */
+  bottom: calc(134px + env(safe-area-inset-bottom));
   z-index: 50;
-  transform: translateX(-50%);
+  padding: 0 12px;
+  /* Wadahnya melintang selebar layar supaya kartunya bisa dipusatkan tanpa
+     translate — transform di wadah akan bertabrakan dengan transform yang
+     dipakai animasi masuk-keluar kartunya. */
   pointer-events: none;
 }
 
 @media (min-width: 768px) {
-  .pesan-wadah {
-    bottom: 26px;
+  .kabar-wadah {
+    justify-content: flex-start;
+    left: auto;
+    right: 24px;
+    bottom: 24px;
+    padding: 0;
   }
 }
 
-.pesan {
-  padding: 12px 18px;
-  border-radius: 10px;
-  background: var(--aksen);
-  color: #ffffff;
+/* Kalimatnya diumumkan pembaca layar dari sini, bukan dari kartunya, supaya
+   pengumumannya tidak ikut hilang bersama animasi keluar. */
+.kabar-siar {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.kabar {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  max-width: 380px;
+  padding: 12px 12px 12px 14px;
+  border: 1px solid var(--garis);
+  /* Sudutnya menyamai kartu dialog, bukan pil biru yang berdiri sendiri. */
+  border-radius: 16px;
+  background: var(--latar-buram);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--bayang);
+  color: var(--teks);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kabar[data-tampil="ya"] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.kabar-ikon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  /* Warna diisi tiap varian di bawah; nadanya sama dengan tombol suka dan
+     ulang di kartu komentar. */
+  background: var(--aksen-lembut);
+  color: var(--aksen);
+}
+
+.kabar[data-jenis="berhasil"] .kabar-ikon {
+  background: var(--ulang-lembut);
+  color: var(--ulang);
+}
+
+.kabar[data-jenis="galat"] .kabar-ikon {
+  background: var(--bahaya-lembut);
+  color: var(--bahaya);
+}
+
+.kabar-teks {
+  flex: 1;
+  min-width: 0;
+  padding-top: 4px;
   font-size: 14px;
   font-weight: 600;
-  box-shadow: var(--bayang);
-  animation: naik 0.2s ease-out;
+  line-height: 1.4;
+  /* Galat dari Supabase bisa satu kalimat panjang tanpa spasi. */
+  overflow-wrap: anywhere;
 }
 
-@keyframes naik {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.kabar-tutup {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--teks-samar);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.kabar-tutup:hover {
+  background: var(--lapis-hover-kuat);
+  color: var(--teks);
 }
 
 /* ============================================================
@@ -2382,4 +2471,48 @@ input::-webkit-strong-password-auto-fill-button {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ============================================================
+   Peralihan tema
+   ============================================================ */
+
+/* Tombol tema merender kedua wajahnya sekaligus, dan yang tidak sesuai tema
+   yang sedang berlaku disembunyikan di sini. `display: contents` menjaga ikon
+   tetap menjadi anak langsung tombolnya, jadi tata letaknya tidak berubah.
+   Lihat TombolTema.tsx. */
+.tema-jika-gelap,
+.tema-jika-terang {
+  display: contents;
+}
+
+:root[data-tema="terang"] .tema-jika-gelap,
+:root[data-tema="gelap"] .tema-jika-terang {
+  display: none;
+}
+
+/*
+ * Warna meleleh dari tema lama ke tema baru, bukan berganti dalam satu bingkai.
+ *
+ * Kelasnya hanya menempel selama peralihan berlangsung (lihat beralihTema di
+ * lib/tema.ts). Kalau transisinya dipasang permanen, setiap latar yang berubah
+ * karena tetikus lewat ikut tertahan, dan setiap kartu yang baru masuk daftar
+ * mulai dari warna yang salah.
+ *
+ * !important dipakai karena banyak elemen sudah punya transisi sendiri yang
+ * lebih pendek. Aturan ini tidak pernah aktif saat pemakai meminta gerak
+ * seminimal mungkin, sebab kelasnya memang tidak dipasang dalam keadaan itu.
+ */
+html.tema-beralih,
+html.tema-beralih *,
+html.tema-beralih *::before,
+html.tema-beralih *::after {
+  transition:
+    background-color 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease,
+    fill 0.22s ease,
+    stroke 0.22s ease,
+    box-shadow 0.22s ease !important;
+  transition-delay: 0s !important;
 }

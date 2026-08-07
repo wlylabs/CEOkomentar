@@ -209,6 +209,7 @@ const KAMUS_ID = {
   "pesan.papanKlipDitolak": "Peramban menolak akses papan klip",
   "pesan.profilDiperbarui": "Profil diperbarui",
   "pesan.profilGagal": "Profil gagal disimpan",
+  "pesan.tutup": "Tutup pesan",
 
   /* --------------------------------------------------------------- galat */
   "galat.judul": "Komentar tidak bisa dimuat",
@@ -523,6 +524,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "pesan.papanKlipDitolak": "The browser denied clipboard access",
   "pesan.profilDiperbarui": "Profile updated",
   "pesan.profilGagal": "The profile could not be saved",
+  "pesan.tutup": "Dismiss message",
 
   /* --------------------------------------------------------------- galat */
   "galat.judul": "Comments could not be loaded",
