@@ -765,12 +765,14 @@ export default function App({
         : t("kosong.profilOrang", { handle: penggunaProfil?.handle ?? "" })
       : t("kosong.beranda");
 
+  /* Beranda memakai lambangnya di kiri bilah, jadi namanya tidak perlu diulang
+     lagi di tengah; ruang kosongnya tetap dipakai untuk menjaga tata letak. */
   const judulBilah =
     tampilan === "profil"
       ? (penggunaProfil?.name ?? t("nav.profil"))
       : tampilan === "notifikasi"
         ? t("nav.notifikasi")
-        : t("umum.merek");
+        : "";
 
   return (
     <div className="kerangka">
@@ -823,6 +825,8 @@ export default function App({
 
         {tampilan === "profil" && penggunaProfil && (
           <>
+            {/* Hanya tombol kembali: nama dan jumlah komentarnya sudah terbaca
+                utuh di kartu profil tepat di bawah bilah ini. */}
             <div className="kepala-profil">
               <button
                 type="button"
@@ -832,17 +836,6 @@ export default function App({
               >
                 <IkonKembali size={20} />
               </button>
-              <span className="kepala-profil-teks">
-                <span className="kepala-profil-nama">{penggunaProfil.name}</span>
-                <span className="kepala-profil-sub">
-                  {t("umum.jumlahKomentar", {
-                    jumlah: angkaSosial(
-                      statistikProfil.komentar + statistikProfil.balasan,
-                      bahasa,
-                    ),
-                  })}
-                </span>
-              </span>
             </div>
 
             <ProfileHeader
@@ -1061,7 +1054,9 @@ export default function App({
         onKeluar={mintaKeluar}
       />
 
-      {tampilan !== "beranda" && (
+      {/* Di profil tombol melayang ini menutupi kartu profil dan angkanya,
+          sedangkan jalan menulis sudah tersedia lewat navigasi bawah. */}
+      {tampilan === "notifikasi" && (
         <button
           type="button"
           className="apung"
