@@ -27,6 +27,9 @@ import type { Comment, User } from "@/lib/types";
  * Berdiri sendiri di rutenya sendiri supaya tautan komentar bisa dibagikan dan
  * dibuka langsung. Menekan nama atau tagar di sini kembali ke aplikasi utama
  * lewat query string, jadi tidak ada layar profil kedua yang perlu dirawat.
+ *
+ * Sejak beranda hanya memuat komentar utama, halaman inilah satu-satunya tempat
+ * balasan terbaca — dan tempat balasan ditulis.
  */
 export default function Utas({ id, akun }: { id: string; akun: User }) {
   const router = useRouter();
@@ -38,6 +41,21 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
   const [pesan, setPesan] = useState<string | null>(null);
   const [balasUntuk, setBalasUntuk] = useState<string | null>(null);
   const [sekarang, setSekarang] = useState(() => Date.now());
+
+  /* Datang lewat tombol "Balas" di beranda, bukan lewat tautan biasa: komposer
+     di bawah komentar utama langsung siap diketik. Dibaca sekali saat halaman
+     dibuka, lalu penandanya dibuang dari alamat supaya menyegarkan halaman
+     tidak membuka papan ketik lagi. */
+  const [siapMembalas, setSiapMembalas] = useState(false);
+
+  useEffect(() => {
+    const alamat = new URL(window.location.href);
+    if (alamat.searchParams.get("balas") !== "1") return;
+
+    setSiapMembalas(true);
+    alamat.searchParams.delete("balas");
+    window.history.replaceState(null, "", alamat.pathname + alamat.search);
+  }, []);
 
   useEffect(() => {
     let batal = false;
@@ -257,6 +275,12 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
           onHapus={() => hapus(komentar.id)}
           onBukaProfil={(orang) => router.push(`/?profil=${orang.handle}`)}
           onBukaInduk={bukaInduk}
+          /* Balasan bisa punya balasannya sendiri, dan halaman ini hanya memuat
+             balasan langsung; menekan kartunya membuka percakapan di bawahnya.
+             Kartu yang sedang jadi pusat halaman tentu tidak menuju ke mana-mana. */
+          onBukaUtas={
+            sorot ? undefined : () => router.push(`/komentar/${komentar.id}`)
+          }
           onTagar={(tagar) => router.push(`/?tagar=${encodeURIComponent(tagar)}`)}
           onSebut={(handle) => router.push(`/?profil=${handle}`)}
         />
@@ -325,6 +349,7 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
                   handle: utas.pengguna[utas.komentar.authorId]?.handle ?? "",
                 })}
                 labelTombol={t("komposer.balas")}
+                fokusOtomatis={siapMembalas}
                 onKirim={(teks) => balas(teks, utas.komentar.id)}
               />
             </div>

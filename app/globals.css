@@ -828,6 +828,12 @@ input::-webkit-strong-password-auto-fill-button {
   background: var(--lapis-hover);
 }
 
+/* Kartu yang badannya menuju utas. Tombol dan tautan di dalamnya tetap
+   memakai kursornya sendiri. */
+.komentar-dapat-dibuka {
+  cursor: pointer;
+}
+
 /* Avatar duduk sebaris dengan nama penulisnya. Dibiarkan meregang, ia melayang
    di tengah kartu dan tiap baris daftar jadi tampak tidak rata. */
 .komentar-baris {

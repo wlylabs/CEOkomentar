@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import { useState, type MouseEvent, type ReactNode } from "react";
 import Avatar from "./Avatar";
 import Composer from "./Composer";
 import Lencana from "./Lencana";
@@ -66,7 +66,13 @@ type Props = {
   akunSaya: User;
   /** epoch ms untuk menghitung label waktu relatif */
   sekarang: number;
-  balasTerbuka: boolean;
+  /**
+   * Komposer sisipan hanya dipakai di halaman utas, tempat komentar yang
+   * dibalas memang sudah terpampang. Di beranda tombol balas membuka utasnya,
+   * jadi kedua prop ini dibiarkan kosong dan komposernya tidak pernah muncul.
+   */
+  balasTerbuka?: boolean;
+  onKirimBalasan?: (teks: string) => void;
   /** komentar yang jadi pusat perhatian di halaman utas */
   sorot?: boolean;
   /**
@@ -78,7 +84,13 @@ type Props = {
   onUlang: () => void;
   onSimpan: () => void;
   onBukaBalas: () => void;
-  onKirimBalasan: (teks: string) => void;
+  /**
+   * Membuka utas komentar ini. Bila diberikan, badan kartu ikut jadi sasaran
+   * tekan — tanpa itu satu-satunya jalan ke percakapan adalah ikon balas dan
+   * tautan waktu, dan keduanya terlalu kecil untuk sesuatu yang kini menyimpan
+   * seluruh balasan.
+   */
+  onBukaUtas?: () => void;
   onBagikan: () => void;
   onHapus: () => void;
   onBukaProfil: (pengguna: User) => void;
@@ -92,7 +104,7 @@ export default function CommentCard({
   penulis,
   akunSaya,
   sekarang,
-  balasTerbuka,
+  balasTerbuka = false,
   sorot = false,
   konteksJelas = false,
   onSuka,
@@ -100,6 +112,7 @@ export default function CommentCard({
   onSimpan,
   onBukaBalas,
   onKirimBalasan,
+  onBukaUtas,
   onBagikan,
   onHapus,
   onBukaProfil,
@@ -133,9 +146,37 @@ export default function CommentCard({
 
   const ikonAksi = balasan ? 17 : 19;
 
+  /**
+   * Menekan badan kartu membuka utasnya, tetapi hanya kalau yang ditekan memang
+   * badan kartunya: tombol, tautan, tagar, dan nama di dalamnya punya tujuannya
+   * sendiri, dan menyorot teks untuk disalin bukan sebuah tekan.
+   *
+   * Papan ketik tidak memakai jalan ini — tautan waktu di baris nama sudah
+   * menuju utas yang sama dan bisa dicapai dengan Tab.
+   */
+  function tekanKartu(peristiwa: MouseEvent<HTMLElement>) {
+    if (!onBukaUtas) return;
+
+    /* Menu, kotak konfirmasi, dan komposer adalah panel tersendiri yang
+       kebetulan tinggal di dalam kartu — berpindah halaman dari sana akan
+       membuang apa yang sedang dikerjakan di dalamnya. */
+    const sasaran = peristiwa.target as HTMLElement;
+    if (
+      sasaran.closest(
+        "a, button, input, textarea, .menu-kartu-daftar, .komentar-konfirmasi, .komentar-balas",
+      )
+    ) {
+      return;
+    }
+
+    if (window.getSelection()?.toString()) return;
+    onBukaUtas();
+  }
+
   return (
     <article
-      className={`komentar${balasan ? " komentar-balasan" : ""}${sorot ? " komentar-sorot" : ""}`}
+      className={`komentar${balasan ? " komentar-balasan" : ""}${sorot ? " komentar-sorot" : ""}${onBukaUtas ? " komentar-dapat-dibuka" : ""}`}
+      onClick={tekanKartu}
     >
       {konteks && (
         /* Menekan baris ini membuka komentar yang dibalas, bukan profil orang
@@ -307,7 +348,7 @@ export default function CommentCard({
         </div>
       </div>
 
-      {balasTerbuka && (
+      {balasTerbuka && onKirimBalasan && (
         <div className="komentar-balas">
           <Composer
             pengguna={akunSaya}

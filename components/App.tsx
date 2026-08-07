@@ -115,7 +115,6 @@ export default function App({
   const [tab, setTab] = useState<Tab>("komentar");
   const [kueri, setKueri] = useState("");
   const [kueriTertunda, setKueriTertunda] = useState("");
-  const [balasUntuk, setBalasUntuk] = useState<string | null>(null);
   const [kabar, setKabar] = useState<IsiKabar | null>(null);
   const [sekarang, setSekarang] = useState(() => Date.now());
   /* Komentar yang baru saja dituju dari sebuah balasan; sorotannya padam
@@ -448,8 +447,15 @@ export default function App({
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "comments" },
         async (muatan) => {
-          const baris = muatan.new as { id: string; author_id: string };
+          const baris = muatan.new as {
+            id: string;
+            author_id: string;
+            parent_id: string | null;
+          };
           if (baris.author_id === akun.id) return;
+          /* Balasan orang lain tidak menyela beranda; tempatnya di utas
+             komentar yang dibalasnya. */
+          if (baris.parent_id !== null) return;
 
           const hasil = await ambilKomentar(supabase, baris.id, akun.id);
           if (!hasil) return;
@@ -477,30 +483,27 @@ export default function App({
     setKomentar((sebelum) => sebelum.map((k) => (k.id === id ? ubah(k) : k)));
   }
 
-  async function buatKomentar(teks: string, parentId: string | null) {
+  /**
+   * Mengirim komentar utama.
+   *
+   * Hanya komentar utama: balasan ditulis di halaman utas, tempat komentar yang
+   * dibalas terpampang di atas komposernya, dan tidak pernah lewat sini.
+   */
+  async function buatKomentar(teks: string) {
     try {
-      const baru = await kirimKomentar(supabase, akun.id, teks, parentId);
-      baru.parentHandle = parentId
-        ? (pengguna[komentar.find((k) => k.id === parentId)?.authorId ?? ""]
-            ?.handle ?? null)
-        : null;
+      const baru = await kirimKomentar(supabase, akun.id, teks, null);
 
+      /* Daftar yang sedang terbuka belum tentu tempatnya: tab "Disukai" dan
+         hasil pencarian punya syaratnya sendiri, dan komentar baru tidak
+         memenuhi keduanya. */
       const masukDaftar =
         tampilan === "beranda"
           ? !kueriTertunda
-          : profilSaya &&
-            tab === (parentId ? "balasan" : "komentar") &&
-            !kueriTertunda;
+          : profilSaya && tab === "komentar" && !kueriTertunda;
 
       if (masukDaftar) setKomentar((sebelum) => [baru, ...sebelum]);
-      if (parentId) {
-        ubahKomentar(parentId, (k) => ({ ...k, replies: k.replies + 1 }));
-      }
 
-      beriKabar(
-        t(parentId ? "pesan.balasanTerkirim" : "pesan.komentarTerkirim"),
-        "berhasil",
-      );
+      beriKabar(t("pesan.komentarTerkirim"), "berhasil");
       segarkanStatistik();
       /* Tagar di komentar baru bisa langsung mengubah papan tren. */
       if (teks.includes("#")) segarkanTren();
@@ -687,7 +690,6 @@ export default function App({
       setTab("komentar");
     }
     setTampilan(berikut);
-    setBalasUntuk(null);
     keAtas();
   }
 
@@ -696,7 +698,6 @@ export default function App({
     setProfilLain(sasaran.id === akun.id ? null : sasaran);
     setTab("komentar");
     setTampilan("profil");
-    setBalasUntuk(null);
     keAtas();
   }
 
@@ -718,6 +719,18 @@ export default function App({
     }
   }
 
+  /**
+   * Membuka satu komentar beserta seluruh balasannya di halamannya sendiri.
+   *
+   * Beranda hanya memuat komentar utama, jadi ke sinilah jalan menuju
+   * percakapannya — sekaligus jalan untuk ikut membalas. `siapMembalas`
+   * menyalakan komposer di sana begitu halamannya terbuka, supaya menekan
+   * "Balas" di beranda terasa satu gerakan, bukan dua.
+   */
+  function bukaUtas(id: string, siapMembalas = false) {
+    router.push(`/komentar/${id}${siapMembalas ? "?balas=1" : ""}`);
+  }
+
   /* Dari sebuah balasan, yang dicari adalah percakapan asalnya. Kalau komentar
      itu memang sedang ada di layar, cukup digulir ke sana dan disorot sebentar;
      kalau tidak — halamannya sudah lewat, atau daftarnya sedang tersaring —
@@ -726,7 +739,7 @@ export default function App({
     setSorotId(null);
 
     if (!daftar.some(({ komentar: k }) => k.id === indukId)) {
-      router.push(`/komentar/${indukId}`);
+      bukaUtas(indukId);
       return;
     }
 
@@ -747,7 +760,6 @@ export default function App({
   function pilihTagar(tagar: string) {
     setKueri(`#${tagar}`);
     setTampilan("beranda");
-    setBalasUntuk(null);
     keAtas();
   }
 
@@ -901,10 +913,7 @@ export default function App({
                 role="tab"
                 aria-selected={tab === kunci}
                 className={`tab-butir${tab === kunci ? " tab-butir-aktif" : ""}`}
-                onClick={() => {
-                  setTab(kunci);
-                  setBalasUntuk(null);
-                }}
+                onClick={() => setTab(kunci)}
               >
                 <span>{t(label)}</span>
               </button>
@@ -935,7 +944,7 @@ export default function App({
               pengguna={akun}
               placeholder={t("komposer.komentar")}
               labelTombol={t("komposer.kirim")}
-              onKirim={(teks) => buatKomentar(teks, null)}
+              onKirim={buatKomentar}
             />
           </div>
         )}
@@ -1039,17 +1048,11 @@ export default function App({
                       sekarang={sekarang}
                       konteksJelas={konteksJelas}
                       sorot={sorotId === k.id}
-                      balasTerbuka={balasUntuk === k.id}
                       onSuka={() => alihkanSuka(k.id)}
                       onUlang={() => alihkanUlang(k.id)}
                       onSimpan={() => alihkanSimpan(k.id)}
-                      onBukaBalas={() =>
-                        setBalasUntuk(balasUntuk === k.id ? null : k.id)
-                      }
-                      onKirimBalasan={(teks) => {
-                        buatKomentar(teks, k.id);
-                        setBalasUntuk(null);
-                      }}
+                      onBukaBalas={() => bukaUtas(k.id, true)}
+                      onBukaUtas={() => bukaUtas(k.id)}
                       onBagikan={() => salinTautan(k.id)}
                       onHapus={() => hapus(k.id)}
                       onBukaProfil={bukaProfil}

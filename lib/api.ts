@@ -205,6 +205,13 @@ export async function ambilFeed(
         opsi.tab === "balasan"
           ? kueri.not("parent_id", "is", null)
           : kueri.is("parent_id", null);
+    } else if (!cari) {
+      /* Beranda hanya memuat komentar utama. Balasan hidup di dalam utasnya
+         sendiri, terbuka setelah komentar yang dibalasnya ditekan — satu
+         percakapan dibaca utuh di satu tempat, bukan berserak di linimasa.
+         Pencarian dikecualikan: kalimat yang dicari orang bisa saja ada di
+         sebuah balasan, dan menyembunyikannya berarti menghilangkannya. */
+      kueri = kueri.is("parent_id", null);
     }
 
     if (opsi.kursor) kueri = kueri.lt("created_at", opsi.kursor);
