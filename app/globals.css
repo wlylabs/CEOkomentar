@@ -2502,15 +2502,15 @@ input::-webkit-strong-password-auto-fill-button {
   color: var(--aksen);
 }
 
-.utas-judul {
-  padding: 16px 16px 4px;
-  font-size: 17px;
-  font-weight: 800;
+.utas-kosong {
+  padding: 16px 16px 20px;
+  color: var(--teks-samar);
 }
 
-.utas-kosong {
-  padding: 4px 16px 20px;
-  color: var(--teks-samar);
+/* Halaman utas tidak punya bilah bawah maupun tombol tulis yang mengambang,
+   jadi kabarnya tidak perlu menghindari keduanya dan duduk di dekat tepi. */
+.kerangka-tunggal .kabar-wadah {
+  bottom: calc(24px + env(safe-area-inset-bottom));
 }
 
 /* ============================================================

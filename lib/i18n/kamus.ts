@@ -117,7 +117,6 @@ const KAMUS_ID = {
 
   /* ----------------------------------------------------------------- utas */
   "utas.judul": "Komentar",
-  "utas.balasan": "Balasan",
   "utas.kosong": "Belum ada balasan. Jadilah yang pertama.",
   "utas.memuat": "Memuat utas…",
   "utas.takAdaJudul": "Komentar tidak ditemukan",
@@ -436,7 +435,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
 
   /* ----------------------------------------------------------------- utas */
   "utas.judul": "Comment",
-  "utas.balasan": "Replies",
   "utas.kosong": "No replies yet. Be the first.",
   "utas.memuat": "Loading the thread…",
   "utas.takAdaJudul": "Comment not found",

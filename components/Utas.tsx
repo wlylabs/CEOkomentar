@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Brand from "./Brand";
 import CommentCard from "./CommentCard";
 import Composer from "./Composer";
+import Kabar, { type IsiKabar, type JenisKabar } from "./Kabar";
 import { IkonKembali } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import { klienPeramban } from "@/lib/supabase/client";
@@ -38,7 +39,7 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
 
   const [utas, setUtas] = useState<IsiUtas | null>(null);
   const [memuat, setMemuat] = useState(true);
-  const [pesan, setPesan] = useState<string | null>(null);
+  const [kabar, setKabar] = useState<IsiKabar | null>(null);
   const [balasUntuk, setBalasUntuk] = useState<string | null>(null);
   const [sekarang, setSekarang] = useState(() => Date.now());
 
@@ -82,11 +83,16 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
     return () => window.clearInterval(jam);
   }, []);
 
-  useEffect(() => {
-    if (!pesan) return;
-    const jam = window.setTimeout(() => setPesan(null), 2600);
-    return () => window.clearTimeout(jam);
-  }, [pesan]);
+  /* Nomor urut kabar. Dua kali menekan tombol yang sama harus terasa sebagai
+     dua kabar, jadi yang membedakannya bukan kalimatnya. */
+  const nomorKabar = useRef(0);
+
+  const beriKabar = useCallback((teks: string, jenis: JenisKabar = "info") => {
+    nomorKabar.current += 1;
+    setKabar({ id: nomorKabar.current, teks, jenis });
+  }, []);
+
+  const tutupKabar = useCallback(() => setKabar(null), []);
 
   /* Satu komentar bisa berada di rantai induk, di tengah, atau di daftar
      balasan; perubahannya diterapkan ke ketiganya sekaligus. */
@@ -130,7 +136,7 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
       await setSuka(supabase, idKomentar, akun.id, suka);
     } catch {
       ubah(idKomentar, () => sebelumnya);
-      setPesan(t("galat.suka"));
+      beriKabar(t("galat.suka"), "galat");
     }
   }
 
@@ -149,7 +155,7 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
       await setUlang(supabase, idKomentar, akun.id, ulang);
     } catch {
       ubah(idKomentar, () => sebelumnya);
-      setPesan(t("galat.ulang"));
+      beriKabar(t("galat.ulang"), "galat");
     }
   }
 
@@ -162,10 +168,13 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
 
     try {
       await setSimpan(supabase, idKomentar, akun.id, simpan);
-      setPesan(t(simpan ? "pesan.komentarDisimpan" : "pesan.simpananDibuang"));
+      beriKabar(
+        t(simpan ? "pesan.komentarDisimpan" : "pesan.simpananDibuang"),
+        "berhasil",
+      );
     } catch {
       ubah(idKomentar, () => sebelumnya);
-      setPesan(t("galat.simpan"));
+      beriKabar(t("galat.simpan"), "galat");
     }
   }
 
@@ -187,9 +196,9 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
       }
 
       setBalasUntuk(null);
-      setPesan(t("pesan.balasanTerkirim"));
+      beriKabar(t("pesan.balasanTerkirim"), "berhasil");
     } catch {
-      setPesan(t("galat.kirimKomentar"));
+      beriKabar(t("galat.kirimKomentar"), "galat");
     }
   }
 
@@ -216,9 +225,9 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
             }
           : sebelum,
       );
-      setPesan(t("pesan.komentarDihapus"));
+      beriKabar(t("pesan.komentarDihapus"), "berhasil");
     } catch {
-      setPesan(t("galat.hapusKomentar"));
+      beriKabar(t("galat.hapusKomentar"), "galat");
     }
   }
 
@@ -227,9 +236,9 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
       await navigator.clipboard.writeText(
         `${window.location.origin}/komentar/${idKomentar}`,
       );
-      setPesan(t("pesan.tautanDisalin"));
+      beriKabar(t("pesan.tautanDisalin"), "berhasil");
     } catch {
-      setPesan(t("pesan.papanKlipDitolak"));
+      beriKabar(t("pesan.papanKlipDitolak"), "galat");
     }
   }
 
@@ -354,13 +363,12 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
               />
             </div>
 
-            <h2 className="utas-judul">{t("utas.balasan")}</h2>
-
             {utas.balasan.length === 0 ? (
               <p className="utas-kosong">{t("utas.kosong")}</p>
             ) : (
-              /* Semuanya membalas komentar yang sama, dan judul "Balasan" tepat
-                 di atas daftar ini sudah mengatakan komentar yang mana. */
+              /* Tanpa judul "Balasan" di atasnya: semuanya membalas komentar
+                 yang barusan dibaca, dan kotak tulis tepat di atas daftar ini
+                 sudah mengatakan komentar yang mana. */
               utas.balasan.map((k) => kartu(k, true))
             )}
           </section>
@@ -369,9 +377,7 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
         <div className="ruang-bawah" />
       </main>
 
-      <div className="pesan-wadah" aria-live="polite" role="status">
-        {pesan && <div className="pesan">{pesan}</div>}
-      </div>
+      <Kabar kabar={kabar} onTutup={tutupKabar} />
     </div>
   );
 }
