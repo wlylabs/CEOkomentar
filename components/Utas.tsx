@@ -215,7 +215,21 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
     }
   }
 
-  function kartu(komentar: Comment, sorot = false) {
+  /* Induk yang sudah ada di halaman ini cukup digulir ke tempatnya; yang tidak
+     ikut termuat — rantainya lebih panjang dari yang ditelusuri — dibuka di
+     halamannya sendiri. */
+  function bukaInduk(indukId: string) {
+    const dihalaman = semua.some((k) => k.id === indukId);
+    if (!dihalaman) {
+      router.push(`/komentar/${indukId}`);
+      return;
+    }
+    document
+      .getElementById(indukId)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function kartu(komentar: Comment, kedalaman: number, sorot = false) {
     const penulis =
       komentar.authorId === akun.id
         ? akun
@@ -229,6 +243,7 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
           penulis={penulis}
           akunSaya={akun}
           sekarang={sekarang}
+          kedalaman={kedalaman}
           sorot={sorot}
           balasTerbuka={balasUntuk === komentar.id}
           onSuka={() => alihkanSuka(komentar.id)}
@@ -241,6 +256,7 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
           onBagikan={() => salinTautan(komentar.id)}
           onHapus={() => hapus(komentar.id)}
           onBukaProfil={(orang) => router.push(`/?profil=${orang.handle}`)}
+          onBukaInduk={bukaInduk}
           onTagar={(tagar) => router.push(`/?tagar=${encodeURIComponent(tagar)}`)}
           onSebut={(handle) => router.push(`/?profil=${handle}`)}
         />
@@ -296,8 +312,8 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
           </div>
         ) : (
           <section className="daftar" aria-label={t("utas.judul")}>
-            {utas.induk.map((k) => kartu(k))}
-            {kartu(utas.komentar, true)}
+            {utas.induk.map((k, i) => kartu(k, i))}
+            {kartu(utas.komentar, utas.induk.length, true)}
 
             <div className="komposer-utama">
               <Composer
@@ -315,7 +331,7 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
             {utas.balasan.length === 0 ? (
               <p className="utas-kosong">{t("utas.kosong")}</p>
             ) : (
-              utas.balasan.map((k) => kartu(k))
+              utas.balasan.map((k) => kartu(k, utas.induk.length + 1))
             )}
           </section>
         )}

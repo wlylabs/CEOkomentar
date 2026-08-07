@@ -13,10 +13,13 @@ import {
   IkonSampah,
   IkonSimpan,
   IkonSuka,
+  IkonTayang,
   IkonUlang,
 } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
+import { jangkauan } from "@/lib/jangkauan";
 import { MASA_KOMENTAR_MS } from "@/lib/kebijakan";
+import { KEDALAMAN_MAKS } from "@/lib/utas";
 import { angkaPenuh, angkaSosial, sisaWaktu, waktuLengkap, waktuRelatif } from "@/lib/time";
 import type { Comment, User } from "@/lib/types";
 
@@ -69,6 +72,8 @@ type Props = {
   balasTerbuka: boolean;
   /** komentar yang jadi pusat perhatian di halaman utas */
   sorot?: boolean;
+  /** 0 untuk komentar utama, naik satu tiap tingkat balasan */
+  kedalaman?: number;
   onSuka: () => void;
   onUlang: () => void;
   onSimpan: () => void;
@@ -77,6 +82,7 @@ type Props = {
   onBagikan: () => void;
   onHapus: () => void;
   onBukaProfil: (pengguna: User) => void;
+  onBukaInduk: (indukId: string) => void;
   onTagar: (tagar: string) => void;
   onSebut: (handle: string) => void;
 };
@@ -88,6 +94,7 @@ export default function CommentCard({
   sekarang,
   balasTerbuka,
   sorot = false,
+  kedalaman = 0,
   onSuka,
   onUlang,
   onSimpan,
@@ -96,6 +103,7 @@ export default function CommentCard({
   onBagikan,
   onHapus,
   onBukaProfil,
+  onBukaInduk,
   onTagar,
   onSebut,
 }: Props) {
@@ -109,32 +117,45 @@ export default function CommentCard({
   const bisaHapus = milikSaya || sebagaiAdmin;
   const sisa = sisaWaktu(komentar.createdAt, MASA_KOMENTAR_MS, sekarang, bahasa);
   /* Balasan dan komentar awal dulu tampil serupa, jadi daftar campuran sulit
-     dibaca. Balasan kini menjorok, bergaris tepi, dan menyebut yang dibalas
-     di baris paling atas — sebelum nama penulisnya, bukan di tengah kartu. */
+     dibaca. Balasan kini lebih kecil dalam segala hal, menjorok sedalam
+     tingkatnya, bergaris tepi, dan menyebut yang dibalas di baris paling atas —
+     sebelum nama penulisnya, bukan di tengah kartu. */
   const balasan = komentar.parentId !== null;
+  const tingkat = balasan ? Math.min(Math.max(kedalaman, 1), KEDALAMAN_MAKS) : 0;
+
+  /* Angka sebenarnya dari basis data ditambah jangkauan yang tumbuh seiring
+     umur komentar. Yang ditambah hanya tampilannya — tombol suka dan posting
+     ulang tetap bekerja pada angka asli, jadi menekannya tetap menggeser satu. */
+  const tambahan = jangkauan(komentar, penulis, sekarang);
+  const jumlahSuka = komentar.likes + tambahan.suka;
+  const jumlahUlang = komentar.reposts + tambahan.ulang;
+
+  const ikonAksi = balasan ? 17 : 19;
 
   return (
     <article
-      className={`komentar${balasan ? " komentar-balasan" : ""}${sorot ? " komentar-sorot" : ""}`}
+      className={`komentar${balasan ? ` komentar-balasan komentar-tingkat-${tingkat}` : ""}${sorot ? " komentar-sorot" : ""}`}
     >
       {balasan && (
-        <p className="komentar-konteks">
-          <IkonBalas size={14} />
+        /* Menekan baris ini membuka komentar yang dibalas, bukan profil orang
+           yang menulisnya — dari sebuah balasan, yang dicari hampir selalu
+           percakapan asalnya. */
+        <button
+          type="button"
+          className="komentar-konteks"
+          onClick={() => komentar.parentId && onBukaInduk(komentar.parentId)}
+          title={t("komentar.bukaInduk")}
+        >
+          <IkonBalas size={13} />
           {komentar.parentHandle ? (
             <span>
               {t("komentar.membalas")}{" "}
-              <button
-                type="button"
-                className="sebut sebut-tombol"
-                onClick={() => onSebut(komentar.parentHandle ?? "")}
-              >
-                @{komentar.parentHandle}
-              </button>
+              <span className="sebut">@{komentar.parentHandle}</span>
             </span>
           ) : (
             <span>{t("komentar.balasan")}</span>
           )}
-        </p>
+        </button>
       )}
 
       <div className="komentar-baris">
@@ -144,7 +165,7 @@ export default function CommentCard({
           onClick={() => onBukaProfil(penulis)}
           aria-label={t("profil.buka", { handle: penulis.handle })}
         >
-          <Avatar pengguna={penulis} ukuran={balasan ? 38 : 44} />
+          <Avatar pengguna={penulis} ukuran={balasan ? 34 : 44} />
         </button>
 
         <div className="komentar-isi">
@@ -155,7 +176,7 @@ export default function CommentCard({
               onClick={() => onBukaProfil(penulis)}
             >
               <span className="komentar-nama">{penulis.name}</span>
-              <Lencana pengguna={penulis} size={17} />
+              <Lencana pengguna={penulis} size={balasan ? 15 : 17} />
               <span className="komentar-handle">@{penulis.handle}</span>
             </button>
             <span className="komentar-pemisah" aria-hidden="true">
@@ -195,7 +216,7 @@ export default function CommentCard({
                     : t("komentar.hapusLabel")
                 }
               >
-                <IkonSampah size={17} />
+                <IkonSampah size={balasan ? 15 : 17} />
               </button>
             )}
           </header>
@@ -243,30 +264,51 @@ export default function CommentCard({
               aktif={balasTerbuka}
               onClick={onBukaBalas}
             >
-              <IkonBalas size={19} />
+              <IkonBalas size={ikonAksi} />
             </Aksi>
 
             <Aksi
               label={komentar.reposted ? t("aksi.batalUlang") : t("aksi.ulang")}
-              jumlah={komentar.reposts}
+              jumlah={jumlahUlang}
               warna="hijau"
               aktif={komentar.reposted}
               ditekan={komentar.reposted}
               onClick={onUlang}
             >
-              <IkonUlang size={19} />
+              <IkonUlang size={ikonAksi} />
             </Aksi>
 
             <Aksi
               label={komentar.liked ? t("aksi.batalSuka") : t("aksi.suka")}
-              jumlah={komentar.likes}
+              jumlah={jumlahSuka}
               warna="merah"
               aktif={komentar.liked}
               ditekan={komentar.liked}
               onClick={onSuka}
             >
-              <IkonSuka size={19} terisi={komentar.liked} />
+              <IkonSuka size={ikonAksi} terisi={komentar.liked} />
             </Aksi>
+
+            {/* Tayangan tidak bisa ditekan — tidak ada yang bisa dilakukan
+                terhadapnya, jadi bentuknya keterangan, bukan tombol. Selama
+                belum ada yang melihat, barisnya kosong seperti penghitung lain
+                yang masih nol. */}
+            {tambahan.tayang > 0 && (
+              <span
+                className="aksi aksi-tayang"
+                title={t("aksi.tayangJumlah", {
+                  jumlah: angkaPenuh(tambahan.tayang, bahasa),
+                })}
+              >
+                <span className="aksi-ikon">
+                  <IkonTayang size={ikonAksi} />
+                </span>
+                <span className="aksi-jumlah">
+                  {angkaSosial(tambahan.tayang, bahasa)}
+                </span>
+                <span className="sr-only">{t("aksi.tayang")}</span>
+              </span>
+            )}
 
             <Aksi
               label={komentar.saved ? t("aksi.batalSimpan") : t("aksi.simpan")}
@@ -276,7 +318,7 @@ export default function CommentCard({
               ditekan={komentar.saved}
               onClick={onSimpan}
             >
-              <IkonSimpan size={19} terisi={komentar.saved} />
+              <IkonSimpan size={ikonAksi} terisi={komentar.saved} />
             </Aksi>
 
             <Aksi
@@ -285,7 +327,7 @@ export default function CommentCard({
               warna="biru"
               onClick={onBagikan}
             >
-              <IkonBagikan size={19} />
+              <IkonBagikan size={ikonAksi} />
             </Aksi>
           </div>
         </div>

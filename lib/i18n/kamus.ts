@@ -93,6 +93,7 @@ const KAMUS_ID = {
   /* ------------------------------------------------------------ komentar */
   "komentar.membalas": "Membalas",
   "komentar.balasan": "Balasan",
+  "komentar.bukaInduk": "Buka komentar yang dibalas",
   "komentar.hapusLabel": "Hapus komentar",
   "komentar.hapusLabelAdmin": "Hapus komentar ini sebagai admin",
   "komentar.konfirmasiLabel": "Konfirmasi hapus",
@@ -108,6 +109,8 @@ const KAMUS_ID = {
   "aksi.simpan": "Simpan komentar",
   "aksi.batalSimpan": "Hapus dari simpanan",
   "aksi.salinTautan": "Salin tautan",
+  "aksi.tayang": "Tayangan",
+  "aksi.tayangJumlah": "{jumlah} tayangan",
   "lencana.terverifikasiJudul": "Akun terverifikasi",
   "lencana.adminJudul":
     "Akun resmi — admin yang dapat menghapus komentar siapa pun",
@@ -410,6 +413,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   /* ------------------------------------------------------------ komentar */
   "komentar.membalas": "Replying to",
   "komentar.balasan": "Reply",
+  "komentar.bukaInduk": "Open the comment being replied to",
   "komentar.hapusLabel": "Delete comment",
   "komentar.hapusLabelAdmin": "Delete this comment as an admin",
   "komentar.konfirmasiLabel": "Confirm deletion",
@@ -425,6 +429,8 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "aksi.simpan": "Save comment",
   "aksi.batalSimpan": "Remove from saved",
   "aksi.salinTautan": "Copy link",
+  "aksi.tayang": "Views",
+  "aksi.tayangJumlah": "{jumlah} views",
   "lencana.terverifikasiJudul": "Verified account",
   "lencana.adminJudul": "Official account — admin, can delete anyone's comment",
 

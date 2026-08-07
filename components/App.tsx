@@ -45,6 +45,7 @@ import {
 } from "@/lib/api";
 import { MASA_KOMENTAR_JAM, MASA_KOMENTAR_MS } from "@/lib/kebijakan";
 import { bacaPilihan, beralihTema, temaTerpasang } from "@/lib/tema";
+import { susunUtas } from "@/lib/utas";
 import { angkaSosial } from "@/lib/time";
 import type {
   Comment,
@@ -117,6 +118,9 @@ export default function App({
   const [balasUntuk, setBalasUntuk] = useState<string | null>(null);
   const [kabar, setKabar] = useState<IsiKabar | null>(null);
   const [sekarang, setSekarang] = useState(() => Date.now());
+  /* Komentar yang baru saja dituju dari sebuah balasan; sorotannya padam
+     sendiri setelah cukup lama untuk mengikuti mata ke sana. */
+  const [sorotId, setSorotId] = useState<string | null>(null);
 
   /* Profil yang sedang dibuka. Sama dengan akun sendiri sampai ada nama atau
      foto orang lain yang ditekan. */
@@ -714,6 +718,32 @@ export default function App({
     }
   }
 
+  /* Dari sebuah balasan, yang dicari adalah percakapan asalnya. Kalau komentar
+     itu memang sedang ada di layar, cukup digulir ke sana dan disorot sebentar;
+     kalau tidak — halamannya sudah lewat, atau daftarnya sedang tersaring —
+     utasnya yang dibuka. */
+  function bukaInduk(indukId: string) {
+    setSorotId(null);
+
+    if (!daftar.some(({ komentar: k }) => k.id === indukId)) {
+      router.push(`/komentar/${indukId}`);
+      return;
+    }
+
+    document
+      .getElementById(indukId)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    requestAnimationFrame(() => setSorotId(indukId));
+  }
+
+  /* Sorotan dipadamkan lewat efek, bukan lewat penghitung waktu di dalam
+     penangan tekan, supaya berpindah halaman tidak meninggalkannya menyala. */
+  useEffect(() => {
+    if (!sorotId) return;
+    const jam = window.setTimeout(() => setSorotId(null), 2400);
+    return () => window.clearTimeout(jam);
+  }, [sorotId]);
+
   function pilihTagar(tagar: string) {
     setKueri(`#${tagar}`);
     setTampilan("beranda");
@@ -740,9 +770,14 @@ export default function App({
 
   /* Basis data yang menentukan, tetapi daftar di layar tetap disaring sendiri
      supaya komentar yang lewat 24 jam hilang tanpa menunggu muat ulang. Jam
-     `sekarang` berdetak tiap menit, jadi ini ikut menyegarkan sendiri. */
+     `sekarang` berdetak tiap menit, jadi ini ikut menyegarkan sendiri.
+     Sesudah disaring, balasan dikumpulkan tepat di bawah komentar yang
+     dibalasnya alih-alih tersebar menurut waktu kirim. */
   const daftar = useMemo(
-    () => komentar.filter((k) => sekarang - k.createdAt < MASA_KOMENTAR_MS),
+    () =>
+      susunUtas(
+        komentar.filter((k) => sekarang - k.createdAt < MASA_KOMENTAR_MS),
+      ),
     [komentar, sekarang],
   );
 
@@ -994,7 +1029,7 @@ export default function App({
             </div>
           ) : (
             <>
-              {daftar.map((k) => {
+              {daftar.map(({ komentar: k, kedalaman }) => {
                 const penulis = daftarPengguna[k.authorId];
                 if (!penulis) return null;
                 return (
@@ -1004,6 +1039,8 @@ export default function App({
                       penulis={penulis}
                       akunSaya={akun}
                       sekarang={sekarang}
+                      kedalaman={kedalaman}
+                      sorot={sorotId === k.id}
                       balasTerbuka={balasUntuk === k.id}
                       onSuka={() => alihkanSuka(k.id)}
                       onUlang={() => alihkanUlang(k.id)}
@@ -1018,6 +1055,7 @@ export default function App({
                       onBagikan={() => salinTautan(k.id)}
                       onHapus={() => hapus(k.id)}
                       onBukaProfil={bukaProfil}
+                      onBukaInduk={bukaInduk}
                       onTagar={pilihTagar}
                       onSebut={bukaProfilHandle}
                     />

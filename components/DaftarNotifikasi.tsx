@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Avatar from "./Avatar";
 import Lencana from "./Lencana";
-import { IkonBalas, IkonProfil, IkonSuka, IkonUlang } from "./Icons";
+import { IkonBalas, IkonProfil } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import type { KunciTeks } from "@/lib/i18n/kamus";
 import { waktuLengkap, waktuRelatif } from "@/lib/time";
@@ -16,11 +16,16 @@ const KALIMAT: Record<JenisNotifikasi, KunciTeks> = {
   ikut: "notif.ikut",
 };
 
-function Ikon({ jenis }: { jenis: JenisNotifikasi }) {
-  if (jenis === "suka") return <IkonSuka size={19} terisi />;
-  if (jenis === "ulang") return <IkonUlang size={19} />;
+/**
+ * Kabar suka dan posting ulang sengaja tanpa ikon: kalimatnya sudah menyebut
+ * apa yang terjadi, dan hati merah berjajar di sepanjang daftar lebih ramai
+ * daripada memberi tahu. Yang tersisa hanya dua kabar yang bentuknya berbeda —
+ * balasan dan pengikut baru.
+ */
+function ikonKabar(jenis: JenisNotifikasi) {
   if (jenis === "balas") return <IkonBalas size={19} />;
-  return <IkonProfil size={19} aktif />;
+  if (jenis === "ikut") return <IkonProfil size={19} aktif />;
+  return null;
 }
 
 type Props = {
@@ -45,11 +50,11 @@ export default function DaftarNotifikasi({
         const aktor = pengguna[kabar.aktorId];
         if (!aktor) return null;
 
+        const ikon = ikonKabar(kabar.jenis);
+
         const isi = (
           <>
-            <span className={`notif-ikon notif-ikon-${kabar.jenis}`}>
-              <Ikon jenis={kabar.jenis} />
-            </span>
+            {ikon && <span className="notif-ikon">{ikon}</span>}
 
             <span className="notif-isi">
               <Avatar pengguna={aktor} ukuran={34} />
