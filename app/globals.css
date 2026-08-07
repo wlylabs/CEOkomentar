@@ -884,12 +884,30 @@ input::-webkit-strong-password-auto-fill-button {
   font-variant-numeric: tabular-nums;
 }
 
-/* Balasan menjorok ke dalam dan bergaris tepi supaya tidak terbaca sama
-   dengan komentar awal ketika keduanya berjajar di daftar yang sama. */
+/* Balasan menjorok ke dalam, bergaris tepi, dan seluruhnya satu ukuran lebih
+   kecil daripada komentar yang dibalasnya — di daftar campuran, mana yang
+   pokok dan mana yang menanggapi harus terbaca sebelum satu kata pun dibaca. */
 .komentar-balasan {
   position: relative;
-  padding-left: 34px;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  padding-left: calc(16px + var(--jorok, 18px));
   background: var(--lapis-hover);
+  font-size: 14px;
+}
+
+/* Tiap tingkat balasan menggeser sedikit lagi ke dalam, lalu berhenti: lebih
+   dalam dari ini kolomnya habis dimakan indentasi. */
+.komentar-tingkat-1 {
+  --jorok: 18px;
+}
+
+.komentar-tingkat-2 {
+  --jorok: 34px;
+}
+
+.komentar-tingkat-3 {
+  --jorok: 48px;
 }
 
 /* Latarnya sudah terangkat sedikit, jadi sorotan kursornya dinaikkan lagi
@@ -901,23 +919,54 @@ input::-webkit-strong-password-auto-fill-button {
 .komentar-balasan::before {
   content: "";
   position: absolute;
-  top: 12px;
-  bottom: 12px;
-  left: 16px;
+  top: 10px;
+  bottom: 10px;
+  left: calc(var(--jorok, 18px) + 1px);
   width: 2px;
   border-radius: 2px;
   background: var(--garis-kuat);
 }
 
+.komentar-balasan .komentar-baris {
+  gap: 10px;
+}
+
+.komentar-balasan .komentar-teks {
+  font-size: 14.5px;
+}
+
+.komentar-balasan .aksi {
+  font-size: 12px;
+}
+
+.komentar-balasan .aksi-ikon {
+  width: 30px;
+  height: 30px;
+}
+
+.komentar-balasan .komentar-aksi {
+  max-width: 380px;
+  margin-top: 6px;
+}
+
 /* Baris "Membalas @siapa" berdiri di atas nama penulis, jadi asal balasannya
-   terbaca sebelum isinya. */
+   terbaca sebelum isinya. Menekannya membuka komentar yang dibalas. */
 .komentar-konteks {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 6px;
-  font-size: 13.5px;
+  margin-bottom: 5px;
+  font-size: 13px;
   color: var(--teks-samar);
+  text-align: start;
+}
+
+.komentar-konteks:hover {
+  color: var(--aksen);
+}
+
+.komentar-konteks:hover .sebut {
+  text-decoration: underline;
 }
 
 .sebut {
@@ -963,6 +1012,12 @@ input::-webkit-strong-password-auto-fill-button {
 .aksi-jumlah {
   font-variant-numeric: tabular-nums;
   min-width: 1ch;
+}
+
+/* Tayangan hanya keterangan — tidak ada yang bisa ditekan di sana, jadi tidak
+   ada pula sorotan kursor yang menjanjikan sebaliknya. */
+.aksi-tayang {
+  cursor: default;
 }
 
 .aksi-biru:hover,
@@ -2176,14 +2231,42 @@ input::-webkit-strong-password-auto-fill-button {
   text-decoration: underline;
 }
 
-/* Komentar yang jadi pusat halaman utas: hurufnya sedikit lebih besar dan
-   latarnya diangkat, seperti komentar yang dibuka sendiri di Twitter. */
+/* Komentar yang jadi pusat perhatian: hurufnya sedikit lebih besar dan
+   latarnya diangkat, seperti komentar yang dibuka sendiri di Twitter. Dipakai
+   halaman utas untuk komentar yang dituju, dan beranda untuk menandai sebentar
+   komentar yang baru saja dilompati dari sebuah balasan. */
 .komentar-sorot {
   background: var(--lapis-hover);
+  animation: sorot 2.4s ease-out;
+}
+
+/* Sebuah balasan pun tampil seukuran penuh ketika ia yang sedang dibaca —
+   pengecilannya untuk membedakannya di dalam daftar, bukan hukuman tetap. */
+.komentar-sorot.komentar-balasan {
+  font-size: inherit;
 }
 
 .komentar-sorot .komentar-teks {
   font-size: 17.5px;
+}
+
+.komentar-sorot.komentar-balasan .aksi {
+  font-size: 13px;
+}
+
+.komentar-sorot.komentar-balasan .aksi-ikon {
+  width: 34px;
+  height: 34px;
+}
+
+@keyframes sorot {
+  0%,
+  45% {
+    background: var(--aksen-lembut);
+  }
+  100% {
+    background: var(--lapis-hover);
+  }
 }
 
 /* ============================================================
@@ -2274,6 +2357,8 @@ input::-webkit-strong-password-auto-fill-button {
   background: var(--aksen-lembut);
 }
 
+/* Hanya kabar balasan dan pengikut baru yang membawa ikon; suka dan posting
+   ulang tampil tanpanya, jadi kolom ini memang tidak selalu ada. */
 .notif-ikon {
   flex: none;
   display: grid;
@@ -2281,14 +2366,6 @@ input::-webkit-strong-password-auto-fill-button {
   width: 26px;
   padding-top: 4px;
   color: var(--aksen);
-}
-
-.notif-ikon-suka {
-  color: var(--suka);
-}
-
-.notif-ikon-ulang {
-  color: var(--ulang);
 }
 
 .notif-isi {

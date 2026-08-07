@@ -280,6 +280,14 @@ export function IkonSimpan({ terisi, ...p }: IkonProps & { terisi?: boolean }) {
   );
 }
 
+export function IkonTayang(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <path d="M4.6 20.1V13M9.5 20.1V8.4M14.5 20.1v-8.3M19.4 20.1V4.4" />
+    </Dasar>
+  );
+}
+
 export function IkonTren(p: IkonProps) {
   return (
     <Dasar {...p}>
