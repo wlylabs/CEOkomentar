@@ -230,6 +230,23 @@ export function IkonPeringatan(p: IkonProps) {
   );
 }
 
+export function IkonCentang(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <path d="m4.8 12.4 4.6 4.6 9.8-10" />
+    </Dasar>
+  );
+}
+
+export function IkonInfo(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <circle cx="12" cy="12" r="8.4" />
+      <path d="M12 11.2v5.2M12 7.9h.01" />
+    </Dasar>
+  );
+}
+
 export function IkonBahasa(p: IkonProps) {
   return (
     <Dasar {...p}>

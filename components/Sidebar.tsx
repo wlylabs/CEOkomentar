@@ -4,13 +4,9 @@ import Avatar from "./Avatar";
 import Brand from "./Brand";
 import PemilihBahasa from "./PemilihBahasa";
 import LencanaKabar from "./LencanaKabar";
+import TombolTema from "./TombolTema";
 import { IKON_MENU, MENU } from "./menu";
-import {
-  IkonBulan,
-  IkonKeluar,
-  IkonMatahari,
-  IkonTulis,
-} from "./Icons";
+import { IkonKeluar, IkonTulis } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import type { User, View } from "@/lib/types";
 
@@ -20,7 +16,6 @@ type Props = {
   onTulis: () => void;
   pengguna: User;
   belumDibaca: number;
-  tema: "terang" | "gelap";
   onGantiTema: () => void;
   onKeluar: () => void;
 };
@@ -31,7 +26,6 @@ export default function Sidebar({
   onTulis,
   pengguna,
   belumDibaca,
-  tema,
   onGantiTema,
   onKeluar,
 }: Props) {
@@ -67,19 +61,7 @@ export default function Sidebar({
             );
           })}
 
-          <button
-            type="button"
-            className="menu-butir"
-            onClick={onGantiTema}
-            aria-label={
-              tema === "gelap" ? t("nav.keTemaTerang") : t("nav.keTemaGelap")
-            }
-          >
-            {tema === "gelap" ? <IkonMatahari size={24} /> : <IkonBulan size={24} />}
-            <span className="menu-label">
-              {tema === "gelap" ? t("nav.temaTerang") : t("nav.temaGelap")}
-            </span>
-          </button>
+          <TombolTema varian="menu" onGanti={onGantiTema} />
 
           <PemilihBahasa varian="menu" />
 

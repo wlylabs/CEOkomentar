@@ -225,7 +225,7 @@ app/
   auth/callback/    penukaran kode tautan email menjadi sesi
   globals.css       token warna, tata letak, dan seluruh gaya komponen
 components/
-  App.tsx           pemegang state: feed, tampilan, tab, pencarian, tema
+  App.tsx           pemegang state: feed, tampilan, tab, pencarian, kabar
   AuthScreen.tsx    daftar, masuk, tamu, dan permintaan pemulihan kata sandi
   BilahTamu.tsx     ajakan mengubah akun tamu menjadi permanen
   SandiBaru.tsx     form kata sandi baru
@@ -239,6 +239,8 @@ components/
   Utas.tsx          halaman satu komentar: induk, komentar itu, dan balasannya
   DaftarNotifikasi.tsx daftar suka, posting ulang, balasan, dan pengikut baru
   LencanaKabar.tsx  titik merah berisi jumlah kabar yang belum dibaca
+  Kabar.tsx         kabar sekilas di sudut layar: berhasil, info, dan galat
+  TombolTema.tsx    pengalih tema terang/gelap dalam dua bentuk
   Composer.tsx      kotak tulis untuk komentar dan balasan
   Avatar.tsx        foto profil bila ada, jika tidak avatar DiceBear
   PemilihBahasa.tsx pengalih Indonesia/Inggris dalam tiga bentuk
@@ -252,6 +254,7 @@ lib/
   akun.ts           akun yang sedang masuk, dibaca di server sebelum merender
   avatar.ts         avatar bawaan DiceBear yang dibangkitkan dari handle
   kebijakan.ts      masa hidup komentar, disamakan dengan basis data
+  tema.ts           tema terang/gelap: skrip pra-lukis, peralihan, warna bilah
   i18n/             daftar bahasa, kamus ID/EN, konteks React, dan teks berformat
   supabase/         klien peramban, klien server, tipe basis data, kredensial
   image.ts          pemangkasan dan pengecilan gambar di sisi peramban
@@ -365,6 +368,34 @@ yang dipetakan ke kalimat sendiri di `components/AuthScreen.tsx`.
 Pengalihnya ada di tiga tempat: satu baris di navigasi kiri, tombol bulat di
 bilah atas ponsel, dan dua pilihan berdampingan di halaman masuk, penyiapan,
 serta kata sandi baru.
+
+## Tema terang dan gelap
+
+Berbeda dengan bahasa, tema disimpan di `localStorage` (`tm-tema`): server tidak
+perlu tahu, karena yang berubah hanya warna. Tanpa pilihan tersimpan, setelan
+sistem yang dipakai — dan tetap diikuti bila setelan itu berubah saat halaman
+terbuka.
+
+Temanya hidup di DOM, bukan di state React. `SKRIP_TEMA` (lihat `lib/tema.ts`)
+dijalankan di `<head>` sebelum lukisan pertama dan memasang `data-tema` di
+`<html>`; seluruh warna adalah variabel CSS yang menggantung pada atribut itu.
+React sengaja tidak ikut mencerminkannya, sebab cerminan itu baru terisi benar
+setelah halaman selesai terhidrasi — dan selama jeda tersebut warnanya berkedip
+setiap kali halaman dimuat ulang. Karena alasan yang sama `TombolTema.tsx`
+merender matahari dan bulan sekaligus, lalu CSS menyembunyikan yang tidak
+sesuai.
+
+Saat tombolnya ditekan, `beralihTema` menempelkan kelas `tema-beralih` selama
+220 ms. Kelas itulah yang menyalakan transisi warna, jadi warna meleleh ke tema
+baru tanpa membuat setiap hover dan setiap kartu baru ikut beranimasi di luar
+peralihan. Pemakai yang meminta `prefers-reduced-motion: reduce` tidak
+mendapat lelehannya.
+
+`<meta name="theme-color">` dibuat skrip yang sama, bukan lewat
+`viewport.themeColor` milik Next: meta bawaan Next selalu terikat
+`prefers-color-scheme`, sehingga bilah status ponsel tetap hitam ketika pemakai
+memilih tema terang di atas sistem yang gelap. `public/luring.html` memuat
+salinan skrip itu supaya halaman luring ikut tema yang sama.
 
 ## Admin
 
