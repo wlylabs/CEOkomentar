@@ -2,6 +2,7 @@
 
 import Avatar from "./Avatar";
 import { IkonCari, IkonKeluar } from "./Icons";
+import { useBahasa } from "@/lib/i18n/konteks";
 import { angkaPenuh, ringkasAngka } from "@/lib/time";
 import type { Statistik, User } from "@/lib/types";
 
@@ -20,13 +21,15 @@ export default function RightRail({
   pengguna,
   onKeluar,
 }: Props) {
+  const { bahasa, t } = useBahasa();
+
   return (
-    <aside className="rel" aria-label="Panel samping">
+    <aside className="rel" aria-label={t("rel.label")}>
       <div className="rel-isi">
         <div className="cari">
           <IkonCari size={19} className="cari-ikon" />
           <label className="sr-only" htmlFor="cari-komentar">
-            Cari komentar
+            {t("cari.label")}
           </label>
           <input
             id="cari-komentar"
@@ -34,32 +37,32 @@ export default function RightRail({
             type="search"
             value={kueri}
             onChange={(e) => onKueri(e.target.value)}
-            placeholder="Cari komentar"
+            placeholder={t("cari.label")}
           />
         </div>
 
         <section className="kartu">
-          <h2 className="kartu-judul">Ringkasan aktivitas</h2>
+          <h2 className="kartu-judul">{t("rel.ringkasan")}</h2>
           <ul className="kartu-daftar">
             <li>
-              <span>Komentar</span>
-              <strong>{angkaPenuh(statistik.komentar)}</strong>
+              <span>{t("rel.komentar")}</span>
+              <strong>{angkaPenuh(statistik.komentar, bahasa)}</strong>
             </li>
             <li>
-              <span>Balasan</span>
-              <strong>{angkaPenuh(statistik.balasan)}</strong>
+              <span>{t("rel.balasan")}</span>
+              <strong>{angkaPenuh(statistik.balasan, bahasa)}</strong>
             </li>
             <li>
-              <span>Disukai</span>
-              <strong>{angkaPenuh(statistik.disukai)}</strong>
+              <span>{t("rel.disukai")}</span>
+              <strong>{angkaPenuh(statistik.disukai, bahasa)}</strong>
             </li>
             <li>
-              <span>Suka diterima</span>
-              <strong>{ringkasAngka(statistik.sukaDiterima)}</strong>
+              <span>{t("rel.sukaDiterima")}</span>
+              <strong>{ringkasAngka(statistik.sukaDiterima, bahasa)}</strong>
             </li>
             <li>
-              <span>Posting ulang diterima</span>
-              <strong>{ringkasAngka(statistik.ulangDiterima)}</strong>
+              <span>{t("rel.ulangDiterima")}</span>
+              <strong>{ringkasAngka(statistik.ulangDiterima, bahasa)}</strong>
             </li>
           </ul>
         </section>
@@ -72,15 +75,17 @@ export default function RightRail({
               <span className="akun-handle">@{pengguna.handle}</span>
             </span>
           </div>
-          <button type="button" className="tombol tombol-garis tombol-lebar" onClick={onKeluar}>
+          <button
+            type="button"
+            className="tombol tombol-garis tombol-lebar"
+            onClick={onKeluar}
+          >
             <IkonKeluar size={18} />
-            <span>Keluar</span>
+            <span>{t("nav.keluar")}</span>
           </button>
         </section>
 
-        <p className="rel-kaki">
-          Twitter Mini — profil dan feed komentar dengan data tersimpan di Supabase.
-        </p>
+        <p className="rel-kaki">{t("rel.kaki")}</p>
       </div>
     </aside>
   );

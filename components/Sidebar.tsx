@@ -2,6 +2,7 @@
 
 import Avatar from "./Avatar";
 import Brand from "./Brand";
+import PemilihBahasa from "./PemilihBahasa";
 import {
   IkonBeranda,
   IkonBulan,
@@ -10,6 +11,8 @@ import {
   IkonProfil,
   IkonTulis,
 } from "./Icons";
+import { useBahasa } from "@/lib/i18n/konteks";
+import type { KunciTeks } from "@/lib/i18n/kamus";
 import type { User, View } from "@/lib/types";
 
 type Props = {
@@ -22,9 +25,9 @@ type Props = {
   onKeluar: () => void;
 };
 
-const MENU: { kunci: View; label: string }[] = [
-  { kunci: "beranda", label: "Beranda" },
-  { kunci: "profil", label: "Profil" },
+const MENU: { kunci: View; label: KunciTeks }[] = [
+  { kunci: "beranda", label: "nav.beranda" },
+  { kunci: "profil", label: "nav.profil" },
 ];
 
 export default function Sidebar({
@@ -36,15 +39,17 @@ export default function Sidebar({
   onGantiTema,
   onKeluar,
 }: Props) {
+  const { t } = useBahasa();
+
   return (
     <header className="samping">
       <div className="samping-isi">
         <div className="samping-merek">
           <Brand size={32} />
-          <span className="samping-merek-teks">Twitter Mini</span>
+          <span className="samping-merek-teks">{t("umum.merek")}</span>
         </div>
 
-        <nav className="samping-menu" aria-label="Navigasi utama">
+        <nav className="samping-menu" aria-label={t("nav.utama")}>
           {MENU.map(({ kunci, label }) => {
             const aktif = tampilan === kunci;
             const Ikon = kunci === "beranda" ? IkonBeranda : IkonProfil;
@@ -57,7 +62,7 @@ export default function Sidebar({
                 aria-current={aktif ? "page" : undefined}
               >
                 <Ikon size={24} aktif={aktif} />
-                <span className="menu-label">{label}</span>
+                <span className="menu-label">{t(label)}</span>
               </button>
             );
           })}
@@ -67,23 +72,25 @@ export default function Sidebar({
             className="menu-butir"
             onClick={onGantiTema}
             aria-label={
-              tema === "gelap" ? "Beralih ke tema terang" : "Beralih ke tema gelap"
+              tema === "gelap" ? t("nav.keTemaTerang") : t("nav.keTemaGelap")
             }
           >
             {tema === "gelap" ? <IkonMatahari size={24} /> : <IkonBulan size={24} />}
             <span className="menu-label">
-              {tema === "gelap" ? "Tema terang" : "Tema gelap"}
+              {tema === "gelap" ? t("nav.temaTerang") : t("nav.temaGelap")}
             </span>
           </button>
+
+          <PemilihBahasa varian="menu" />
 
           <button
             type="button"
             className="menu-butir"
             onClick={onKeluar}
-            aria-label="Keluar dari akun"
+            aria-label={t("nav.keluarLabel")}
           >
             <IkonKeluar size={24} />
-            <span className="menu-label">Keluar</span>
+            <span className="menu-label">{t("nav.keluar")}</span>
           </button>
         </nav>
 
@@ -93,14 +100,14 @@ export default function Sidebar({
           onClick={onTulis}
         >
           <IkonTulis size={20} className="tombol-tulis-ikon" />
-          <span className="tombol-tulis-teks">Tulis komentar</span>
+          <span className="tombol-tulis-teks">{t("nav.tulis")}</span>
         </button>
 
         <button
           type="button"
           className="samping-akun"
           onClick={() => onPindah("profil")}
-          aria-label="Buka profil"
+          aria-label={t("nav.bukaProfil")}
         >
           <Avatar pengguna={pengguna} ukuran={38} />
           <span className="samping-akun-teks">

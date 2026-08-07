@@ -13,6 +13,8 @@ export type User = {
   following: number;
   followers: number;
   verified: boolean;
+  /** admin boleh menghapus komentar siapa pun; ditetapkan di basis data */
+  admin: boolean;
 };
 
 export type Comment = {

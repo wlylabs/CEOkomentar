@@ -3,7 +3,10 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Brand from "./Brand";
+import PemilihBahasa from "./PemilihBahasa";
 import { IkonMata, IkonPeringatan, IkonTamu } from "./Icons";
+import { useBahasa } from "@/lib/i18n/konteks";
+import type { KunciTeks } from "@/lib/i18n/kamus";
 import { klienPeramban } from "@/lib/supabase/client";
 
 type Mode = "masuk" | "daftar" | "lupa";
@@ -11,45 +14,47 @@ type Mode = "masuk" | "daftar" | "lupa";
 const POLA_HANDLE = /^[A-Za-z0-9_]{3,15}$/;
 const PANJANG_SANDI = 8;
 
-const JUDUL: Record<Mode, string> = {
-  masuk: "Masuk ke akunmu",
-  daftar: "Buat akun baru",
-  lupa: "Atur ulang kata sandi",
+const JUDUL: Record<Mode, KunciTeks> = {
+  masuk: "gerbang.judulMasuk",
+  daftar: "gerbang.judulDaftar",
+  lupa: "gerbang.judulLupa",
 };
 
-/** Menerjemahkan pesan galat Supabase yang berbahasa Inggris. */
-function terjemahkan(pesan: string) {
-  const p = pesan.toLowerCase();
-  if (p.includes("invalid login credentials")) {
-    return "Email atau kata sandi salah.";
-  }
-  if (p.includes("email not confirmed")) {
-    return "Email belum dikonfirmasi. Buka tautan yang kami kirim ke kotak masukmu.";
-  }
-  if (p.includes("user already registered") || p.includes("already been registered")) {
-    return "Email ini sudah terdaftar. Coba masuk saja.";
-  }
-  if (p.includes("password should be at least")) {
-    return `Kata sandi minimal ${PANJANG_SANDI} karakter.`;
-  }
-  if (p.includes("unable to validate email") || p.includes("invalid email")) {
-    return "Format email tidak dikenali.";
-  }
-  if (p.includes("rate limit") || p.includes("too many requests")) {
-    return "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.";
-  }
-  if (p.includes("anonymous sign-ins are disabled") || p.includes("anonymous_provider_disabled")) {
-    return "Masuk sebagai tamu belum diaktifkan. Nyalakan Anonymous Sign-Ins di Supabase Dashboard → Authentication → Sign In / Providers.";
-  }
-  if (p.includes("failed to fetch") || p.includes("networkerror")) {
-    return "Tidak bisa menghubungi server. Periksa koneksi dan alamat Supabase.";
-  }
-  return pesan;
-}
+/**
+ * Galat Supabase selalu berbahasa Inggris. Yang sering ditemui pemakai
+ * dipetakan ke kalimat kita sendiri; sisanya diteruskan apa adanya karena
+ * kalimat aslinya lebih tepat daripada tebakan yang terlalu umum.
+ */
+const GALAT_SUPABASE: { tanda: string[]; kunci: KunciTeks }[] = [
+  { tanda: ["invalid login credentials"], kunci: "galatAuth.kredensial" },
+  { tanda: ["email not confirmed"], kunci: "galatAuth.belumKonfirmasi" },
+  {
+    tanda: ["user already registered", "already been registered"],
+    kunci: "galatAuth.sudahTerdaftar",
+  },
+  { tanda: ["password should be at least"], kunci: "galatAuth.sandiPendek" },
+  {
+    tanda: ["unable to validate email", "invalid email"],
+    kunci: "galatAuth.emailSalah",
+  },
+  { tanda: ["rate limit", "too many requests"], kunci: "galatAuth.batasan" },
+  {
+    tanda: ["anonymous sign-ins are disabled", "anonymous_provider_disabled"],
+    kunci: "galatAuth.tamuMati",
+  },
+  { tanda: ["failed to fetch", "networkerror"], kunci: "galatAuth.jaringan" },
+];
 
 export default function AuthScreen() {
   const router = useRouter();
   const supabase = klienPeramban();
+  const { t } = useBahasa();
+
+  const terjemahkan = (pesan: string) => {
+    const p = pesan.toLowerCase();
+    const cocok = GALAT_SUPABASE.find((g) => g.tanda.some((tanda) => p.includes(tanda)));
+    return cocok ? t(cocok.kunci, { jumlah: PANJANG_SANDI }) : pesan;
+  };
 
   const [mode, setMode] = useState<Mode>("masuk");
   const [email, setEmail] = useState("");
@@ -124,8 +129,15 @@ export default function AuthScreen() {
     setSibuk(true);
 
     const nomor = String(Math.floor(1000 + Math.random() * 9000));
+    /* Nama tampilan mengikuti bahasa yang sedang dipakai, sedangkan handle
+       tetap `tamu…` karena ia pengenal yang tersimpan permanen. */
     const { error } = await supabase.auth.signInAnonymously({
-      options: { data: { name: `Tamu ${nomor}`, handle: `tamu${nomor}` } },
+      options: {
+        data: {
+          name: t("gerbang.namaTamu", { nomor }),
+          handle: `tamu${nomor}`,
+        },
+      },
     });
     setSibuk(false);
 
@@ -147,19 +159,19 @@ export default function AuthScreen() {
 
     if (mode === "daftar") {
       if (!nama.trim()) {
-        setGalat("Nama tampilan wajib diisi.");
+        setGalat(t("gerbang.namaWajib"));
         return;
       }
       if (!POLA_HANDLE.test(handle.trim())) {
-        setGalat("Handle hanya boleh huruf, angka, dan garis bawah (3–15 karakter).");
+        setGalat(t("gerbang.handleSalah"));
         return;
       }
       if (statusHandle === "terpakai") {
-        setGalat("Handle itu sudah dipakai orang lain.");
+        setGalat(t("gerbang.handleTerpakai"));
         return;
       }
       if (sandi.length < PANJANG_SANDI) {
-        setGalat(`Kata sandi minimal ${PANJANG_SANDI} karakter.`);
+        setGalat(t("galatAuth.sandiPendek", { jumlah: PANJANG_SANDI }));
         return;
       }
     }
@@ -171,9 +183,7 @@ export default function AuthScreen() {
           redirectTo: `${window.location.origin}/auth/callback?berikutnya=/sandi-baru`,
         });
         if (error) throw error;
-        setKabar(
-          "Kalau email itu terdaftar, tautan penggantian kata sandi sudah dikirim.",
-        );
+        setKabar(t("gerbang.kabarLupa"));
         return;
       }
 
@@ -200,9 +210,7 @@ export default function AuthScreen() {
       if (data.session) {
         router.refresh();
       } else {
-        setKabar(
-          "Akun dibuat. Buka tautan konfirmasi yang kami kirim ke emailmu untuk mulai memakai akun.",
-        );
+        setKabar(t("gerbang.kabarDaftar"));
         setMode("masuk");
         setSandi("");
       }
@@ -218,11 +226,11 @@ export default function AuthScreen() {
   }
 
   const catatanHandle: Record<typeof statusHandle, string> = {
-    kosong: "3–15 karakter: huruf, angka, atau garis bawah.",
-    salah: "Hanya huruf, angka, dan garis bawah, 3–15 karakter.",
-    memeriksa: "Memeriksa ketersediaan…",
-    "kosong-tersedia": `@${handle.trim()} masih tersedia.`,
-    terpakai: `@${handle.trim()} sudah dipakai.`,
+    kosong: t("handle.kosong"),
+    salah: t("handle.salah"),
+    memeriksa: t("handle.memeriksa"),
+    "kosong-tersedia": t("handle.tersedia", { handle: handle.trim() }),
+    terpakai: t("handle.terpakai", { handle: handle.trim() }),
   };
 
   return (
@@ -230,21 +238,20 @@ export default function AuthScreen() {
       <main className="gerbang-kartu">
         <div className="gerbang-merek">
           <Brand size={40} />
-          <span className="gerbang-merek-teks">Twitter Mini</span>
+          <span className="gerbang-merek-teks">{t("umum.merek")}</span>
+          <PemilihBahasa varian="gerbang" />
         </div>
 
-        <h1 className="gerbang-judul">{JUDUL[mode]}</h1>
+        <h1 className="gerbang-judul">{t(JUDUL[mode])}</h1>
         <p className="gerbang-sub">
-          {mode === "lupa"
-            ? "Masukkan email akunmu. Kami kirimkan tautan untuk membuat kata sandi baru."
-            : "Komentar, balasan, dan profilmu tersimpan di akun ini."}
+          {t(mode === "lupa" ? "gerbang.subLupa" : "gerbang.sub")}
         </p>
 
         <form className="gerbang-form" onSubmit={kirim} noValidate>
           {mode === "daftar" && (
             <>
               <label className="bidang">
-                <span className="bidang-label">Nama tampilan</span>
+                <span className="bidang-label">{t("gerbang.nama")}</span>
                 <input
                   className="bidang-masukan"
                   value={nama}
@@ -256,7 +263,7 @@ export default function AuthScreen() {
               </label>
 
               <label className="bidang">
-                <span className="bidang-label">Handle</span>
+                <span className="bidang-label">{t("gerbang.handle")}</span>
                 <span className="bidang-awalan">
                   <span aria-hidden="true">@</span>
                   <input
@@ -286,7 +293,7 @@ export default function AuthScreen() {
           )}
 
           <label className="bidang">
-            <span className="bidang-label">Email</span>
+            <span className="bidang-label">{t("gerbang.email")}</span>
             <input
               ref={emailRef}
               className="bidang-masukan"
@@ -303,7 +310,7 @@ export default function AuthScreen() {
 
           {mode !== "lupa" && (
             <label className="bidang">
-              <span className="bidang-label">Kata sandi</span>
+              <span className="bidang-label">{t("gerbang.sandi")}</span>
               <span className="bidang-awalan">
                 <input
                   className="bidang-masukan"
@@ -320,16 +327,16 @@ export default function AuthScreen() {
                   type="button"
                   className="bidang-ikon"
                   onClick={() => setLihatSandi((s) => !s)}
-                  aria-label={
-                    lihatSandi ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"
-                  }
+                  aria-label={t(
+                    lihatSandi ? "gerbang.sembunyikanSandi" : "gerbang.lihatSandi",
+                  )}
                 >
                   <IkonMata size={19} tertutup={lihatSandi} />
                 </button>
               </span>
               {mode === "daftar" && (
                 <p className="bidang-bantuan">
-                  Minimal {PANJANG_SANDI} karakter.
+                  {t("gerbang.sandiMinimal", { jumlah: PANJANG_SANDI })}
                 </p>
               )}
             </label>
@@ -353,20 +360,22 @@ export default function AuthScreen() {
             className="tombol tombol-utama tombol-lebar"
             disabled={sibuk}
           >
-            {sibuk
-              ? "Memproses…"
-              : mode === "masuk"
-                ? "Masuk"
-                : mode === "daftar"
-                  ? "Daftar"
-                  : "Kirim tautan"}
+            {t(
+              sibuk
+                ? "umum.memproses"
+                : mode === "masuk"
+                  ? "gerbang.tombolMasuk"
+                  : mode === "daftar"
+                    ? "gerbang.tombolDaftar"
+                    : "gerbang.tombolTautan",
+            )}
           </button>
         </form>
 
         {mode !== "lupa" && (
           <>
             <div className="gerbang-pisah">
-              <span>atau</span>
+              <span>{t("gerbang.atau")}</span>
             </div>
 
             <button
@@ -376,12 +385,9 @@ export default function AuthScreen() {
               disabled={sibuk}
             >
               <IkonTamu size={19} />
-              <span>Masuk sebagai tamu</span>
+              <span>{t("gerbang.tamu")}</span>
             </button>
-            <p className="gerbang-catatan">
-              Tanpa email dan kata sandi. Kamu bisa langsung menulis komentar, dan
-              akun tamu bisa diubah jadi permanen kapan saja dari dalam aplikasi.
-            </p>
+            <p className="gerbang-catatan">{t("gerbang.catatanTamu")}</p>
           </>
         )}
 
@@ -389,12 +395,12 @@ export default function AuthScreen() {
           {mode === "masuk" && (
             <>
               <button type="button" className="tautan" onClick={() => gantiMode("lupa")}>
-                Lupa kata sandi?
+                {t("gerbang.lupaSandi")}
               </button>
               <p>
-                Belum punya akun?{" "}
+                {t("gerbang.belumPunya")}{" "}
                 <button type="button" className="tautan" onClick={() => gantiMode("daftar")}>
-                  Daftar
+                  {t("gerbang.tombolDaftar")}
                 </button>
               </p>
             </>
@@ -402,16 +408,16 @@ export default function AuthScreen() {
 
           {mode === "daftar" && (
             <p>
-              Sudah punya akun?{" "}
+              {t("gerbang.sudahPunya")}{" "}
               <button type="button" className="tautan" onClick={() => gantiMode("masuk")}>
-                Masuk
+                {t("gerbang.tombolMasuk")}
               </button>
             </p>
           )}
 
           {mode === "lupa" && (
             <button type="button" className="tautan" onClick={() => gantiMode("masuk")}>
-              Kembali ke halaman masuk
+              {t("gerbang.kembaliMasuk")}
             </button>
           )}
         </div>

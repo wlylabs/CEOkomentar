@@ -1,7 +1,7 @@
 /**
- * Bentuk tabel dan fungsi di Supabase, ditulis mengikuti
- * `supabase/migrations/20260807090000_awal.sql`. Perbarui berkas ini bila skema
- * berubah agar pemanggilan `.from()` dan `.rpc()` tetap bertipe.
+ * Bentuk tabel dan fungsi di Supabase, ditulis mengikuti seluruh berkas di
+ * `supabase/migrations/`. Perbarui berkas ini bila skema berubah agar
+ * pemanggilan `.from()` dan `.rpc()` tetap bertipe.
  */
 
 export type BarisProfil = {
@@ -13,6 +13,7 @@ export type BarisProfil = {
   avatar_url: string | null;
   banner_url: string | null;
   verified: boolean;
+  is_admin: boolean;
   following_count: number;
   followers_count: number;
   created_at: string;
@@ -79,6 +80,10 @@ export type Database = {
       pastikan_profil: {
         Args: Record<string, never>;
         Returns: undefined;
+      };
+      apakah_admin: {
+        Args: { pengguna?: string };
+        Returns: boolean;
       };
       statistik_pengguna: {
         Args: { pengguna: string };

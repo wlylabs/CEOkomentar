@@ -1,5 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { cookies } from "next/headers";
 import type { EmailOtpType } from "@supabase/supabase-js";
+import { KUNCI_BAHASA, bacaBahasa } from "@/lib/i18n/bahasa";
+import { teks } from "@/lib/i18n/kamus";
 import { klienServer } from "@/lib/supabase/server";
 import { supabaseSiap } from "@/lib/supabase/env";
 
@@ -16,6 +19,7 @@ function tujuanAman(nilai: string | null) {
  */
 export async function GET(permintaan: NextRequest) {
   const alamat = new URL(permintaan.url);
+  const bahasa = bacaBahasa((await cookies()).get(KUNCI_BAHASA)?.value);
   const kode = alamat.searchParams.get("code");
   const tokenHash = alamat.searchParams.get("token_hash");
   const jenis = alamat.searchParams.get("type") as EmailOtpType | null;
@@ -24,7 +28,7 @@ export async function GET(permintaan: NextRequest) {
   const gagal = (sebab: string) =>
     NextResponse.redirect(new URL(`/?galat=${encodeURIComponent(sebab)}`, alamat.origin));
 
-  if (!supabaseSiap) return gagal("Supabase belum dikonfigurasi.");
+  if (!supabaseSiap) return gagal(teks(bahasa, "galatAuth.belumSiap"));
 
   const supabase = await klienServer();
 
@@ -42,5 +46,5 @@ export async function GET(permintaan: NextRequest) {
     );
   }
 
-  return gagal("Tautan tidak lengkap atau sudah kedaluwarsa.");
+  return gagal(teks(bahasa, "galatAuth.tautanRusak"));
 }

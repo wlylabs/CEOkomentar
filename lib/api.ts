@@ -12,7 +12,7 @@ const EMBER: Record<JenisMedia, "avatars" | "banners"> = {
 };
 
 const KOLOM_PROFIL =
-  "id, handle, name, bio, location, avatar_url, banner_url, verified, following_count, followers_count, created_at, updated_at";
+  "id, handle, name, bio, location, avatar_url, banner_url, verified, is_admin, following_count, followers_count, created_at, updated_at";
 
 const KOLOM_KOMENTAR =
   "id, author_id, parent_id, body, created_at, like_count, repost_count, reply_count";
@@ -36,6 +36,7 @@ export function keUser(baris: BarisProfil): User {
     following: baris.following_count,
     followers: baris.followers_count,
     verified: baris.verified,
+    admin: baris.is_admin,
   };
 }
 

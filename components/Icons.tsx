@@ -230,6 +230,25 @@ export function IkonPeringatan(p: IkonProps) {
   );
 }
 
+export function IkonBahasa(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <circle cx="12" cy="12" r="8.6" />
+      <path d="M3.4 12h17.2" />
+      <path d="M12 3.4c2.2 2.4 3.4 5.4 3.4 8.6S14.2 18.2 12 20.6C9.8 18.2 8.6 15.2 8.6 12S9.8 5.8 12 3.4Z" />
+    </Dasar>
+  );
+}
+
+export function IkonAdmin(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <path d="M12 3.2 19 5.6v5.5c0 4.1-2.8 7.6-7 9.7-4.2-2.1-7-5.6-7-9.7V5.6z" />
+      <path d="m8.8 12.1 2.2 2.2 4.2-4.4" />
+    </Dasar>
+  );
+}
+
 export function IkonTerverifikasi({ size = 18, ...sisa }: IkonProps) {
   return (
     <svg
