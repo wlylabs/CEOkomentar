@@ -27,7 +27,6 @@
   --bahaya: #f4212e;
   --bahaya-lembut: rgba(244, 33, 46, 0.14);
   --emas: #f5c518;
-  --tanda-dalam: #000000;
   --lencana-tanda: #000000;
   --bayang: 0 10px 30px rgba(0, 0, 0, 0.6);
   color-scheme: dark;
@@ -53,7 +52,6 @@
   --bahaya: #e0245e;
   --bahaya-lembut: rgba(224, 36, 94, 0.1);
   --emas: #d4a017;
-  --tanda-dalam: #ffffff;
   --lencana-tanda: #ffffff;
   --bayang: 0 10px 30px rgba(15, 20, 25, 0.18);
   color-scheme: light;
