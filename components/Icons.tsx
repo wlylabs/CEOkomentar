@@ -240,15 +240,6 @@ export function IkonBahasa(p: IkonProps) {
   );
 }
 
-export function IkonAdmin(p: IkonProps) {
-  return (
-    <Dasar {...p}>
-      <path d="M12 3.2 19 5.6v5.5c0 4.1-2.8 7.6-7 9.7-4.2-2.1-7-5.6-7-9.7V5.6z" />
-      <path d="m8.8 12.1 2.2 2.2 4.2-4.4" />
-    </Dasar>
-  );
-}
-
 export function IkonTerverifikasi({ size = 18, ...sisa }: IkonProps) {
   return (
     <svg

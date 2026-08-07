@@ -76,7 +76,7 @@ lewat pengalih di navigasi.
 ## Menyiapkan Supabase
 
 1. Buat proyek di [supabase.com](https://supabase.com).
-2. Buka **SQL Editor**, lalu jalankan ketiga berkas di `supabase/migrations/`
+2. Buka **SQL Editor**, lalu jalankan keempat berkas di `supabase/migrations/`
    secara berurutan:
 
    - `20260807090000_awal.sql` — tabel, pemicu penghitung, kebijakan RLS, dua
@@ -85,8 +85,10 @@ lewat pengalih di navigasi.
      penyapu berkala, dan pembersih akun tamu
    - `20260807150000_admin.sql` — kolom `is_admin`, pengangkatan otomatis untuk
      handle admin, penjaga kolom istimewa, dan hak hapus komentar bagi admin
+   - `20260807180000_pengikut-admin.sql` — jumlah pengikut akun resmi disamakan
+     dengan jumlah penduduk Indonesia
 
-   Ketiganya aman dijalankan ulang. Bila memakai Supabase CLI: `supabase db push`.
+   Keempatnya aman dijalankan ulang. Bila memakai Supabase CLI: `supabase db push`.
 3. Aktifkan **pg_cron** di **Database → Extensions** supaya komentar
    kedaluwarsa benar-benar terhapus. Migrasi mencoba memasangnya sendiri dan
    hanya memberi catatan bila tidak bisa. Lihat "Masa hidup komentar" di bawah

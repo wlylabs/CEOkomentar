@@ -1,7 +1,7 @@
 import type { KlienSupabase } from "./supabase/client";
 import type { BarisKomentar, BarisProfil } from "./supabase/database.types";
 import type { Gambar, JenisMedia } from "./image";
-import { ambangKedaluwarsa } from "./kebijakan";
+import { PENDUDUK_INDONESIA, ambangKedaluwarsa } from "./kebijakan";
 import type { Comment, Statistik, Tab, User, View } from "./types";
 
 export const BATAS_HALAMAN = 25;
@@ -34,7 +34,11 @@ export function keUser(baris: BarisProfil): User {
     location: baris.location,
     joinedAt: baris.created_at,
     following: baris.following_count,
-    followers: baris.followers_count,
+    /* Pengikut akun resmi sebanyak penduduk Indonesia. Nilai basis data yang
+       dipakai kalau sudah lebih besar, jadi migrasi tetap yang menentukan. */
+    followers: baris.is_admin
+      ? Math.max(baris.followers_count, PENDUDUK_INDONESIA)
+      : baris.followers_count,
     verified: baris.verified,
     admin: baris.is_admin,
   };

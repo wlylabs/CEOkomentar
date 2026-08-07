@@ -24,6 +24,7 @@
   --suka-lembut: rgba(249, 24, 128, 0.12);
   --ulang: #00ba7c;
   --ulang-lembut: rgba(0, 186, 124, 0.12);
+  --emas: #f5c518;
   --tanda-dalam: #000000;
   --lencana-tanda: #000000;
   --bayang: 0 10px 30px rgba(0, 0, 0, 0.6);
@@ -47,6 +48,7 @@
   --suka-lembut: rgba(249, 24, 128, 0.1);
   --ulang: #00ba7c;
   --ulang-lembut: rgba(0, 186, 124, 0.1);
+  --emas: #d4a017;
   --tanda-dalam: #ffffff;
   --lencana-tanda: #ffffff;
   --bayang: 0 10px 30px rgba(15, 20, 25, 0.18);
@@ -194,15 +196,32 @@ input::-webkit-strong-password-auto-fill-button {
   }
 }
 
-@media (min-width: 1024px) {
+/*
+ * Kolom kanan muncul mulai 880px, bukan 1024px.
+ *
+ * "Situs desktop" di peramban ponsel memakai lebar semu 980px lalu mengecilkan
+ * seluruh halaman. Dengan ambang lama, lebar itu jatuh di antara dua tata letak:
+ * hanya dua kolom selebar 688px yang mengambang di tengah, sisanya kosong
+ * melompong di kanan. Mulai 880px ketiga kolom sudah muat — kolom tengah boleh
+ * menyusut dari 600px — sehingga lebarnya terpakai habis.
+ */
+@media (min-width: 880px) {
   .kerangka {
-    grid-template-columns: 88px minmax(0, 600px) minmax(280px, 320px);
+    grid-template-columns: 88px minmax(0, 600px) minmax(250px, 320px);
   }
 }
 
 @media (min-width: 1280px) {
   .kerangka {
     grid-template-columns: 260px minmax(0, 600px) 350px;
+  }
+}
+
+/* Halaman yang dikecilkan paksa oleh mode situs desktop menyisakan huruf yang
+   terlalu kecil di ponsel; di rentang lebar itu ukurannya dinaikkan sedikit. */
+@media (min-width: 880px) and (max-width: 1100px) {
+  body {
+    font-size: 16px;
   }
 }
 
@@ -599,31 +618,17 @@ input::-webkit-strong-password-auto-fill-button {
 }
 
 .lencana {
-  flex: none;
-  color: var(--aksen);
-}
-
-/* Penanda admin: bentuknya pil kecil, bukan ikon, supaya tidak tertukar dengan
-   centang terverifikasi yang artinya berbeda. */
-.lencana-admin {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
   flex: none;
-  height: 19px;
-  padding: 0 7px 0 5px;
-  border-radius: 999px;
-  background: var(--aksen-lembut);
   color: var(--aksen);
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
-.lencana-admin svg {
-  flex: none;
+/* Centang emas menandai akun resmi (admin), sama seperti di Twitter. Warnanya
+   yang membedakan, bukan bentuknya, jadi satu akun tidak pernah memakai dua
+   lencana sekaligus. */
+.lencana-emas {
+  color: var(--emas);
 }
 
 /* ============================================================
@@ -1478,7 +1483,7 @@ input::-webkit-strong-password-auto-fill-button {
   display: none;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 880px) {
   .rel {
     display: block;
     padding: 10px 12px 24px 22px;
@@ -1534,7 +1539,7 @@ input::-webkit-strong-password-auto-fill-button {
   margin: 12px 16px;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 880px) {
   .cari-mobil {
     display: none;
   }

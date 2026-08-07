@@ -14,3 +14,15 @@ export const MASA_KOMENTAR_MS = MASA_KOMENTAR_JAM * 60 * 60 * 1000;
 export function ambangKedaluwarsa(sekarang: number = Date.now()) {
   return new Date(sekarang - MASA_KOMENTAR_MS).toISOString();
 }
+
+/**
+ * Jumlah penduduk Indonesia hasil proyeksi pertengahan 2025 dari Badan Pusat
+ * Statistik: 284.438.782 jiwa.
+ *
+ * Akun resmi @CEOkomentar memakai angka ini sebagai jumlah pengikutnya — setiap
+ * orang Indonesia dianggap mengikutinya. Basis data yang menyimpan nilainya
+ * (lihat `supabase/migrations/20260807180000_pengikut-admin.sql`); angka di sini
+ * dipakai antarmuka sebagai nilai terendah supaya tampilannya sudah benar walau
+ * migrasi itu belum dijalankan.
+ */
+export const PENDUDUK_INDONESIA = 284_438_782;

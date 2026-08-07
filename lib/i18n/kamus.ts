@@ -99,8 +99,9 @@ const KAMUS_ID = {
   "aksi.suka": "Suka",
   "aksi.batalSuka": "Batalkan suka",
   "aksi.salinTautan": "Salin tautan",
-  "lencana.admin": "Admin",
-  "lencana.adminJudul": "Admin — dapat menghapus komentar siapa pun",
+  "lencana.terverifikasiJudul": "Akun terverifikasi",
+  "lencana.adminJudul":
+    "Akun resmi — admin yang dapat menghapus komentar siapa pun",
 
   /* ---------------------------------------------------------- panel kanan */
   "rel.label": "Panel samping",
@@ -359,8 +360,8 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "aksi.suka": "Like",
   "aksi.batalSuka": "Undo like",
   "aksi.salinTautan": "Copy link",
-  "lencana.admin": "Admin",
-  "lencana.adminJudul": "Admin — can delete anyone's comment",
+  "lencana.terverifikasiJudul": "Verified account",
+  "lencana.adminJudul": "Official account — admin, can delete anyone's comment",
 
   /* ---------------------------------------------------------- panel kanan */
   "rel.label": "Side panel",
