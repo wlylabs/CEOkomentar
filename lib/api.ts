@@ -5,6 +5,7 @@ import type {
   BarisProfil,
 } from "./supabase/database.types";
 import type { Gambar, JenisMedia } from "./image";
+import type { JejakKomentar } from "./jangkauan";
 import { PENDUDUK_INDONESIA, ambangKedaluwarsa } from "./kebijakan";
 import type {
   Comment,
@@ -328,6 +329,42 @@ export async function ambilKomentar(
   await tandaiInteraksi(sb, [komentar], akunId);
 
   return { komentar, pengguna };
+}
+
+/**
+ * Batas komentar yang ditarik untuk menjumlahkan jangkauan seorang penulis.
+ *
+ * Komentar berumur 24 jam, jadi ini sekaligus batas berapa banyak yang bisa
+ * ditulis seseorang dalam sehari sebelum jumlahnya berhenti bertambah. Cukup
+ * longgar untuk akun tersibuk sekalipun, dan tetap satu permintaan ringan
+ * karena yang dibaca hanya dua kolom.
+ */
+const BATAS_JEJAK = 1000;
+
+/**
+ * Id dan waktu tulis komentar seseorang yang masih dalam masa 24 jam.
+ *
+ * Dipakai untuk menjumlahkan suka, posting ulang, dan tayangan bawaan menjadi
+ * ringkasan profil. Hanya dua kolom yang dibaca — sisanya tidak diperlukan
+ * kurva jangkauan.
+ */
+export async function ambilJejakKomentar(
+  sb: KlienSupabase,
+  penulisId: string,
+): Promise<JejakKomentar[]> {
+  const { data, error } = await sb
+    .from("comments")
+    .select("id, created_at")
+    .eq("author_id", penulisId)
+    .gt("created_at", ambangKedaluwarsa())
+    .limit(BATAS_JEJAK);
+
+  if (error) throw error;
+
+  return (data ?? []).map((baris) => ({
+    id: baris.id,
+    createdAt: new Date(baris.created_at).getTime(),
+  }));
 }
 
 export async function ambilStatistik(

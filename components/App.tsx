@@ -27,6 +27,7 @@ import type { KunciTeks } from "@/lib/i18n/kamus";
 import { klienPeramban } from "@/lib/supabase/client";
 import {
   ambilFeed,
+  ambilJejakKomentar,
   ambilKomentar,
   ambilNotifikasi,
   ambilProfil,
@@ -43,6 +44,7 @@ import {
   setUlang,
   tandaiNotifikasiDibaca,
 } from "@/lib/api";
+import { jangkauanTerkumpul, type JejakKomentar } from "@/lib/jangkauan";
 import { MASA_KOMENTAR_JAM, MASA_KOMENTAR_MS } from "@/lib/kebijakan";
 import { bacaPilihan, beralihTema, temaTerpasang } from "@/lib/tema";
 import { susunUtas } from "@/lib/utas";
@@ -71,6 +73,32 @@ const STATISTIK_KOSONG: Statistik = {
   sukaDiterima: 0,
   ulangDiterima: 0,
 };
+
+/**
+ * Menambahkan suka dan posting ulang bawaan ke ringkasan seorang penulis.
+ *
+ * Kartu komentar akun resmi menampilkan angka basis data ditambah jangkauan
+ * yang tumbuh seiring umurnya. Tanpa penambahan yang sama di sini, "suka
+ * diterima" di profil dan panel kanan akan lebih kecil daripada satu kartu
+ * yang tepat di bawahnya — dan diam sementara kartunya terus naik.
+ *
+ * Dihitung ulang tiap jam aplikasi berdetak, jadi angkanya ikut merangkak.
+ */
+function denganJangkauan(
+  dasar: Statistik,
+  jejak: JejakKomentar[],
+  penulis: User | null,
+  sekarang: number,
+): Statistik {
+  if (!penulis?.admin || jejak.length === 0) return dasar;
+
+  const { suka, ulang } = jangkauanTerkumpul(jejak, penulis, sekarang);
+  return {
+    ...dasar,
+    sukaDiterima: dasar.sukaDiterima + suka,
+    ulangDiterima: dasar.ulangDiterima + ulang,
+  };
+}
 
 /**
  * Pesan dari Supabase selalu berbahasa Inggris dan lebih tepat daripada
@@ -110,6 +138,11 @@ export default function App({
     [akunAwal.id]: akunAwal,
   });
   const [statistik, setStatistik] = useState<Statistik>(STATISTIK_KOSONG);
+  /* Komentar yang masih hidup milik akun sendiri dan milik profil yang sedang
+     dibuka. Hanya diisi untuk akun resmi — akun lain tidak punya angka bawaan
+     yang perlu dijumlahkan. */
+  const [jejakSaya, setJejakSaya] = useState<JejakKomentar[]>([]);
+  const [jejakProfil, setJejakProfil] = useState<JejakKomentar[]>([]);
 
   const [tampilan, setTampilan] = useState<View>("beranda");
   const [tab, setTab] = useState<Tab>("komentar");
@@ -244,7 +277,18 @@ export default function App({
       .catch(() => {
         /* ringkasan boleh tertinggal sesaat; feed tetap yang utama */
       });
-  }, [supabase, akun.id]);
+
+    if (!akun.admin) {
+      setJejakSaya([]);
+      return;
+    }
+
+    ambilJejakKomentar(supabase, akun.id)
+      .then(setJejakSaya)
+      .catch(() => {
+        /* tanpa jejaknya ringkasan hanya memakai angka basis data */
+      });
+  }, [supabase, akun.id, akun.admin]);
 
   const segarkanTren = useCallback(() => {
     ambilTren(supabase)
@@ -341,6 +385,27 @@ export default function App({
       batal = true;
     };
   }, [supabase, profilId, profilSaya, statistik]);
+
+  /* Jejak komentar profil orang lain, untuk menjumlahkan angka bawaannya.
+     Profil sendiri memakai `jejakSaya` yang sudah ikut disegarkan bersama
+     ringkasan. */
+  useEffect(() => {
+    if (profilSaya || !profilLain?.admin) {
+      setJejakProfil([]);
+      return;
+    }
+
+    let batal = false;
+    ambilJejakKomentar(supabase, profilLain.id)
+      .then((jejak) => {
+        if (!batal) setJejakProfil(jejak);
+      })
+      .catch(() => {});
+
+    return () => {
+      batal = true;
+    };
+  }, [supabase, profilSaya, profilLain]);
 
   /* Lencana kabar menyala sejak halaman dibuka, bukan hanya setelah daftarnya
      dilihat sekali. */
@@ -780,6 +845,21 @@ export default function App({
     [pengguna, akun],
   );
 
+  /* Ringkasan yang benar-benar ditampilkan: angka basis data ditambah
+     jangkauan bawaan, dihitung ulang tiap menit bersama jam aplikasi. */
+  const statistikTampil = useMemo(
+    () => denganJangkauan(statistik, jejakSaya, akun, sekarang),
+    [statistik, jejakSaya, akun, sekarang],
+  );
+
+  const statistikProfilTampil = useMemo(
+    () =>
+      profilSaya
+        ? statistikTampil
+        : denganJangkauan(statistikProfil, jejakProfil, profilLain, sekarang),
+    [profilSaya, statistikTampil, statistikProfil, jejakProfil, profilLain, sekarang],
+  );
+
   /* Basis data yang menentukan, tetapi daftar di layar tetap disaring sendiri
      supaya komentar yang lewat 24 jam hilang tanpa menunggu muat ulang. Jam
      `sekarang` berdetak tiap menit, jadi ini ikut menyegarkan sendiri.
@@ -876,8 +956,10 @@ export default function App({
             milikSaya={profilSaya}
             mengikuti={mengikuti}
             menungguIkut={menungguIkut}
-            jumlahKomentar={statistikProfil.komentar + statistikProfil.balasan}
-            jumlahSukaDiterima={statistikProfil.sukaDiterima}
+            jumlahKomentar={
+              statistikProfilTampil.komentar + statistikProfilTampil.balasan
+            }
+            jumlahSukaDiterima={statistikProfilTampil.sukaDiterima}
             onIkuti={alihkanIkut}
             onSimpan={simpanProfilLokal}
             onKabar={beriKabar}
@@ -1086,7 +1168,7 @@ export default function App({
       <RightRail
         kueri={kueri}
         onKueri={setKueri}
-        statistik={statistik}
+        statistik={statistikTampil}
         tren={tren}
         pengguna={akun}
         onTagar={pilihTagar}
