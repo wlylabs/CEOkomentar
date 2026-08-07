@@ -5,6 +5,8 @@
 :root {
   /* tinggi bilah atas: acuan offset untuk semua elemen lengket */
   --tinggi-bilah: 53px;
+  /* sejauh mana balasan menjorok dari tepi kartu komentar utama */
+  --jorok: 18px;
 }
 
 :root[data-tema="gelap"] {
@@ -476,7 +478,6 @@ input::-webkit-strong-password-auto-fill-button {
    ============================================================ */
 
 .kepala-kolom,
-.kepala-profil,
 .tab {
   position: sticky;
   top: var(--tinggi-bilah);
@@ -492,22 +493,6 @@ input::-webkit-strong-password-auto-fill-button {
   }
 }
 
-/* Kepala profil hanya muncul di layar besar; layar kecil memakai bilah atas. */
-.kepala-profil {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  .kepala-profil {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    top: 0;
-    z-index: 21;
-    height: var(--tinggi-bilah);
-    padding: 0 16px;
-  }
-}
 
 .kepala-kolom {
   padding: 12px 16px;
@@ -843,8 +828,11 @@ input::-webkit-strong-password-auto-fill-button {
   background: var(--lapis-hover);
 }
 
+/* Avatar duduk sebaris dengan nama penulisnya. Dibiarkan meregang, ia melayang
+   di tengah kartu dan tiap baris daftar jadi tampak tidak rata. */
 .komentar-baris {
   display: flex;
+  align-items: flex-start;
   gap: 12px;
 }
 
@@ -886,28 +874,19 @@ input::-webkit-strong-password-auto-fill-button {
 
 /* Balasan menjorok ke dalam, bergaris tepi, dan seluruhnya satu ukuran lebih
    kecil daripada komentar yang dibalasnya — di daftar campuran, mana yang
-   pokok dan mana yang menanggapi harus terbaca sebelum satu kata pun dibaca. */
+   pokok dan mana yang menanggapi harus terbaca sebelum satu kata pun dibaca.
+   Sedalam apa pun letaknya dalam percakapan, semua balasan berhenti di satu
+   garis yang sama: indentasi bertingkat membuat tiap baris mulai di tempat
+   berbeda, dan justru itu yang membuat daftarnya sulit ditelusuri. Yang
+   membedakan balasan atas balasan bukan lagi jaraknya, melainkan baris
+   "Membalas @siapa" di atasnya. */
 .komentar-balasan {
   position: relative;
   padding-top: 9px;
   padding-bottom: 9px;
-  padding-left: calc(16px + var(--jorok, 18px));
+  padding-left: calc(16px + var(--jorok));
   background: var(--lapis-hover);
   font-size: 14px;
-}
-
-/* Tiap tingkat balasan menggeser sedikit lagi ke dalam, lalu berhenti: lebih
-   dalam dari ini kolomnya habis dimakan indentasi. */
-.komentar-tingkat-1 {
-  --jorok: 18px;
-}
-
-.komentar-tingkat-2 {
-  --jorok: 34px;
-}
-
-.komentar-tingkat-3 {
-  --jorok: 48px;
 }
 
 /* Latarnya sudah terangkat sedikit, jadi sorotan kursornya dinaikkan lagi
@@ -921,7 +900,7 @@ input::-webkit-strong-password-auto-fill-button {
   position: absolute;
   top: 10px;
   bottom: 10px;
-  left: calc(var(--jorok, 18px) + 1px);
+  left: calc(var(--jorok) + 1px);
   width: 2px;
   border-radius: 2px;
   background: var(--garis-kuat);
@@ -945,7 +924,7 @@ input::-webkit-strong-password-auto-fill-button {
 }
 
 .komentar-balasan .komentar-aksi {
-  max-width: 380px;
+  max-width: 300px;
   margin-top: 6px;
 }
 
@@ -981,10 +960,13 @@ input::-webkit-strong-password-auto-fill-button {
   overflow-wrap: anywhere;
 }
 
+/* Empat penghitung, bukan tujuh benda: sisanya pindah ke menu titik tiga.
+   Lebarnya ikut mengecil supaya keempatnya berkelompok, tidak tercerai
+   sepanjang kartu. */
 .komentar-aksi {
   display: flex;
   justify-content: space-between;
-  max-width: 420px;
+  max-width: 340px;
   margin-top: 10px;
   margin-left: -8px;
 }
@@ -1093,37 +1075,70 @@ input::-webkit-strong-password-auto-fill-button {
   }
 }
 
-.komentar-hapus {
+/* ============================================================
+   Menu titik tiga di pojok kartu
+   ============================================================ */
+
+.menu-kartu {
+  position: relative;
+  flex: none;
+  margin-left: auto;
+}
+
+.menu-kartu-tombol {
   display: grid;
   place-items: center;
-  flex: none;
   width: 30px;
   height: 30px;
-  margin-left: auto;
   border-radius: 50%;
   color: var(--teks-samar);
-  opacity: 0;
   transition:
     background-color 0.15s ease,
-    color 0.15s ease,
-    opacity 0.15s ease;
+    color 0.15s ease;
 }
 
-.komentar:hover .komentar-hapus,
-.komentar-hapus:focus-visible {
-  opacity: 1;
+.menu-kartu-tombol:hover,
+.menu-kartu-tombol[aria-expanded="true"] {
+  background: var(--aksen-lembut);
+  color: var(--aksen);
 }
 
-/* Layar sentuh tidak punya :hover, jadi tombolnya selalu terlihat di sana. */
-@media (hover: none) {
-  .komentar-hapus {
-    opacity: 1;
-  }
+.menu-kartu-daftar {
+  position: absolute;
+  top: calc(100% + 4px);
+  inset-inline-end: 0;
+  z-index: 25;
+  display: grid;
+  min-width: 200px;
+  padding: 6px 0;
+  border: 1px solid var(--garis);
+  border-radius: 14px;
+  background: var(--latar);
+  box-shadow: var(--bayang);
 }
 
-.komentar-hapus:hover {
-  background: var(--suka-lembut);
-  color: var(--suka);
+.menu-kartu-butir {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-align: start;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+.menu-kartu-butir:hover {
+  background: var(--lapis-hover-kuat);
+}
+
+.menu-kartu-bahaya {
+  color: var(--bahaya);
+}
+
+.menu-kartu-bahaya:hover {
+  background: var(--bahaya-lembut);
 }
 
 .komentar-konfirmasi {
@@ -2548,7 +2563,6 @@ input::-webkit-strong-password-auto-fill-button {
    layar kecil — di layar lebar bilah itu memang tidak ada. */
 @media (display-mode: standalone) and (max-width: 767px) {
   .kepala-kolom,
-  .kepala-profil,
   .tab {
     top: calc(var(--tinggi-bilah) + env(safe-area-inset-top));
   }

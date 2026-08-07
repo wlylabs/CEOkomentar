@@ -229,7 +229,7 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  function kartu(komentar: Comment, kedalaman: number, sorot = false) {
+  function kartu(komentar: Comment, konteksJelas: boolean, sorot = false) {
     const penulis =
       komentar.authorId === akun.id
         ? akun
@@ -243,7 +243,7 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
           penulis={penulis}
           akunSaya={akun}
           sekarang={sekarang}
-          kedalaman={kedalaman}
+          konteksJelas={konteksJelas}
           sorot={sorot}
           balasTerbuka={balasUntuk === komentar.id}
           onSuka={() => alihkanSuka(komentar.id)}
@@ -312,8 +312,11 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
           </div>
         ) : (
           <section className="daftar" aria-label={t("utas.judul")}>
-            {utas.induk.map((k, i) => kartu(k, i))}
-            {kartu(utas.komentar, utas.induk.length, true)}
+            {/* Di rantai induk tiap kartu membalas kartu tepat di atasnya, jadi
+                "Membalas @siapa" cukup disebut sekali di kartu paling awal —
+                itu pun hanya bila rantainya masih berlanjut ke atas. */}
+            {utas.induk.map((k, i) => kartu(k, i > 0))}
+            {kartu(utas.komentar, utas.induk.length > 0, true)}
 
             <div className="komposer-utama">
               <Composer
@@ -331,7 +334,9 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
             {utas.balasan.length === 0 ? (
               <p className="utas-kosong">{t("utas.kosong")}</p>
             ) : (
-              utas.balasan.map((k) => kartu(k, utas.induk.length + 1))
+              /* Semuanya membalas komentar yang sama, dan judul "Balasan" tepat
+                 di atas daftar ini sudah mengatakan komentar yang mana. */
+              utas.balasan.map((k) => kartu(k, true))
             )}
           </section>
         )}

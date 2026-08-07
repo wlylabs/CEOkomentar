@@ -801,13 +801,10 @@ export default function App({
       : t("kosong.beranda");
 
   /* Beranda memakai lambangnya di kiri bilah, jadi namanya tidak perlu diulang
-     lagi di tengah; ruang kosongnya tetap dipakai untuk menjaga tata letak. */
-  const judulBilah =
-    tampilan === "profil"
-      ? (penggunaProfil?.name ?? t("nav.profil"))
-      : tampilan === "notifikasi"
-        ? t("nav.notifikasi")
-        : "";
+     lagi di tengah; ruang kosongnya tetap dipakai untuk menjaga tata letak.
+     Profil pun begitu: nama dan fotonya sudah sebesar itu di kartu tepat di
+     bawah bilah, jadi mengulangnya di sini hanya menumpuk. */
+  const judulBilah = tampilan === "notifikasi" ? t("nav.notifikasi") : "";
 
   return (
     <div className="kerangka">
@@ -823,7 +820,7 @@ export default function App({
 
       <main className="utama" ref={utamaRef}>
         <div className="bilah-mobil">
-          {tampilan === "beranda" ? (
+          {tampilan !== "notifikasi" ? (
             <span className="bilah-merek">
               <Brand size={26} />
             </span>
@@ -859,32 +856,20 @@ export default function App({
         )}
 
         {tampilan === "profil" && penggunaProfil && (
-          <>
-            {/* Hanya tombol kembali: nama dan jumlah komentarnya sudah terbaca
-                utuh di kartu profil tepat di bawah bilah ini. */}
-            <div className="kepala-profil">
-              <button
-                type="button"
-                className="bulat"
-                onClick={() => gantiTampilan("beranda")}
-                aria-label={t("nav.kembali")}
-              >
-                <IkonKembali size={20} />
-              </button>
-            </div>
-
-            <ProfileHeader
-              pengguna={penggunaProfil}
-              milikSaya={profilSaya}
-              mengikuti={mengikuti}
-              menungguIkut={menungguIkut}
-              jumlahKomentar={statistikProfil.komentar + statistikProfil.balasan}
-              jumlahSukaDiterima={statistikProfil.sukaDiterima}
-              onIkuti={alihkanIkut}
-              onSimpan={simpanProfilLokal}
-              onKabar={beriKabar}
-            />
-          </>
+          /* Tanpa bilah nama dan tanpa panah kembali: keduanya hanya mengulang
+             apa yang sudah ada — nama lengkapnya di kartu profil tepat di
+             bawah, jalan pulangnya di navigasi bawah dan bilah samping. */
+          <ProfileHeader
+            pengguna={penggunaProfil}
+            milikSaya={profilSaya}
+            mengikuti={mengikuti}
+            menungguIkut={menungguIkut}
+            jumlahKomentar={statistikProfil.komentar + statistikProfil.balasan}
+            jumlahSukaDiterima={statistikProfil.sukaDiterima}
+            onIkuti={alihkanIkut}
+            onSimpan={simpanProfilLokal}
+            onKabar={beriKabar}
+          />
         )}
 
         {tampilan === "beranda" ? (
@@ -1029,9 +1014,22 @@ export default function App({
             </div>
           ) : (
             <>
-              {daftar.map(({ komentar: k, kedalaman }) => {
+              {daftar.map(({ komentar: k }, i) => {
                 const penulis = daftarPengguna[k.authorId];
                 if (!penulis) return null;
+
+                /* "Membalas @siapa" hanya ditulis kalau ia menambah sesuatu.
+                   Pada balasan langsung atas komentar utama yang persis di
+                   atasnya, kalimat itu cuma mengeja ulang susunan yang sudah
+                   terlihat. Balasan atas balasan tetap menyebutkannya — semua
+                   balasan berdiri di garis yang sama, jadi tanpa baris itu tak
+                   ada lagi yang membedakannya. */
+                const atas = daftar[i - 1];
+                const konteksJelas =
+                  atas !== undefined &&
+                  atas.kedalaman === 0 &&
+                  atas.komentar.id === k.parentId;
+
                 return (
                   <div className="daftar-butir" id={k.id} key={k.id}>
                     <CommentCard
@@ -1039,7 +1037,7 @@ export default function App({
                       penulis={penulis}
                       akunSaya={akun}
                       sekarang={sekarang}
-                      kedalaman={kedalaman}
+                      konteksJelas={konteksJelas}
                       sorot={sorotId === k.id}
                       balasTerbuka={balasUntuk === k.id}
                       onSuka={() => alihkanSuka(k.id)}

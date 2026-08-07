@@ -5,13 +5,11 @@ import { useState, type ReactNode } from "react";
 import Avatar from "./Avatar";
 import Composer from "./Composer";
 import Lencana from "./Lencana";
+import MenuKartu from "./MenuKartu";
 import TeksKomentar from "./TeksKomentar";
 import {
-  IkonBagikan,
   IkonBalas,
   IkonJam,
-  IkonSampah,
-  IkonSimpan,
   IkonSuka,
   IkonTayang,
   IkonUlang,
@@ -19,7 +17,6 @@ import {
 import { useBahasa } from "@/lib/i18n/konteks";
 import { jangkauan } from "@/lib/jangkauan";
 import { MASA_KOMENTAR_MS } from "@/lib/kebijakan";
-import { KEDALAMAN_MAKS } from "@/lib/utas";
 import { angkaPenuh, angkaSosial, sisaWaktu, waktuLengkap, waktuRelatif } from "@/lib/time";
 import type { Comment, User } from "@/lib/types";
 
@@ -72,8 +69,11 @@ type Props = {
   balasTerbuka: boolean;
   /** komentar yang jadi pusat perhatian di halaman utas */
   sorot?: boolean;
-  /** 0 untuk komentar utama, naik satu tiap tingkat balasan */
-  kedalaman?: number;
+  /**
+   * Baris "Membalas @siapa" ditekan diam ketika susunan di sekitarnya sudah
+   * mengatakan hal yang sama — komentar yang dibalas tepat berada di atasnya.
+   */
+  konteksJelas?: boolean;
   onSuka: () => void;
   onUlang: () => void;
   onSimpan: () => void;
@@ -94,7 +94,7 @@ export default function CommentCard({
   sekarang,
   balasTerbuka,
   sorot = false,
-  kedalaman = 0,
+  konteksJelas = false,
   onSuka,
   onUlang,
   onSimpan,
@@ -117,11 +117,12 @@ export default function CommentCard({
   const bisaHapus = milikSaya || sebagaiAdmin;
   const sisa = sisaWaktu(komentar.createdAt, MASA_KOMENTAR_MS, sekarang, bahasa);
   /* Balasan dan komentar awal dulu tampil serupa, jadi daftar campuran sulit
-     dibaca. Balasan kini lebih kecil dalam segala hal, menjorok sedalam
-     tingkatnya, bergaris tepi, dan menyebut yang dibalas di baris paling atas —
-     sebelum nama penulisnya, bukan di tengah kartu. */
+     dibaca. Balasan kini lebih kecil dalam segala hal, menjorok, dan bergaris
+     tepi. Semuanya berhenti di satu garis yang sama, jadi yang menandai balasan
+     atas balasan adalah baris "Membalas @siapa" — dan baris itu hanya muncul
+     ketika ia memang menambah keterangan. */
   const balasan = komentar.parentId !== null;
-  const tingkat = balasan ? Math.min(Math.max(kedalaman, 1), KEDALAMAN_MAKS) : 0;
+  const konteks = balasan && !konteksJelas;
 
   /* Angka sebenarnya dari basis data ditambah jangkauan yang tumbuh seiring
      umur komentar. Yang ditambah hanya tampilannya — tombol suka dan posting
@@ -134,9 +135,9 @@ export default function CommentCard({
 
   return (
     <article
-      className={`komentar${balasan ? ` komentar-balasan komentar-tingkat-${tingkat}` : ""}${sorot ? " komentar-sorot" : ""}`}
+      className={`komentar${balasan ? " komentar-balasan" : ""}${sorot ? " komentar-sorot" : ""}`}
     >
-      {balasan && (
+      {konteks && (
         /* Menekan baris ini membuka komentar yang dibalas, bukan profil orang
            yang menulisnya — dari sebuah balasan, yang dicari hampir selalu
            percakapan asalnya. */
@@ -205,20 +206,13 @@ export default function CommentCard({
               </span>
             )}
 
-            {bisaHapus && (
-              <button
-                type="button"
-                className="komentar-hapus"
-                onClick={() => setKonfirmasiHapus(true)}
-                aria-label={
-                  sebagaiAdmin
-                    ? t("komentar.hapusLabelAdmin")
-                    : t("komentar.hapusLabel")
-                }
-              >
-                <IkonSampah size={balasan ? 15 : 17} />
-              </button>
-            )}
+            <MenuKartu
+              disimpan={komentar.saved}
+              bisaHapus={bisaHapus}
+              onSimpan={onSimpan}
+              onBagikan={onBagikan}
+              onHapus={() => setKonfirmasiHapus(true)}
+            />
           </header>
 
           <TeksKomentar teks={komentar.text} onTagar={onTagar} onSebut={onSebut} />
@@ -309,26 +303,6 @@ export default function CommentCard({
                 <span className="sr-only">{t("aksi.tayang")}</span>
               </span>
             )}
-
-            <Aksi
-              label={komentar.saved ? t("aksi.batalSimpan") : t("aksi.simpan")}
-              jumlah={0}
-              warna="biru"
-              aktif={komentar.saved}
-              ditekan={komentar.saved}
-              onClick={onSimpan}
-            >
-              <IkonSimpan size={ikonAksi} terisi={komentar.saved} />
-            </Aksi>
-
-            <Aksi
-              label={t("aksi.salinTautan")}
-              jumlah={0}
-              warna="biru"
-              onClick={onBagikan}
-            >
-              <IkonBagikan size={ikonAksi} />
-            </Aksi>
           </div>
         </div>
       </div>
