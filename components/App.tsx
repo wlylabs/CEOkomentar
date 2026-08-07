@@ -11,6 +11,7 @@ import ProfileHeader from "./ProfileHeader";
 import RightRail from "./RightRail";
 import Sidebar from "./Sidebar";
 import BilahTamu from "./BilahTamu";
+import PemilihBahasa from "./PemilihBahasa";
 import {
   IkonBulan,
   IkonCari,
@@ -20,6 +21,8 @@ import {
   IkonMatahari,
   IkonTulis,
 } from "./Icons";
+import { useBahasa } from "@/lib/i18n/konteks";
+import type { KunciTeks } from "@/lib/i18n/kamus";
 import { klienPeramban } from "@/lib/supabase/client";
 import {
   ambilFeed,
@@ -34,10 +37,10 @@ import { MASA_KOMENTAR_JAM, MASA_KOMENTAR_MS } from "@/lib/kebijakan";
 import { angkaPenuh } from "@/lib/time";
 import type { Comment, Statistik, Tab, User, View } from "@/lib/types";
 
-const TAB: { kunci: Tab; label: string }[] = [
-  { kunci: "komentar", label: "Komentar" },
-  { kunci: "balasan", label: "Balasan" },
-  { kunci: "disukai", label: "Disukai" },
+const TAB: { kunci: Tab; label: KunciTeks }[] = [
+  { kunci: "komentar", label: "tab.komentar" },
+  { kunci: "balasan", label: "tab.balasan" },
+  { kunci: "disukai", label: "tab.disukai" },
 ];
 
 const STATISTIK_KOSONG: Statistik = {
@@ -50,15 +53,25 @@ const STATISTIK_KOSONG: Statistik = {
 
 type Tema = "terang" | "gelap";
 
-function pesanGalat(kesalahan: unknown, cadangan: string) {
+/**
+ * Pesan dari Supabase selalu berbahasa Inggris dan lebih tepat daripada
+ * tebakan kita, jadi itu yang ditampilkan apa adanya. Yang diterjemahkan hanya
+ * dua keadaan yang kalimat aslinya tidak berarti apa-apa bagi pemakai:
+ * kegagalan jaringan dan galat tanpa pesan sama sekali.
+ */
+function pesanGalat(
+  kesalahan: unknown,
+  cadangan: KunciTeks,
+  t: (kunci: KunciTeks) => string,
+) {
   if (kesalahan && typeof kesalahan === "object" && "message" in kesalahan) {
     const pesan = String((kesalahan as { message: unknown }).message);
     if (pesan.toLowerCase().includes("failed to fetch")) {
-      return "Koneksi ke server terputus.";
+      return t("galat.koneksi");
     }
     return pesan;
   }
-  return cadangan;
+  return t(cadangan);
 }
 
 export default function App({
@@ -70,6 +83,7 @@ export default function App({
 }) {
   const router = useRouter();
   const supabase = klienPeramban();
+  const { bahasa, t } = useBahasa();
 
   const [akun, setAkun] = useState<User>(akunAwal);
   const [komentar, setKomentar] = useState<Comment[]>([]);
@@ -184,7 +198,7 @@ export default function App({
       })
       .catch((kesalahan) => {
         if (batal || nomor !== nomorMuat.current) return;
-        setGalatMuat(pesanGalat(kesalahan, "Komentar gagal dimuat."));
+        setGalatMuat(pesanGalat(kesalahan, "galat.muatKomentar", t));
         setKomentar([]);
       })
       .finally(() => {
@@ -217,7 +231,7 @@ export default function App({
       setKursor(halaman.kursor);
       setHabis(halaman.habis);
     } catch (kesalahan) {
-      setPesan(pesanGalat(kesalahan, "Gagal memuat komentar berikutnya."));
+      setPesan(pesanGalat(kesalahan, "galat.muatLagi", t));
     } finally {
       setMemuatLagi(false);
     }
@@ -280,10 +294,10 @@ export default function App({
         ubahKomentar(parentId, (k) => ({ ...k, replies: k.replies + 1 }));
       }
 
-      setPesan(parentId ? "Balasan terkirim" : "Komentar terkirim");
+      setPesan(t(parentId ? "pesan.balasanTerkirim" : "pesan.komentarTerkirim"));
       segarkanStatistik();
     } catch (kesalahan) {
-      setPesan(pesanGalat(kesalahan, "Komentar gagal dikirim."));
+      setPesan(pesanGalat(kesalahan, "galat.kirimKomentar", t));
     }
   }
 
@@ -303,7 +317,7 @@ export default function App({
       segarkanStatistik();
     } catch (kesalahan) {
       ubahKomentar(id, () => sebelumnya);
-      setPesan(pesanGalat(kesalahan, "Suka gagal disimpan."));
+      setPesan(pesanGalat(kesalahan, "galat.suka", t));
     }
   }
 
@@ -322,7 +336,7 @@ export default function App({
       await setUlang(supabase, id, akun.id, ulang);
     } catch (kesalahan) {
       ubahKomentar(id, () => sebelumnya);
-      setPesan(pesanGalat(kesalahan, "Posting ulang gagal disimpan."));
+      setPesan(pesanGalat(kesalahan, "galat.ulang", t));
     }
   }
 
@@ -339,11 +353,11 @@ export default function App({
           replies: Math.max(0, k.replies - 1),
         }));
       }
-      setPesan("Komentar dihapus");
+      setPesan(t("pesan.komentarDihapus"));
       segarkanStatistik();
     } catch (kesalahan) {
       setKomentar(sebelumnya);
-      setPesan(pesanGalat(kesalahan, "Komentar gagal dihapus."));
+      setPesan(pesanGalat(kesalahan, "galat.hapusKomentar", t));
     }
   }
 
@@ -351,9 +365,9 @@ export default function App({
     const tautan = `${window.location.origin}${window.location.pathname}#${id}`;
     try {
       await navigator.clipboard.writeText(tautan);
-      setPesan("Tautan komentar disalin");
+      setPesan(t("pesan.tautanDisalin"));
     } catch {
-      setPesan("Peramban menolak akses papan klip");
+      setPesan(t("pesan.papanKlipDitolak"));
     }
   }
 
@@ -376,7 +390,7 @@ export default function App({
   function simpanProfilLokal(baru: User) {
     setAkun(baru);
     setPengguna((sebelum) => ({ ...sebelum, [baru.id]: baru }));
-    setPesan("Profil diperbarui");
+    setPesan(t("pesan.profilDiperbarui"));
   }
 
   function mulaiMenulis() {
@@ -400,10 +414,11 @@ export default function App({
      Tampilan
      ---------------------------------------------------------------- */
 
-  const judulDaftar =
+  const judulDaftar = t(
     tampilan === "beranda"
-      ? "Beranda"
-      : (TAB.find((t) => t.kunci === tab)?.label ?? "");
+      ? "beranda.judul"
+      : (TAB.find((butir) => butir.kunci === tab)?.label ?? "tab.komentar"),
+  );
 
   const daftarPengguna = useMemo(
     () => ({ ...pengguna, [akun.id]: akun }),
@@ -419,14 +434,14 @@ export default function App({
   );
 
   const teksKosong = kueriTertunda
-    ? `Tidak ada komentar yang cocok dengan "${kueriTertunda}".`
+    ? t("kosong.cari", { kueri: kueriTertunda })
     : tampilan === "profil"
       ? tab === "disukai"
-        ? "Komentar yang kamu sukai akan muncul di sini."
+        ? t("kosong.disukai")
         : tab === "balasan"
-          ? "Balasan yang kamu kirim akan muncul di sini."
-          : "Komentar yang kamu tulis akan muncul di sini."
-      : "Belum ada komentar sama sekali. Tulis yang pertama.";
+          ? t("kosong.balasan")
+          : t("kosong.komentar")
+      : t("kosong.beranda");
 
   return (
     <div className="kerangka">
@@ -447,7 +462,7 @@ export default function App({
               type="button"
               className="bulat"
               onClick={() => gantiTampilan("beranda")}
-              aria-label="Kembali ke beranda"
+              aria-label={t("nav.kembali")}
             >
               <IkonKembali size={20} />
             </button>
@@ -458,16 +473,17 @@ export default function App({
           )}
 
           <span className="bilah-judul">
-            {tampilan === "profil" ? akun.name : "Twitter Mini"}
+            {tampilan === "profil" ? akun.name : t("umum.merek")}
           </span>
 
           <span className="bilah-aksi">
+            <PemilihBahasa varian="bulat" size={20} />
             <button
               type="button"
               className="bulat"
               onClick={() => setTema(tema === "gelap" ? "terang" : "gelap")}
               aria-label={
-                tema === "gelap" ? "Beralih ke tema terang" : "Beralih ke tema gelap"
+                tema === "gelap" ? t("nav.keTemaTerang") : t("nav.keTemaGelap")
               }
             >
               {tema === "gelap" ? <IkonMatahari size={20} /> : <IkonBulan size={20} />}
@@ -476,7 +492,7 @@ export default function App({
               type="button"
               className="bulat"
               onClick={mintaKeluar}
-              aria-label="Keluar dari akun"
+              aria-label={t("nav.keluarLabel")}
             >
               <IkonKeluar size={20} />
             </button>
@@ -496,14 +512,19 @@ export default function App({
               type="button"
               className="bulat"
               onClick={() => gantiTampilan("beranda")}
-              aria-label="Kembali ke beranda"
+              aria-label={t("nav.kembali")}
             >
               <IkonKembali size={20} />
             </button>
             <span className="kepala-profil-teks">
               <span className="kepala-profil-nama">{akun.name}</span>
               <span className="kepala-profil-sub">
-                {angkaPenuh(statistik.komentar + statistik.balasan)} komentar
+                {t("umum.jumlahKomentar", {
+                  jumlah: angkaPenuh(
+                    statistik.komentar + statistik.balasan,
+                    bahasa,
+                  ),
+                })}
               </span>
             </span>
           </div>
@@ -521,19 +542,21 @@ export default function App({
 
         {tampilan === "beranda" ? (
           <div className="kepala-kolom">
-            <h1 className="kepala-judul">Beranda</h1>
+            <h1 className="kepala-judul">{t("beranda.judul")}</h1>
             <p className="kepala-sub">
               {memuat
-                ? "Memuat komentar…"
-                : `${angkaPenuh(daftar.length)}${habis ? "" : "+"} komentar`}
+                ? t("beranda.memuat")
+                : t("umum.jumlahKomentar", {
+                    jumlah: `${angkaPenuh(daftar.length, bahasa)}${habis ? "" : "+"}`,
+                  })}
               <span className="kepala-tanda">
                 <IkonJam size={13} />
-                Hilang setelah {MASA_KOMENTAR_JAM} jam
+                {t("beranda.masa", { jam: MASA_KOMENTAR_JAM })}
               </span>
             </p>
           </div>
         ) : (
-          <div className="tab" role="tablist" aria-label="Saringan komentar">
+          <div className="tab" role="tablist" aria-label={t("tab.saringan")}>
             {TAB.map(({ kunci, label }) => (
               <button
                 key={kunci}
@@ -546,7 +569,7 @@ export default function App({
                   setBalasUntuk(null);
                 }}
               >
-                <span>{label}</span>
+                <span>{t(label)}</span>
               </button>
             ))}
           </div>
@@ -555,7 +578,7 @@ export default function App({
         <div className="cari cari-mobil">
           <IkonCari size={18} className="cari-ikon" />
           <label className="sr-only" htmlFor="cari-mobil">
-            Cari komentar
+            {t("cari.label")}
           </label>
           <input
             id="cari-mobil"
@@ -563,7 +586,7 @@ export default function App({
             type="search"
             value={kueri}
             onChange={(e) => setKueri(e.target.value)}
-            placeholder="Cari komentar"
+            placeholder={t("cari.label")}
           />
         </div>
 
@@ -571,14 +594,17 @@ export default function App({
           <div className="komposer-utama" ref={komposerRef}>
             <Composer
               pengguna={akun}
-              placeholder="Tulis komentar"
-              labelTombol="Kirim"
+              placeholder={t("komposer.komentar")}
+              labelTombol={t("komposer.kirim")}
               onKirim={(teks) => buatKomentar(teks, null)}
             />
           </div>
         )}
 
-        <section className="daftar" aria-label={`Daftar ${judulDaftar.toLowerCase()}`}>
+        <section
+          className="daftar"
+          aria-label={t("daftar.label", { judul: judulDaftar.toLowerCase() })}
+        >
           {memuat ? (
             <div className="rangka" aria-hidden="true">
               {[0, 1, 2, 3].map((i) => (
@@ -591,24 +617,24 @@ export default function App({
                   </span>
                 </div>
               ))}
-              <span className="sr-only">Memuat komentar</span>
+              <span className="sr-only">{t("daftar.memuatKomentar")}</span>
             </div>
           ) : galatMuat ? (
             <div className="kosong">
-              <h2 className="kosong-judul">Komentar tidak bisa dimuat</h2>
+              <h2 className="kosong-judul">{t("galat.judul")}</h2>
               <p className="kosong-teks">{galatMuat}</p>
               <button
                 type="button"
                 className="tombol tombol-garis"
                 onClick={() => router.refresh()}
               >
-                Coba lagi
+                {t("umum.cobaLagi")}
               </button>
             </div>
           ) : daftar.length === 0 ? (
             <div className="kosong">
               <Avatar pengguna={akun} ukuran={56} />
-              <h2 className="kosong-judul">Belum ada yang ditampilkan</h2>
+              <h2 className="kosong-judul">{t("kosong.judul")}</h2>
               <p className="kosong-teks">{teksKosong}</p>
               {kueriTertunda && (
                 <button
@@ -616,7 +642,7 @@ export default function App({
                   className="tombol tombol-garis"
                   onClick={() => setKueri("")}
                 >
-                  Hapus pencarian
+                  {t("kosong.hapusCari")}
                 </button>
               )}
             </div>
@@ -657,7 +683,7 @@ export default function App({
                     onClick={muatLagi}
                     disabled={memuatLagi}
                   >
-                    {memuatLagi ? "Memuat…" : "Muat lebih banyak"}
+                    {t(memuatLagi ? "umum.memuat" : "daftar.muatLagi")}
                   </button>
                 </div>
               )}
@@ -681,7 +707,7 @@ export default function App({
           type="button"
           className="apung"
           onClick={mulaiMenulis}
-          aria-label="Tulis komentar baru"
+          aria-label={t("nav.tulisBaru")}
         >
           <IkonTulis size={22} />
         </button>
@@ -698,14 +724,9 @@ export default function App({
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="tanya-judul" id="tanya-judul">
-              Keluar dari akun tamu?
+              {t("keluar.judul")}
             </h2>
-            <p className="tanya-teks">
-              Akun tamu tidak punya email atau kata sandi, jadi sesi ini tidak
-              bisa dimasuki lagi setelah keluar. Komentar yang sudah terkirim
-              tetap tampil sampai umurnya habis, tapi kamu tidak akan bisa
-              menyuntingnya lagi. Buat akun dulu kalau ingin menyimpannya.
-            </p>
+            <p className="tanya-teks">{t("keluar.teks")}</p>
             <div className="tanya-aksi">
               <button
                 type="button"
@@ -713,10 +734,10 @@ export default function App({
                 onClick={() => setTanyaKeluar(false)}
                 autoFocus
               >
-                Tetap di sini
+                {t("keluar.tetap")}
               </button>
               <button type="button" className="tombol tombol-bahaya" onClick={keluar}>
-                Keluar
+                {t("keluar.keluar")}
               </button>
             </div>
           </div>

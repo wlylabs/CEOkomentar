@@ -7,7 +7,7 @@ import { supabaseSiap } from "@/lib/supabase/env";
 import { klienServer } from "@/lib/supabase/server";
 
 const KOLOM_PROFIL =
-  "id, handle, name, bio, location, avatar_url, banner_url, verified, following_count, followers_count, created_at, updated_at";
+  "id, handle, name, bio, location, avatar_url, banner_url, verified, is_admin, following_count, followers_count, created_at, updated_at";
 
 /* Sesi ada di kuki, jadi halaman ini tidak boleh di-cache. */
 export const dynamic = "force-dynamic";

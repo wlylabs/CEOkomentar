@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { IkonMata, IkonPeringatan, IkonTamu, IkonTutup } from "./Icons";
+import { useBahasa } from "@/lib/i18n/konteks";
 import { klienPeramban } from "@/lib/supabase/client";
 
 const PANJANG_SANDI = 8;
@@ -18,6 +19,7 @@ type Props = {
  * ada ikut terbawa.
  */
 export default function BilahTamu({ onSelesai, onKabar }: Props) {
+  const { t, tk } = useBahasa();
   const supabase = klienPeramban();
 
   const [terbuka, setTerbuka] = useState(false);
@@ -33,11 +35,11 @@ export default function BilahTamu({ onSelesai, onKabar }: Props) {
 
     const alamat = email.trim().toLowerCase();
     if (!alamat.includes("@")) {
-      setGalat("Masukkan email yang bisa dihubungi.");
+      setGalat(t("tamu.emailSalah"));
       return;
     }
     if (sandi.length < PANJANG_SANDI) {
-      setGalat(`Kata sandi minimal ${PANJANG_SANDI} karakter.`);
+      setGalat(t("galatAuth.sandiPendek", { jumlah: PANJANG_SANDI }));
       return;
     }
 
@@ -53,7 +55,7 @@ export default function BilahTamu({ onSelesai, onKabar }: Props) {
       const pesan = error.message.toLowerCase();
       setGalat(
         pesan.includes("already been registered") || pesan.includes("already registered")
-          ? "Email itu sudah dipakai akun lain."
+          ? t("tamu.emailDipakai")
           : error.message,
       );
       return;
@@ -63,29 +65,25 @@ export default function BilahTamu({ onSelesai, onKabar }: Props) {
        dibuka; sampai saat itu sesinya masih sesi tamu. */
     if (data.user?.new_email) {
       setTerbuka(false);
-      onKabar("Cek emailmu untuk mengonfirmasi alamat itu");
+      onKabar(t("tamu.cekEmail"));
       return;
     }
 
-    onKabar("Akun tamu berhasil dijadikan permanen");
+    onKabar(t("tamu.berhasil"));
     onSelesai();
   }
 
   return (
-    <section className="tamu" aria-label="Akun tamu">
+    <section className="tamu" aria-label={t("tamu.label")}>
       <div className="tamu-kepala">
         <IkonTamu size={20} className="tamu-ikon" />
-        <p className="tamu-teks">
-          Kamu memakai <strong>akun tamu</strong>. Komentarmu tersimpan seperti
-          biasa, tapi akunnya hanya hidup di peramban ini — sekali keluar, tidak
-          bisa dimasuki lagi.
-        </p>
+        <p className="tamu-teks">{tk("tamu.teks")}</p>
         {terbuka ? (
           <button
             type="button"
             className="bulat"
             onClick={() => setTerbuka(false)}
-            aria-label="Tutup form buat akun"
+            aria-label={t("tamu.tutupForm")}
           >
             <IkonTutup size={18} />
           </button>
@@ -95,20 +93,17 @@ export default function BilahTamu({ onSelesai, onKabar }: Props) {
             className="tombol tombol-utama tamu-tombol"
             onClick={() => setTerbuka(true)}
           >
-            Buat akun
+            {t("tamu.buatAkun")}
           </button>
         )}
       </div>
 
       {terbuka && (
         <form className="tamu-form" onSubmit={kirim} noValidate>
-          <p className="bidang-bantuan">
-            Tambahkan email dan kata sandi. Komentar, profil, dan foto yang sudah
-            ada tetap milik akun yang sama.
-          </p>
+          <p className="bidang-bantuan">{t("tamu.bantuan")}</p>
 
           <label className="bidang">
-            <span className="bidang-label">Email</span>
+            <span className="bidang-label">{t("gerbang.email")}</span>
             <input
               className="bidang-masukan"
               type="email"
@@ -123,7 +118,7 @@ export default function BilahTamu({ onSelesai, onKabar }: Props) {
           </label>
 
           <label className="bidang">
-            <span className="bidang-label">Kata sandi</span>
+            <span className="bidang-label">{t("gerbang.sandi")}</span>
             <span className="bidang-awalan">
               <input
                 className="bidang-masukan"
@@ -137,12 +132,14 @@ export default function BilahTamu({ onSelesai, onKabar }: Props) {
                 type="button"
                 className="bidang-ikon"
                 onClick={() => setLihat((s) => !s)}
-                aria-label={lihat ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                aria-label={t(lihat ? "gerbang.sembunyikanSandi" : "gerbang.lihatSandi")}
               >
                 <IkonMata size={19} tertutup={lihat} />
               </button>
             </span>
-            <p className="bidang-bantuan">Minimal {PANJANG_SANDI} karakter.</p>
+            <p className="bidang-bantuan">
+              {t("gerbang.sandiMinimal", { jumlah: PANJANG_SANDI })}
+            </p>
           </label>
 
           {galat && (
@@ -153,7 +150,7 @@ export default function BilahTamu({ onSelesai, onKabar }: Props) {
           )}
 
           <button type="submit" className="tombol tombol-utama" disabled={sibuk}>
-            {sibuk ? "Menyimpan…" : "Jadikan permanen"}
+            {t(sibuk ? "umum.menyimpan" : "tamu.jadikan")}
           </button>
         </form>
       )}

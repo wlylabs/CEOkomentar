@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import Avatar from "./Avatar";
 import {
+  IkonAdmin,
   IkonGambar,
   IkonKalender,
   IkonKamera,
@@ -10,6 +11,7 @@ import {
   IkonTerverifikasi,
   IkonTutup,
 } from "./Icons";
+import { useBahasa } from "@/lib/i18n/konteks";
 import { klienPeramban } from "@/lib/supabase/client";
 import { hapusMedia, simpanProfil, unggahMedia } from "@/lib/api";
 import {
@@ -42,6 +44,7 @@ export default function ProfileHeader({
   onSimpan,
   onKabar,
 }: Props) {
+  const { bahasa, t } = useBahasa();
   const supabase = klienPeramban();
 
   const [menyunting, setMenyunting] = useState(false);
@@ -115,9 +118,7 @@ export default function ProfileHeader({
       setter({ gambar });
     } catch (kesalahan) {
       setGalat(
-        kesalahan instanceof GalatFoto
-          ? kesalahan.message
-          : "Gambar gagal diproses. Coba berkas lain.",
+        t(kesalahan instanceof GalatFoto ? kesalahan.kunci : "foto.gagalProses"),
       );
     } finally {
       setMemuat(null);
@@ -190,20 +191,18 @@ export default function ProfileHeader({
       const pesan =
         kesalahan && typeof kesalahan === "object" && "message" in kesalahan
           ? String((kesalahan as { message: unknown }).message)
-          : "Profil gagal disimpan.";
+          : t("profil.galatSimpan");
       setGalat(
-        pesan.includes("row-level security")
-          ? "Tidak punya izin menyimpan perubahan ini."
-          : pesan,
+        pesan.includes("row-level security") ? t("profil.galatIzin") : pesan,
       );
-      onKabar("Profil gagal disimpan");
+      onKabar(t("pesan.profilGagal"));
     } finally {
       setMenyimpan(false);
     }
   }
 
   return (
-    <section className="profil" aria-label="Profil">
+    <section className="profil" aria-label={t("profil.label")}>
       <div
         className={`profil-sampul${sampulTampil ? " profil-sampul-foto" : ""}`}
         style={sampulTampil ? { backgroundImage: `url("${sampulTampil}")` } : undefined}
@@ -223,7 +222,7 @@ export default function ProfileHeader({
                 className="sampul-tombol"
                 onClick={() => sampulRef.current?.click()}
                 disabled={memuat !== null || menyimpan}
-                aria-label={sampulTampil ? "Ganti sampul" : "Unggah sampul"}
+                aria-label={t(sampulTampil ? "profil.gantiSampul" : "profil.unggahSampul")}
               >
                 <IkonGambar size={20} />
               </button>
@@ -233,7 +232,7 @@ export default function ProfileHeader({
                   className="sampul-tombol"
                   onClick={() => hapusTertunda("sampul")}
                   disabled={memuat !== null || menyimpan}
-                  aria-label="Hapus sampul"
+                  aria-label={t("profil.hapusSampul")}
                 >
                   <IkonTutup size={20} />
                 </button>
@@ -261,7 +260,7 @@ export default function ProfileHeader({
                 className="foto-lapis"
                 onClick={() => avatarRef.current?.click()}
                 disabled={memuat !== null || menyimpan}
-                aria-label={avatarTampil ? "Ganti foto profil" : "Unggah foto profil"}
+                aria-label={t(avatarTampil ? "profil.gantiFoto" : "profil.unggahFoto")}
               >
                 <span className="foto-bulat">
                   <IkonKamera size={22} />
@@ -280,7 +279,7 @@ export default function ProfileHeader({
                 onClick={tutup}
                 disabled={menyimpan}
               >
-                Batal
+                {t("umum.batal")}
               </button>
               <button
                 type="button"
@@ -293,12 +292,12 @@ export default function ProfileHeader({
                   bio.length > BATAS_BIO
                 }
               >
-                {menyimpan ? "Menyimpan…" : "Simpan"}
+                {t(menyimpan ? "umum.menyimpan" : "umum.simpan")}
               </button>
             </>
           ) : (
             <button type="button" className="tombol tombol-garis" onClick={buka}>
-              Edit profil
+              {t("profil.edit")}
             </button>
           )}
         </div>
@@ -313,7 +312,7 @@ export default function ProfileHeader({
           }}
         >
           <div className="bidang">
-            <span className="bidang-label">Foto profil</span>
+            <span className="bidang-label">{t("profil.fotoProfil")}</span>
             <div className="foto-aksi">
               <button
                 type="button"
@@ -321,7 +320,9 @@ export default function ProfileHeader({
                 onClick={() => avatarRef.current?.click()}
                 disabled={memuat !== null || menyimpan}
               >
-                {memuat === "avatar" ? "Memproses…" : avatarTampil ? "Ganti foto" : "Unggah foto"}
+                {memuat === "avatar"
+                  ? t("umum.memproses")
+                  : t(avatarTampil ? "profil.gantiFotoSingkat" : "profil.unggahFotoSingkat")}
               </button>
               {avatarTampil && (
                 <button
@@ -330,17 +331,15 @@ export default function ProfileHeader({
                   onClick={() => hapusTertunda("avatar")}
                   disabled={memuat !== null || menyimpan}
                 >
-                  Hapus foto
+                  {t("profil.hapusFoto")}
                 </button>
               )}
             </div>
-            <p className="bidang-bantuan">
-              Dipangkas persegi dari bagian tengah, lalu dikecilkan ke 400 px.
-            </p>
+            <p className="bidang-bantuan">{t("profil.bantuanFoto")}</p>
           </div>
 
           <div className="bidang">
-            <span className="bidang-label">Sampul</span>
+            <span className="bidang-label">{t("profil.sampul")}</span>
             <div className="foto-aksi">
               <button
                 type="button"
@@ -348,7 +347,9 @@ export default function ProfileHeader({
                 onClick={() => sampulRef.current?.click()}
                 disabled={memuat !== null || menyimpan}
               >
-                {memuat === "sampul" ? "Memproses…" : sampulTampil ? "Ganti sampul" : "Unggah sampul"}
+                {memuat === "sampul"
+                  ? t("umum.memproses")
+                  : t(sampulTampil ? "profil.gantiSampul" : "profil.unggahSampul")}
               </button>
               {sampulTampil && (
                 <button
@@ -357,14 +358,11 @@ export default function ProfileHeader({
                   onClick={() => hapusTertunda("sampul")}
                   disabled={memuat !== null || menyimpan}
                 >
-                  Hapus sampul
+                  {t("profil.hapusSampul")}
                 </button>
               )}
             </div>
-            <p className="bidang-bantuan">
-              JPG, PNG, atau WebP hingga 8 MB. Dipangkas 3:1 lalu dikecilkan ke
-              1500 × 500 px.
-            </p>
+            <p className="bidang-bantuan">{t("profil.bantuanSampul")}</p>
             {galat && (
               <p className="bidang-galat" role="alert">
                 {galat}
@@ -373,7 +371,7 @@ export default function ProfileHeader({
           </div>
 
           <label className="bidang">
-            <span className="bidang-label">Nama</span>
+            <span className="bidang-label">{t("profil.nama")}</span>
             <input
               className="bidang-masukan"
               value={nama}
@@ -385,7 +383,7 @@ export default function ProfileHeader({
 
           <label className="bidang">
             <span className="bidang-label">
-              Bio
+              {t("profil.bio")}
               <span
                 className={`bidang-sisa${bio.length > BATAS_BIO ? " bidang-sisa-lebih" : ""}`}
               >
@@ -401,7 +399,7 @@ export default function ProfileHeader({
           </label>
 
           <label className="bidang">
-            <span className="bidang-label">Lokasi</span>
+            <span className="bidang-label">{t("profil.lokasi")}</span>
             <input
               className="bidang-masukan"
               value={lokasi}
@@ -415,6 +413,12 @@ export default function ProfileHeader({
           <h1 className="profil-nama">
             {pengguna.name}
             {pengguna.verified && <IkonTerverifikasi className="lencana" size={20} />}
+            {pengguna.admin && (
+              <span className="lencana-admin" title={t("lencana.adminJudul")}>
+                <IkonAdmin size={13} />
+                {t("lencana.admin")}
+              </span>
+            )}
           </h1>
           <p className="profil-handle">@{pengguna.handle}</p>
 
@@ -429,27 +433,29 @@ export default function ProfileHeader({
             )}
             <li>
               <IkonKalender size={17} />
-              <span>Bergabung {bulanTahun(pengguna.joinedAt)}</span>
+              <span>{t("profil.bergabung", { waktu: bulanTahun(pengguna.joinedAt, bahasa) })}</span>
             </li>
           </ul>
 
           <ul className="profil-angka">
             <li>
-              <strong>{angkaPenuh(pengguna.following)}</strong> Mengikuti
+              <strong>{angkaPenuh(pengguna.following, bahasa)}</strong>{" "}
+              {t("profil.mengikuti")}
             </li>
             <li>
-              <strong>{angkaPenuh(pengguna.followers)}</strong> Pengikut
+              <strong>{angkaPenuh(pengguna.followers, bahasa)}</strong>{" "}
+              {t("profil.pengikut")}
             </li>
           </ul>
 
           <ul className="profil-statistik">
             <li>
-              <strong>{angkaPenuh(jumlahKomentar)}</strong>
-              <span>Komentar</span>
+              <strong>{angkaPenuh(jumlahKomentar, bahasa)}</strong>
+              <span>{t("profil.komentar")}</span>
             </li>
             <li>
-              <strong>{ringkasAngka(jumlahSukaDiterima)}</strong>
-              <span>Suka diterima</span>
+              <strong>{ringkasAngka(jumlahSukaDiterima, bahasa)}</strong>
+              <span>{t("profil.sukaDiterima")}</span>
             </li>
           </ul>
         </div>

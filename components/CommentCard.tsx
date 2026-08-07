@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import Avatar from "./Avatar";
 import Composer from "./Composer";
 import {
+  IkonAdmin,
   IkonBagikan,
   IkonBalas,
   IkonJam,
@@ -12,6 +13,7 @@ import {
   IkonTerverifikasi,
   IkonUlang,
 } from "./Icons";
+import { useBahasa } from "@/lib/i18n/konteks";
 import { MASA_KOMENTAR_MS } from "@/lib/kebijakan";
 import { ringkasAngka, sisaWaktu, waktuLengkap, waktuRelatif } from "@/lib/time";
 import type { Comment, User } from "@/lib/types";
@@ -35,6 +37,8 @@ function Aksi({
   onClick,
   children,
 }: AksiProps) {
+  const { bahasa } = useBahasa();
+
   return (
     <button
       type="button"
@@ -44,7 +48,9 @@ function Aksi({
       aria-pressed={ditekan}
     >
       <span className="aksi-ikon">{children}</span>
-      {jumlah > 0 && <span className="aksi-jumlah">{ringkasAngka(jumlah)}</span>}
+      {jumlah > 0 && (
+        <span className="aksi-jumlah">{ringkasAngka(jumlah, bahasa)}</span>
+      )}
     </button>
   );
 }
@@ -77,9 +83,15 @@ export default function CommentCard({
   onBagikan,
   onHapus,
 }: Props) {
+  const { bahasa, t } = useBahasa();
   const [konfirmasiHapus, setKonfirmasiHapus] = useState(false);
+
   const milikSaya = komentar.authorId === akunSaya.id;
-  const sisa = sisaWaktu(komentar.createdAt, MASA_KOMENTAR_MS, sekarang);
+  /* Admin menghapus komentar orang lain sebagai tindakan moderasi; kebijakan
+     RLS di basis data yang benar-benar memutuskan, tombol ini hanya cerminannya. */
+  const sebagaiAdmin = !milikSaya && akunSaya.admin;
+  const bisaHapus = milikSaya || sebagaiAdmin;
+  const sisa = sisaWaktu(komentar.createdAt, MASA_KOMENTAR_MS, sekarang, bahasa);
 
   return (
     <article className="komentar">
@@ -92,6 +104,12 @@ export default function CommentCard({
             {penulis.verified && (
               <IkonTerverifikasi className="lencana" size={17} />
             )}
+            {penulis.admin && (
+              <span className="lencana-admin" title={t("lencana.adminJudul")}>
+                <IkonAdmin size={12} />
+                {t("lencana.admin")}
+              </span>
+            )}
             <span className="komentar-handle">@{penulis.handle}</span>
             <span className="komentar-pemisah" aria-hidden="true">
               ·
@@ -99,30 +117,34 @@ export default function CommentCard({
             <time
               className="komentar-waktu"
               dateTime={new Date(komentar.createdAt).toISOString()}
-              title={waktuLengkap(komentar.createdAt)}
+              title={waktuLengkap(komentar.createdAt, bahasa)}
               suppressHydrationWarning
             >
-              {waktuRelatif(komentar.createdAt, sekarang)}
+              {waktuRelatif(komentar.createdAt, sekarang, bahasa)}
             </time>
 
             {sisa && (
               <span
                 className="komentar-sisa"
-                title={`Terhapus otomatis pada ${waktuLengkap(
-                  komentar.createdAt + MASA_KOMENTAR_MS,
-                )}`}
+                title={t("komentar.terhapusPada", {
+                  waktu: waktuLengkap(komentar.createdAt + MASA_KOMENTAR_MS, bahasa),
+                })}
               >
                 <IkonJam size={13} />
                 <span>{sisa}</span>
               </span>
             )}
 
-            {milikSaya && (
+            {bisaHapus && (
               <button
                 type="button"
                 className="komentar-hapus"
                 onClick={() => setKonfirmasiHapus(true)}
-                aria-label="Hapus komentar"
+                aria-label={
+                  sebagaiAdmin
+                    ? t("komentar.hapusLabelAdmin")
+                    : t("komentar.hapusLabel")
+                }
               >
                 <IkonSampah size={17} />
               </button>
@@ -131,22 +153,31 @@ export default function CommentCard({
 
           {komentar.parentHandle && (
             <p className="komentar-konteks">
-              Membalas <span className="sebut">@{komentar.parentHandle}</span>
+              {t("komentar.membalas")}{" "}
+              <span className="sebut">@{komentar.parentHandle}</span>
             </p>
           )}
 
           <p className="komentar-teks">{komentar.text}</p>
 
           {konfirmasiHapus && (
-            <div className="komentar-konfirmasi" role="alertdialog" aria-label="Konfirmasi hapus">
-              <p>Hapus komentar ini beserta seluruh balasannya?</p>
+            <div
+              className="komentar-konfirmasi"
+              role="alertdialog"
+              aria-label={t("komentar.konfirmasiLabel")}
+            >
+              <p>
+                {sebagaiAdmin
+                  ? t("komentar.konfirmasiAdmin", { handle: penulis.handle })
+                  : t("komentar.konfirmasi")}
+              </p>
               <div className="komentar-konfirmasi-aksi">
                 <button
                   type="button"
                   className="tombol tombol-sunyi"
                   onClick={() => setKonfirmasiHapus(false)}
                 >
-                  Batal
+                  {t("umum.batal")}
                 </button>
                 <button
                   type="button"
@@ -156,7 +187,7 @@ export default function CommentCard({
                     onHapus();
                   }}
                 >
-                  Hapus
+                  {t("umum.hapus")}
                 </button>
               </div>
             </div>
@@ -164,7 +195,7 @@ export default function CommentCard({
 
           <div className="komentar-aksi">
             <Aksi
-              label="Balas"
+              label={t("aksi.balas")}
               jumlah={komentar.replies}
               warna="biru"
               aktif={balasTerbuka}
@@ -174,7 +205,7 @@ export default function CommentCard({
             </Aksi>
 
             <Aksi
-              label={komentar.reposted ? "Batalkan posting ulang" : "Posting ulang"}
+              label={komentar.reposted ? t("aksi.batalUlang") : t("aksi.ulang")}
               jumlah={komentar.reposts}
               warna="hijau"
               aktif={komentar.reposted}
@@ -185,7 +216,7 @@ export default function CommentCard({
             </Aksi>
 
             <Aksi
-              label={komentar.liked ? "Batalkan suka" : "Suka"}
+              label={komentar.liked ? t("aksi.batalSuka") : t("aksi.suka")}
               jumlah={komentar.likes}
               warna="merah"
               aktif={komentar.liked}
@@ -195,7 +226,12 @@ export default function CommentCard({
               <IkonSuka size={19} terisi={komentar.liked} />
             </Aksi>
 
-            <Aksi label="Salin tautan" jumlah={0} warna="biru" onClick={onBagikan}>
+            <Aksi
+              label={t("aksi.salinTautan")}
+              jumlah={0}
+              warna="biru"
+              onClick={onBagikan}
+            >
               <IkonBagikan size={19} />
             </Aksi>
           </div>
@@ -206,8 +242,8 @@ export default function CommentCard({
         <div className="komentar-balas">
           <Composer
             pengguna={akunSaya}
-            placeholder={`Balas ke @${penulis.handle}`}
-            labelTombol="Balas"
+            placeholder={t("komposer.balasKe", { handle: penulis.handle })}
+            labelTombol={t("komposer.balas")}
             kompak
             fokusOtomatis
             onKirim={onKirimBalasan}

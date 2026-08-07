@@ -3,7 +3,9 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Brand from "./Brand";
+import PemilihBahasa from "./PemilihBahasa";
 import { IkonMata, IkonPeringatan } from "./Icons";
+import { useBahasa } from "@/lib/i18n/konteks";
 import { klienPeramban } from "@/lib/supabase/client";
 
 const PANJANG_SANDI = 8;
@@ -11,6 +13,7 @@ const PANJANG_SANDI = 8;
 export default function SandiBaru() {
   const router = useRouter();
   const supabase = klienPeramban();
+  const { t } = useBahasa();
 
   const [sandi, setSandi] = useState("");
   const [ulang, setUlang] = useState("");
@@ -35,11 +38,11 @@ export default function SandiBaru() {
     if (sibuk) return;
 
     if (sandi.length < PANJANG_SANDI) {
-      setGalat(`Kata sandi minimal ${PANJANG_SANDI} karakter.`);
+      setGalat(t("galatAuth.sandiPendek", { jumlah: PANJANG_SANDI }));
       return;
     }
     if (sandi !== ulang) {
-      setGalat("Dua isian kata sandi belum sama.");
+      setGalat(t("sandi.belumSama"));
       return;
     }
 
@@ -61,34 +64,30 @@ export default function SandiBaru() {
       <main className="gerbang-kartu">
         <div className="gerbang-merek">
           <Brand size={40} />
-          <span className="gerbang-merek-teks">Twitter Mini</span>
+          <span className="gerbang-merek-teks">{t("umum.merek")}</span>
+          <PemilihBahasa varian="gerbang" />
         </div>
 
-        <h1 className="gerbang-judul">Buat kata sandi baru</h1>
+        <h1 className="gerbang-judul">{t("sandi.judul")}</h1>
 
         {siap === false ? (
           <>
-            <p className="gerbang-sub">
-              Tautan pemulihan sudah kedaluwarsa atau belum dibuka dari email.
-              Minta tautan baru dari halaman masuk.
-            </p>
+            <p className="gerbang-sub">{t("sandi.kedaluwarsa")}</p>
             <button
               type="button"
               className="tombol tombol-utama tombol-lebar"
               onClick={() => router.replace("/")}
             >
-              Kembali ke halaman masuk
+              {t("gerbang.kembaliMasuk")}
             </button>
           </>
         ) : (
           <>
-            <p className="gerbang-sub">
-              Kata sandi baru langsung berlaku untuk seluruh perangkat.
-            </p>
+            <p className="gerbang-sub">{t("sandi.sub")}</p>
 
             <form className="gerbang-form" onSubmit={kirim} noValidate>
               <label className="bidang">
-                <span className="bidang-label">Kata sandi baru</span>
+                <span className="bidang-label">{t("sandi.baru")}</span>
                 <span className="bidang-awalan">
                   <input
                     className="bidang-masukan"
@@ -102,16 +101,18 @@ export default function SandiBaru() {
                     type="button"
                     className="bidang-ikon"
                     onClick={() => setLihat((s) => !s)}
-                    aria-label={lihat ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                    aria-label={t(lihat ? "gerbang.sembunyikanSandi" : "gerbang.lihatSandi")}
                   >
                     <IkonMata size={19} tertutup={lihat} />
                   </button>
                 </span>
-                <p className="bidang-bantuan">Minimal {PANJANG_SANDI} karakter.</p>
+                <p className="bidang-bantuan">
+                  {t("gerbang.sandiMinimal", { jumlah: PANJANG_SANDI })}
+                </p>
               </label>
 
               <label className="bidang">
-                <span className="bidang-label">Ulangi kata sandi</span>
+                <span className="bidang-label">{t("sandi.ulangi")}</span>
                 <input
                   className="bidang-masukan"
                   type={lihat ? "text" : "password"}
@@ -134,7 +135,7 @@ export default function SandiBaru() {
                 className="tombol tombol-utama tombol-lebar"
                 disabled={sibuk || siap === null}
               >
-                {sibuk ? "Menyimpan…" : "Simpan kata sandi"}
+                {t(sibuk ? "umum.menyimpan" : "sandi.simpan")}
               </button>
             </form>
           </>

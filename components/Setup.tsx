@@ -1,22 +1,25 @@
+"use client";
+
 import Brand from "./Brand";
+import PemilihBahasa from "./PemilihBahasa";
 import { IkonPeringatan } from "./Icons";
+import { useBahasa } from "@/lib/i18n/konteks";
 
 /** Ditampilkan bila kredensial Supabase belum ada, menggantikan layar kosong. */
 export default function Setup() {
+  const { t, tk } = useBahasa();
+
   return (
     <div className="gerbang">
       <main className="gerbang-kartu">
         <div className="gerbang-merek">
           <Brand size={40} />
-          <span className="gerbang-merek-teks">Twitter Mini</span>
+          <span className="gerbang-merek-teks">{t("umum.merek")}</span>
+          <PemilihBahasa varian="gerbang" />
         </div>
 
-        <h1 className="gerbang-judul">Supabase belum terhubung</h1>
-        <p className="gerbang-sub">
-          Aplikasi ini menyimpan akun, komentar, dan foto profil di Supabase.
-          Salin <code>.env.example</code> menjadi <code>.env.local</code>, isi dua
-          nilai di bawah, lalu jalankan ulang server pengembangan.
-        </p>
+        <h1 className="gerbang-judul">{t("setup.judul")}</h1>
+        <p className="gerbang-sub">{tk("setup.sub")}</p>
 
         <pre className="gerbang-kode">
           <code>
@@ -27,11 +30,7 @@ export default function Setup() {
 
         <p className="gerbang-galat">
           <IkonPeringatan size={18} />
-          <span>
-            Jangan lupa menjalankan berkas SQL di{" "}
-            <code>supabase/migrations/</code> lewat SQL Editor agar tabel, izin,
-            dan bucket penyimpanannya terbentuk.
-          </span>
+          <span>{tk("setup.galat")}</span>
         </p>
       </main>
     </div>

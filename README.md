@@ -9,6 +9,9 @@ Tidak ada data contoh di dalam kode. Akun, komentar, suka, posting ulang, foto
 profil, dan sampul semuanya tersimpan di Supabase, dan feed yang tampil adalah
 isi basis data yang sebenarnya.
 
+Antarmukanya dua bahasa — Indonesia dan Inggris — dan bisa diganti kapan saja
+lewat pengalih di navigasi.
+
 ## Fitur
 
 **Akun**
@@ -25,6 +28,8 @@ isi basis data yang sebenarnya.
 - Sesi disimpan di kuki dan disegarkan tiap permintaan, jadi halaman yang
   dirender di server sudah tahu siapa yang masuk
 - Profil dibuat otomatis oleh pemicu basis data pada setiap pendaftaran
+- **Admin** untuk moderasi: satu-satunya hak tambahannya adalah menghapus
+  komentar siapa pun. Lihat "Admin" di bawah
 
 **Feed komentar**
 
@@ -58,6 +63,9 @@ isi basis data yang sebenarnya.
 
 - Tata letak responsif: satu kolom dengan navigasi bawah di ponsel, dua kolom di
   tablet, tiga kolom di desktop
+- **Dua bahasa, Indonesia dan Inggris**, lengkap sampai format waktu dan angka
+  (`5j` ↔ `5h`, `1,2 rb` ↔ `1.2K`). Pilihannya disimpan di kuki dan dibaca di
+  server, jadi halaman pertama sudah berbahasa benar tanpa berkedip
 - Tema gelap dan terang; mengikuti preferensi sistem, pilihan disimpan di
   `localStorage`, dan ditetapkan sebelum lukisan pertama agar tidak berkedip
 - Ikon SVG sepenuhnya, tanpa emoji dan tanpa aset eksternal
@@ -68,15 +76,17 @@ isi basis data yang sebenarnya.
 ## Menyiapkan Supabase
 
 1. Buat proyek di [supabase.com](https://supabase.com).
-2. Buka **SQL Editor**, lalu jalankan kedua berkas di `supabase/migrations/`
+2. Buka **SQL Editor**, lalu jalankan ketiga berkas di `supabase/migrations/`
    secara berurutan:
 
    - `20260807090000_awal.sql` — tabel, pemicu penghitung, kebijakan RLS, dua
      bucket penyimpanan, dan fungsi bantu
    - `20260807120000_kedaluwarsa-dan-tamu.sql` — masa hidup komentar 24 jam,
      penyapu berkala, dan pembersih akun tamu
+   - `20260807150000_admin.sql` — kolom `is_admin`, pengangkatan otomatis untuk
+     handle admin, penjaga kolom istimewa, dan hak hapus komentar bagi admin
 
-   Keduanya aman dijalankan ulang. Bila memakai Supabase CLI: `supabase db push`.
+   Ketiganya aman dijalankan ulang. Bila memakai Supabase CLI: `supabase db push`.
 3. Aktifkan **pg_cron** di **Database → Extensions** supaya komentar
    kedaluwarsa benar-benar terhapus. Migrasi mencoba memasangnya sendiri dan
    hanya memberi catatan bila tidak bisa. Lihat "Masa hidup komentar" di bawah
@@ -139,7 +149,7 @@ alih-alih halaman kosong.
    tautan konfirmasi email dan pemulihan kata sandi akan ditolak di produksi.
 4. **Jalankan migrasi di proyek produksi.** Kalau proyek Supabase untuk produksi
    berbeda dari yang dipakai saat mengembangkan, ulangi langkah 2–4 dari bagian
-   sebelumnya di proyek itu: kedua berkas SQL, pg_cron, dan Anonymous sign-in.
+   sebelumnya di proyek itu: ketiga berkas SQL, pg_cron, dan Anonymous sign-in.
 5. **Deploy ulang.** Environment variable baru hanya terbaca oleh build
    berikutnya, jadi tekan **Redeploy** setelah menambahkannya.
 
@@ -164,7 +174,7 @@ npm run typecheck
 
 ```
 app/
-  layout.tsx        kerangka dokumen, metadata, penetapan tema awal
+  layout.tsx        kerangka dokumen, metadata, bahasa awal, penetapan tema
   page.tsx          satu-satunya rute: penyiapan, gerbang masuk, atau aplikasi
   sandi-baru/       halaman penggantian kata sandi dari tautan email
   auth/callback/    penukaran kode tautan email menjadi sesi
@@ -182,14 +192,16 @@ components/
   CommentCard.tsx   kartu komentar beserta aksinya
   Composer.tsx      kotak tulis untuk komentar dan balasan
   Avatar.tsx        foto profil bila ada, jika tidak avatar inisial berwarna
+  PemilihBahasa.tsx pengalih Indonesia/Inggris dalam tiga bentuk
   Icons.tsx         kumpulan ikon SVG
   Brand.tsx         tanda visual aplikasi
 lib/
   api.ts            seluruh baca-tulis ke Supabase dan pemetaan ke tipe aplikasi
   kebijakan.ts      masa hidup komentar, disamakan dengan basis data
+  i18n/             daftar bahasa, kamus ID/EN, konteks React, dan teks berformat
   supabase/         klien peramban, klien server, tipe basis data, kredensial
   image.ts          pemangkasan dan pengecilan gambar di sisi peramban
-  time.ts           format waktu relatif dan peringkas angka
+  time.ts           format waktu dan angka mengikuti bahasa yang dipakai
   types.ts          tipe bersama
 proxy.ts            penyegaran sesi Supabase tiap permintaan
 supabase/migrations/ skema, kebijakan RLS, bucket, masa hidup, dan fungsi bantu
@@ -238,6 +250,87 @@ select cron.schedule('sapu-tamu-lama', '0 3 * * *', 'select public.sapu_tamu_lam
 Bawaannya membuang akun tamu yang dibuat lebih dari 7 hari lalu. Membatalkan:
 `select cron.unschedule('sapu-tamu-lama');`
 
+## Dua bahasa
+
+Seluruh teks antarmuka ada di `lib/i18n/kamus.ts`, satu kunci per kalimat.
+Kamus Indonesia yang menentukan bentuk kuncinya; kamus Inggris diketikkan
+sebagai `Record<KunciTeks, string>` sehingga kunci yang lupa diterjemahkan
+langsung ditolak `npm run typecheck`. Menambah kalimat berarti menambah satu
+baris di kedua kamus, bukan menyebar teks di dalam komponen.
+
+Pilihan bahasa disimpan di kuki `tm-bahasa`, bukan `localStorage` seperti tema.
+Alasannya: halaman ini dirender di server, jadi server harus sudah tahu
+bahasanya sebelum HTML dikirim — kalau tidak, teks sempat tampil dalam bahasa
+yang salah lalu berganti setelah hidrasi. `app/layout.tsx` membaca kuki itu,
+mengisi atribut `lang`, lalu meneruskannya ke `PenyediaBahasa`.
+
+Yang ikut berganti bukan cuma kalimat:
+
+| | Indonesia | Inggris |
+| --- | --- | --- |
+| Waktu relatif | `9m`, `5j`, `3h` | `9m`, `5h`, `3d` |
+| Sisa umur komentar | `23j lagi` | `23h left` |
+| Tanggal | `7 Agu 2026` | `Aug 7, 2026` |
+| Angka ringkas | `1,2 rb`, `3,4 jt` | `1.2K`, `3.4M` |
+| Pemisah ribuan | `3.400` | `3,400` |
+
+Nama bulan ditulis sendiri di `lib/time.ts`, tidak lewat `Intl`, supaya server
+dan peramban selalu menghasilkan teks yang sama persis dan hidrasi tidak pernah
+mengeluh.
+
+Galat yang datang dari Supabase tetap berbahasa Inggris kecuali yang sering
+ditemui pemakai — kredensial salah, email sudah terdaftar, batas percobaan —
+yang dipetakan ke kalimat sendiri di `components/AuthScreen.tsx`.
+
+Pengalihnya ada di tiga tempat: satu baris di navigasi kiri, tombol bulat di
+bilah atas ponsel, dan dua pilihan berdampingan di halaman masuk, penyiapan,
+serta kata sandi baru.
+
+## Admin
+
+Admin adalah akun biasa dengan satu hak tambahan: **menghapus komentar siapa
+pun**. Tidak ada yang lain — admin tidak bisa membaca komentar kedaluwarsa,
+menyunting profil orang lain, atau mengangkat admin baru dari dalam aplikasi.
+Di antarmuka ia tampil sebagai lencana **ADMIN** di sebelah nama, dan tombol
+hapus ikut muncul pada komentar orang lain.
+
+Siapa yang admin ditentukan `public.handle_admin()` di
+`supabase/migrations/20260807150000_admin.sql`:
+
+```sql
+create or replace function public.handle_admin()
+returns text[] language sql immutable parallel safe as $$
+  select array['CEOkomentar']::text[];
+$$;
+```
+
+Pemicu `profiles_tandai_admin` menyalakan `is_admin` saat profil dengan handle
+itu dibuat, jadi **@CEOkomentar tetap menjadi admin walau akunnya baru
+didaftarkan setelah migrasi dijalankan**. Pemicunya sengaja hanya berjalan pada
+`INSERT`: kalau ikut berjalan saat handle diubah, siapa pun yang kelak mengambil
+alih handle yang ditinggalkan akan mewarisi haknya juga.
+
+Karena handle yang dipakai sebagai penanda, **daftarkan handle itu lebih dulu**.
+Handle bersifat unik dan siapa pun bisa mengambilnya; yang lebih dulu memakai
+`@CEOkomentar` yang akan diangkat.
+
+Menambah admin: tambahkan handle ke fungsi di atas lalu jalankan ulang berkas
+migrasinya. Untuk satu akun yang sudah ada:
+
+```sql
+update public.profiles set is_admin = true where lower(handle) = lower('handleku');
+```
+
+Mencabutnya: `set is_admin = false` dengan cara yang sama.
+
+Perintah itu harus dijalankan dari SQL Editor, bukan dari aplikasi. Kebijakan
+RLS mengizinkan tiap orang menyunting barisnya sendiri, dan tanpa penjagaan itu
+termasuk kolom `is_admin` — satu panggilan `update` dari peramban sudah cukup
+untuk mengangkat diri sendiri. Pemicu `profiles_jaga_kolom_istimewa`
+mengembalikan `is_admin` dan `verified` ke nilai lamanya untuk setiap perubahan
+yang datang dari sesi pengguna; perintah tanpa `auth.uid()` — SQL Editor,
+migrasi, `service_role` — tetap bisa mengubahnya.
+
 ## Catatan
 
 - Tabel `follows` beserta penghitungnya sudah ada dan berjalan, tetapi aplikasi
@@ -247,3 +340,5 @@ Bawaannya membuang akun tamu yang dibuat lebih dari 7 hari lalu. Membatalkan:
   `<canvas>` di peramban, dan yang diunggah hanya hasil akhirnya.
 - Hak akses seluruhnya bersandar pada RLS. Kunci yang dipakai peramban adalah
   kunci anon, dan tanpa sesi tidak ada satu baris pun yang bisa dibaca.
+- Tombol hapus pada komentar orang lain hanya muncul untuk admin, tetapi yang
+  benar-benar menentukan tetap kebijakan RLS `DELETE` di basis data.

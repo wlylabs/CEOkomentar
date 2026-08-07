@@ -1,3 +1,5 @@
+import type { KunciTeks } from "./i18n/kamus";
+
 /** Ukuran keluaran per jenis media profil. */
 const UKURAN = {
   avatar: { lebar: 400, tinggi: 400 },
@@ -12,7 +14,17 @@ const BATAS_BYTE = 8 * 1024 * 1024;
 /** Batas hasil unggahan; sama dengan `file_size_limit` bucket di Supabase. */
 const BATAS_HASIL = 5 * 1024 * 1024;
 
-export class GalatFoto extends Error {}
+/**
+ * Kegagalan yang sudah punya penjelasan siap tampil. Yang dibawa kuncinya, bukan
+ * kalimatnya, karena berkas ini tidak tahu bahasa apa yang sedang dipakai —
+ * penerjemahannya di komponen yang menampilkan.
+ */
+export class GalatFoto extends Error {
+  constructor(readonly kunci: KunciTeks) {
+    super(kunci);
+    this.name = "GalatFoto";
+  }
+}
 
 export type Gambar = {
   /** berkas siap unggah ke Supabase Storage */
@@ -37,7 +49,7 @@ function muatGambar(berkas: File) {
       gambar.onload = () => selesai({ gambar, bebaskan });
       gambar.onerror = () => {
         bebaskan();
-        gagal(new GalatFoto("Gambar tidak dapat dibaca."));
+        gagal(new GalatFoto("foto.tidakTerbaca"));
       };
       gambar.src = alamat;
     },
@@ -61,10 +73,10 @@ export async function siapkanGambar(
   jenis: JenisMedia,
 ): Promise<Gambar> {
   if (!berkas.type.startsWith("image/")) {
-    throw new GalatFoto("Berkas yang dipilih bukan gambar.");
+    throw new GalatFoto("foto.bukanGambar");
   }
   if (berkas.size > BATAS_BYTE) {
-    throw new GalatFoto("Ukuran gambar maksimal 8 MB.");
+    throw new GalatFoto("foto.terlaluBesar");
   }
 
   const { gambar, bebaskan } = await muatGambar(berkas);
@@ -73,7 +85,7 @@ export async function siapkanGambar(
     const lebarAsli = gambar.naturalWidth;
     const tinggiAsli = gambar.naturalHeight;
     if (!lebarAsli || !tinggiAsli) {
-      throw new GalatFoto("Gambar tidak dapat dibaca.");
+      throw new GalatFoto("foto.tidakTerbaca");
     }
 
     const { lebar: lebarBaku, tinggi: tinggiBaku } = UKURAN[jenis];
@@ -100,7 +112,7 @@ export async function siapkanGambar(
 
     const konteks = kanvas.getContext("2d");
     if (!konteks) {
-      throw new GalatFoto("Peramban tidak mendukung pemrosesan gambar.");
+      throw new GalatFoto("foto.tanpaKanvas");
     }
 
     konteks.imageSmoothingQuality = "high";
@@ -121,10 +133,10 @@ export async function siapkanGambar(
       (await keBlob(kanvas, "image/jpeg", 0.88));
 
     if (!hasil) {
-      throw new GalatFoto("Gambar gagal diproses. Coba gambar lain.");
+      throw new GalatFoto("foto.gagalProses");
     }
     if (hasil.size > BATAS_HASIL) {
-      throw new GalatFoto("Hasil olahan masih terlalu besar. Coba gambar lain.");
+      throw new GalatFoto("foto.hasilBesar");
     }
 
     return {

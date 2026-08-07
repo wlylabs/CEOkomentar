@@ -10,12 +10,14 @@ import {
   type KeyboardEvent,
 } from "react";
 import Avatar from "./Avatar";
+import { useBahasa } from "@/lib/i18n/konteks";
 import type { User } from "@/lib/types";
 
 const BATAS = 280;
 
 type Props = {
   pengguna: User;
+  /** teks bayangan; bila kosong dipakai ajakan bawaan */
   placeholder?: string;
   labelTombol?: string;
   kompak?: boolean;
@@ -26,13 +28,15 @@ type Props = {
 
 export default function Composer({
   pengguna,
-  placeholder = "Apa komentarmu?",
-  labelTombol = "Kirim",
+  placeholder,
+  labelTombol,
   kompak = false,
   fokusOtomatis = false,
   onKirim,
   onBatal,
 }: Props) {
+  const { t, tk } = useBahasa();
+  const bayangan = placeholder ?? t("komposer.bawaan");
   const [teks, setTeks] = useState("");
   const areaRef = useRef<HTMLTextAreaElement>(null);
   const idArea = useId();
@@ -88,7 +92,7 @@ export default function Composer({
 
       <div className="komposer-badan">
         <label className="sr-only" htmlFor={idArea}>
-          {placeholder}
+          {bayangan}
         </label>
         <textarea
           id={idArea}
@@ -97,15 +101,13 @@ export default function Composer({
           value={teks}
           onChange={ubah}
           onKeyDown={tombol}
-          placeholder={placeholder}
+          placeholder={bayangan}
           rows={kompak ? 1 : 2}
           maxLength={BATAS + 40}
         />
 
         <div className="komposer-kaki">
-          <p className="komposer-petunjuk">
-            Tekan <kbd>Ctrl</kbd> + <kbd>Enter</kbd> untuk mengirim
-          </p>
+          <p className="komposer-petunjuk">{tk("komposer.petunjuk")}</p>
 
           <div className="komposer-kanan">
             {teks.length > 0 && (
@@ -138,18 +140,20 @@ export default function Composer({
                 {sisa <= 20 && (
                   <span className="hitungan-angka">{sisa}</span>
                 )}
-                <span className="sr-only">{sisa} karakter tersisa</span>
+                <span className="sr-only">
+                  {t("komposer.sisa", { sisa })}
+                </span>
               </span>
             )}
 
             {onBatal && (
               <button type="button" className="tombol tombol-sunyi" onClick={onBatal}>
-                Batal
+                {t("umum.batal")}
               </button>
             )}
 
             <button type="submit" className="tombol tombol-utama" disabled={!bisaKirim}>
-              {labelTombol}
+              {labelTombol ?? t("komposer.kirim")}
             </button>
           </div>
         </div>

@@ -1,91 +1,172 @@
+import { LOKAL, type Bahasa } from "./i18n/bahasa";
+import { teks } from "./i18n/kamus";
+
 const MENIT = 60 * 1000;
 const JAM = 60 * MENIT;
 const HARI = 24 * JAM;
 
-const BULAN = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "Mei",
-  "Jun",
-  "Jul",
-  "Agu",
-  "Sep",
-  "Okt",
-  "Nov",
-  "Des",
-];
+const BULAN: Record<Bahasa, string[]> = {
+  id: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mei",
+    "Jun",
+    "Jul",
+    "Agu",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Des",
+  ],
+  en: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ],
+};
+
+const BULAN_PANJANG: Record<Bahasa, string[]> = {
+  id: [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ],
+  en: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ],
+};
+
+/* Nama bulan ditulis sendiri, tidak lewat Intl, supaya server dan peramban
+   selalu menghasilkan teks yang sama persis dan hidrasi tidak pernah mengeluh. */
 
 /** Waktu relatif ringkas ala linimasa: 12d, 8m, 5j, 3h, lalu tanggal. */
-export function waktuRelatif(createdAt: number, now: number = Date.now()) {
+export function waktuRelatif(
+  createdAt: number,
+  now: number,
+  bahasa: Bahasa,
+) {
   const selisih = Math.max(0, now - createdAt);
 
-  if (selisih < MENIT) return `${Math.floor(selisih / 1000)}d`;
-  if (selisih < JAM) return `${Math.floor(selisih / MENIT)}m`;
-  if (selisih < HARI) return `${Math.floor(selisih / JAM)}j`;
-  if (selisih < 7 * HARI) return `${Math.floor(selisih / HARI)}h`;
+  if (selisih < MENIT) {
+    return teks(bahasa, "waktu.detik", { nilai: Math.floor(selisih / 1000) });
+  }
+  if (selisih < JAM) {
+    return teks(bahasa, "waktu.menit", { nilai: Math.floor(selisih / MENIT) });
+  }
+  if (selisih < HARI) {
+    return teks(bahasa, "waktu.jam", { nilai: Math.floor(selisih / JAM) });
+  }
+  if (selisih < 7 * HARI) {
+    return teks(bahasa, "waktu.hari", { nilai: Math.floor(selisih / HARI) });
+  }
 
-  const tanggal = new Date(createdAt);
-  const hari = tanggal.getDate();
-  const bulan = BULAN[tanggal.getMonth()];
-  const tahun = tanggal.getFullYear();
-
-  return tahun === new Date(now).getFullYear()
-    ? `${hari} ${bulan}`
-    : `${hari} ${bulan} ${tahun}`;
+  return tanggalPendek(new Date(createdAt), new Date(now).getFullYear(), bahasa);
 }
 
-const BULAN_PANJANG = [
-  "Januari",
-  "Februari",
-  "Maret",
-  "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
-  "September",
-  "Oktober",
-  "November",
-  "Desember",
-];
+/** "3 Agu" / "Aug 3", dengan tahun bila bukan tahun ini. */
+function tanggalPendek(tanggal: Date, tahunIni: number, bahasa: Bahasa) {
+  const hari = tanggal.getDate();
+  const bulan = BULAN[bahasa][tanggal.getMonth()];
+  const tahun = tanggal.getFullYear();
+  const sertakanTahun = tahun !== tahunIni;
+
+  if (bahasa === "en") {
+    return sertakanTahun ? `${bulan} ${hari}, ${tahun}` : `${bulan} ${hari}`;
+  }
+  return sertakanTahun ? `${hari} ${bulan} ${tahun}` : `${hari} ${bulan}`;
+}
 
 /** "Maret 2021" — dipakai pada baris "Bergabung …" di profil. */
-export function bulanTahun(iso: string) {
+export function bulanTahun(iso: string, bahasa: Bahasa) {
   const t = new Date(iso);
   if (Number.isNaN(t.getTime())) return "";
-  return `${BULAN_PANJANG[t.getMonth()]} ${t.getFullYear()}`;
+  return `${BULAN_PANJANG[bahasa][t.getMonth()]} ${t.getFullYear()}`;
 }
 
-/** Sisa umur komentar: "3j lagi", "12m lagi". null berarti sudah lewat. */
-export function sisaWaktu(createdAt: number, masaMs: number, now: number) {
+/** Sisa umur komentar: "3j lagi", "12m left". null berarti sudah lewat. */
+export function sisaWaktu(
+  createdAt: number,
+  masaMs: number,
+  now: number,
+  bahasa: Bahasa,
+) {
   const sisa = createdAt + masaMs - now;
   if (sisa <= 0) return null;
-  if (sisa < JAM) return `${Math.max(1, Math.floor(sisa / MENIT))}m lagi`;
-  return `${Math.floor(sisa / JAM)}j lagi`;
+  if (sisa < JAM) {
+    return teks(bahasa, "waktu.sisaMenit", {
+      nilai: Math.max(1, Math.floor(sisa / MENIT)),
+    });
+  }
+  return teks(bahasa, "waktu.sisaJam", { nilai: Math.floor(sisa / JAM) });
 }
 
 /** Label lengkap untuk atribut title/datetime. */
-export function waktuLengkap(createdAt: number) {
+export function waktuLengkap(createdAt: number, bahasa: Bahasa) {
   const t = new Date(createdAt);
   const jam = String(t.getHours()).padStart(2, "0");
   const menit = String(t.getMinutes()).padStart(2, "0");
-  return `${jam}.${menit} · ${t.getDate()} ${BULAN[t.getMonth()]} ${t.getFullYear()}`;
+  const pemisahJam = bahasa === "en" ? ":" : ".";
+  const hari = t.getDate();
+  const bulan = BULAN[bahasa][t.getMonth()];
+  const tahun = t.getFullYear();
+
+  return bahasa === "en"
+    ? `${jam}${pemisahJam}${menit} · ${bulan} ${hari}, ${tahun}`
+    : `${jam}${pemisahJam}${menit} · ${hari} ${bulan} ${tahun}`;
 }
 
-/** 1.2 rb / 3,4 jt — ringkasan angka ala penghitung interaksi. */
-export function ringkasAngka(nilai: number) {
+/** 1,2 rb / 1.2K — ringkasan angka ala penghitung interaksi. */
+export function ringkasAngka(nilai: number, bahasa: Bahasa) {
   if (nilai < 1000) return String(nilai);
+
+  const desimal = (angka: number) =>
+    bahasa === "id"
+      ? angka.toFixed(1).replace(".", ",")
+      : angka.toFixed(1);
+
   if (nilai < 1_000_000) {
     const ribu = nilai / 1000;
-    return `${ribu < 10 ? ribu.toFixed(1).replace(".", ",") : Math.round(ribu)} rb`;
+    const angka = ribu < 10 ? desimal(ribu) : String(Math.round(ribu));
+    return bahasa === "id" ? `${angka} rb` : `${angka}K`;
   }
+
   const juta = nilai / 1_000_000;
-  return `${juta < 10 ? juta.toFixed(1).replace(".", ",") : Math.round(juta)} jt`;
+  const angka = juta < 10 ? desimal(juta) : String(Math.round(juta));
+  return bahasa === "id" ? `${angka} jt` : `${angka}M`;
 }
 
-/** Pemisah ribuan gaya Indonesia untuk angka pengikut. */
-export function angkaPenuh(nilai: number) {
-  return nilai.toLocaleString("id-ID");
+/** Pemisah ribuan sesuai bahasa untuk angka pengikut. */
+export function angkaPenuh(nilai: number, bahasa: Bahasa) {
+  return nilai.toLocaleString(LOKAL[bahasa]);
 }

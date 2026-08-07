@@ -1,6 +1,7 @@
 "use client";
 
 import { IkonBeranda, IkonProfil } from "./Icons";
+import { useBahasa } from "@/lib/i18n/konteks";
 import type { View } from "@/lib/types";
 
 type Props = {
@@ -9,8 +10,10 @@ type Props = {
 };
 
 export default function BottomNav({ tampilan, onPindah }: Props) {
+  const { t } = useBahasa();
+
   return (
-    <nav className="bawah" aria-label="Navigasi utama">
+    <nav className="bawah" aria-label={t("nav.utama")}>
       {(["beranda", "profil"] as View[]).map((kunci) => {
         const aktif = tampilan === kunci;
         const Ikon = kunci === "beranda" ? IkonBeranda : IkonProfil;
@@ -24,7 +27,7 @@ export default function BottomNav({ tampilan, onPindah }: Props) {
           >
             <Ikon size={24} aktif={aktif} />
             <span className="bawah-label">
-              {kunci === "beranda" ? "Beranda" : "Profil"}
+              {kunci === "beranda" ? t("nav.beranda") : t("nav.profil")}
             </span>
           </button>
         );
