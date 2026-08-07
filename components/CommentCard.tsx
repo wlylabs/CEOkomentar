@@ -3,14 +3,13 @@
 import { useState, type ReactNode } from "react";
 import Avatar from "./Avatar";
 import Composer from "./Composer";
+import Lencana from "./Lencana";
 import {
-  IkonAdmin,
   IkonBagikan,
   IkonBalas,
   IkonJam,
   IkonSampah,
   IkonSuka,
-  IkonTerverifikasi,
   IkonUlang,
 } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
@@ -101,15 +100,7 @@ export default function CommentCard({
         <div className="komentar-isi">
           <header className="komentar-kepala">
             <span className="komentar-nama">{penulis.name}</span>
-            {penulis.verified && (
-              <IkonTerverifikasi className="lencana" size={17} />
-            )}
-            {penulis.admin && (
-              <span className="lencana-admin" title={t("lencana.adminJudul")}>
-                <IkonAdmin size={12} />
-                {t("lencana.admin")}
-              </span>
-            )}
+            <Lencana pengguna={penulis} size={17} />
             <span className="komentar-handle">@{penulis.handle}</span>
             <span className="komentar-pemisah" aria-hidden="true">
               ·

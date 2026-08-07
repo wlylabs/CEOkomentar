@@ -2,13 +2,12 @@
 
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import Avatar from "./Avatar";
+import Lencana from "./Lencana";
 import {
-  IkonAdmin,
   IkonGambar,
   IkonKalender,
   IkonKamera,
   IkonLokasi,
-  IkonTerverifikasi,
   IkonTutup,
 } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
@@ -412,13 +411,7 @@ export default function ProfileHeader({
         <div className="profil-detail">
           <h1 className="profil-nama">
             {pengguna.name}
-            {pengguna.verified && <IkonTerverifikasi className="lencana" size={20} />}
-            {pengguna.admin && (
-              <span className="lencana-admin" title={t("lencana.adminJudul")}>
-                <IkonAdmin size={13} />
-                {t("lencana.admin")}
-              </span>
-            )}
+            <Lencana pengguna={pengguna} size={21} />
           </h1>
           <p className="profil-handle">@{pengguna.handle}</p>
 
