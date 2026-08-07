@@ -2,14 +2,12 @@
 
 import Avatar from "./Avatar";
 import TombolPasang from "./TombolPasang";
-import { IkonCari, IkonKeluar, IkonTren } from "./Icons";
+import { IkonKeluar, IkonTren } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import { angkaPenuh, angkaSosial } from "@/lib/time";
 import type { Statistik, Tren, User } from "@/lib/types";
 
 type Props = {
-  kueri: string;
-  onKueri: (nilai: string) => void;
   statistik: Statistik;
   tren: Tren[];
   pengguna: User;
@@ -18,8 +16,6 @@ type Props = {
 };
 
 export default function RightRail({
-  kueri,
-  onKueri,
   statistik,
   tren,
   pengguna,
@@ -35,21 +31,6 @@ export default function RightRail({
   return (
     <aside className="rel" aria-label={t("rel.label")}>
       <div className="rel-isi">
-        <div className="cari">
-          <IkonCari size={19} className="cari-ikon" />
-          <label className="sr-only" htmlFor="cari-komentar">
-            {t("cari.label")}
-          </label>
-          <input
-            id="cari-komentar"
-            className="cari-masukan"
-            type="search"
-            value={kueri}
-            onChange={(e) => onKueri(e.target.value)}
-            placeholder={t("cari.label")}
-          />
-        </div>
-
         {/* Tren hanya muncul kalau memang ada yang sedang ramai; kartu kosong
             berisi kalimat "belum ada apa-apa" cuma menambah kebisingan. */}
         {tren.length > 0 && (

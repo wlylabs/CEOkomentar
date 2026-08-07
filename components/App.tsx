@@ -16,11 +16,11 @@ import TombolTema from "./TombolTema";
 import BilahTamu from "./BilahTamu";
 import PemilihBahasa from "./PemilihBahasa";
 import {
-  IkonCari,
   IkonJam,
   IkonKeluar,
   IkonKembali,
   IkonTulis,
+  IkonTutup,
 } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import type { KunciTeks } from "@/lib/i18n/kamus";
@@ -1003,20 +1003,22 @@ export default function App({
           </div>
         )}
 
-        {tampilan !== "notifikasi" && (
-          <div className="cari cari-mobil">
-            <IkonCari size={18} className="cari-ikon" />
-            <label className="sr-only" htmlFor="cari-mobil">
-              {t("cari.label")}
-            </label>
-            <input
-              id="cari-mobil"
-              className="cari-masukan"
-              type="search"
-              value={kueri}
-              onChange={(e) => setKueri(e.target.value)}
-              placeholder={t("cari.label")}
-            />
+        {/* Menekan tagar menyaring daftar di bawahnya, dan tanpa kotak cari
+            tidak ada lagi yang memperlihatkan saringan itu sedang menyala.
+            Kepingan ini yang mengatakannya, sekaligus jalan melepaskannya. */}
+        {kueriTertunda && tampilan !== "notifikasi" && (
+          <div className="saringan">
+            <span className="saringan-keping">
+              <span className="saringan-teks">{kueriTertunda}</span>
+              <button
+                type="button"
+                className="saringan-lepas"
+                onClick={() => setKueri("")}
+                aria-label={t("kosong.hapusCari")}
+              >
+                <IkonTutup size={14} />
+              </button>
+            </span>
           </div>
         )}
 
@@ -1166,8 +1168,6 @@ export default function App({
       </main>
 
       <RightRail
-        kueri={kueri}
-        onKueri={setKueri}
         statistik={statistikTampil}
         tren={tren}
         pengguna={akun}

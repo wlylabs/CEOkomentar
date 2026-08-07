@@ -94,15 +94,6 @@ export function IkonTulis(p: IkonProps) {
   );
 }
 
-export function IkonCari(p: IkonProps) {
-  return (
-    <Dasar {...p}>
-      <circle cx="10.8" cy="10.8" r="6.6" />
-      <path d="m15.6 15.6 4.2 4.2" />
-    </Dasar>
-  );
-}
-
 export function IkonMatahari(p: IkonProps) {
   return (
     <Dasar {...p}>

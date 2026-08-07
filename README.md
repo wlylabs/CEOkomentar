@@ -47,7 +47,6 @@ lewat pengalih di navigasi.
 - Suka dan posting ulang yang tersimpan permanen, diterapkan optimistis dan
   dibatalkan sendiri bila server menolak
 - Hapus komentar sendiri, beserta seluruh balasannya
-- Pencarian yang menyaring berdasarkan isi komentar, nama, atau handle penulis
 - Komentar baru dari orang lain muncul sendiri lewat Supabase Realtime
 - Waktu relatif (`9m`, `5j`, `3h`) yang menyegarkan sendiri tiap menit
 - **Simpan komentar** untuk dibaca lagi; daftarnya pribadi dan tidak terlihat
@@ -55,8 +54,9 @@ lewat pengalih di navigasi.
 - **Tautan tetap** `/komentar/[id]`: satu komentar beserta rantai yang dibalasnya
   dan balasan yang sudah masuk, dengan judul dan deskripsi halaman mengikuti
   isinya sehingga tautannya sudah bercerita sebelum dibuka
-- **Tagar dan sebutan bisa ditekan**: `#tagar` membuka pencarian, `@handle`
-  membuka profil orang itu
+- **Tagar dan sebutan bisa ditekan**: `#tagar` menyaring beranda ke komentar
+  yang memuatnya — kepingan saringan di atas daftar menyebutkannya dan
+  melepaskannya — sedangkan `@handle` membuka profil orang itu
 
 **Ikuti, notifikasi, dan tren**
 
@@ -225,14 +225,14 @@ app/
   auth/callback/    penukaran kode tautan email menjadi sesi
   globals.css       token warna, tata letak, dan seluruh gaya komponen
 components/
-  App.tsx           pemegang state: feed, tampilan, tab, pencarian, kabar
+  App.tsx           pemegang state: feed, tampilan, tab, saringan tagar, kabar
   AuthScreen.tsx    daftar, masuk, tamu, dan permintaan pemulihan kata sandi
   BilahTamu.tsx     ajakan mengubah akun tamu menjadi permanen
   SandiBaru.tsx     form kata sandi baru
   Setup.tsx         petunjuk bila kredensial Supabase belum ada
   Sidebar.tsx       navigasi kiri (desktop dan tablet)
   BottomNav.tsx     navigasi bawah (ponsel)
-  RightRail.tsx     pencarian, ringkasan aktivitas, dan kartu akun (desktop)
+  RightRail.tsx     tren, ringkasan aktivitas, dan kartu akun (desktop)
   ProfileHeader.tsx kepala profil, tombol ikuti, form penyuntingan, unggah media
   CommentCard.tsx   kartu komentar beserta aksinya
   TeksKomentar.tsx  isi komentar dengan tagar dan sebutan yang bisa ditekan

@@ -63,9 +63,6 @@ const KAMUS_ID = {
   "tab.disimpan": "Disimpan",
   "tab.saringan": "Saringan komentar",
 
-  /* ---------------------------------------------------------------- cari */
-  "cari.label": "Cari komentar",
-
   /* ------------------------------------------------------------ komposer */
   "komposer.bawaan": "Apa komentarmu?",
   "komposer.komentar": "Tulis komentar",
@@ -382,9 +379,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "tab.disukai": "Likes",
   "tab.disimpan": "Saved",
   "tab.saringan": "Comment filters",
-
-  /* ---------------------------------------------------------------- cari */
-  "cari.label": "Search comments",
 
   /* ------------------------------------------------------------ komposer */
   "komposer.bawaan": "What's your comment?",
