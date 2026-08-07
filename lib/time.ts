@@ -146,32 +146,12 @@ export function waktuLengkap(createdAt: number, bahasa: Bahasa) {
     : `${jam}${pemisahJam}${menit} · ${hari} ${bulan} ${tahun}`;
 }
 
-/** 1,2 rb / 1.2K — ringkasan angka ala penghitung interaksi. */
-export function ringkasAngka(nilai: number, bahasa: Bahasa) {
-  if (nilai < 1000) return String(nilai);
-
-  const desimal = (angka: number) =>
-    bahasa === "id"
-      ? angka.toFixed(1).replace(".", ",")
-      : angka.toFixed(1);
-
-  if (nilai < 1_000_000) {
-    const ribu = nilai / 1000;
-    const angka = ribu < 10 ? desimal(ribu) : String(Math.round(ribu));
-    return bahasa === "id" ? `${angka} rb` : `${angka}K`;
-  }
-
-  const juta = nilai / 1_000_000;
-  const angka = juta < 10 ? desimal(juta) : String(Math.round(juta));
-  return bahasa === "id" ? `${angka} jt` : `${angka}M`;
-}
-
-/** Pemisah ribuan sesuai bahasa. */
+/** Pemisah ribuan sesuai bahasa; dipakai juga sebagai judul angka ringkas. */
 export function angkaPenuh(nilai: number, bahasa: Bahasa) {
   return nilai.toLocaleString(LOKAL[bahasa]);
 }
 
-const SATUAN_PENGIKUT: Record<Bahasa, [number, string][]> = {
+const SATUAN_RINGKAS: Record<Bahasa, [number, string][]> = {
   id: [
     [1_000_000_000, " M"],
     [1_000_000, " jt"],
@@ -185,15 +165,16 @@ const SATUAN_PENGIKUT: Record<Bahasa, [number, string][]> = {
 };
 
 /**
- * Angka pengikut bergaya Twitter: utuh sampai 9.999, di atas itu disingkat satu
- * angka desimal. Desimalnya dipotong, bukan dibulatkan, supaya jumlah pengikut
- * tak pernah tampak lebih besar dari yang sebenarnya — 1.999.999 → "1,9 jt".
+ * Angka bergaya Twitter untuk seluruh penghitung sosial — suka, posting ulang,
+ * balasan, pengikut: utuh sampai 9.999, di atas itu disingkat satu angka
+ * desimal. Desimalnya dipotong, bukan dibulatkan, supaya sebuah angka tak
+ * pernah tampak lebih besar dari yang sebenarnya — 1.999.999 → "1,9 jt".
  * Desimal nol ikut hilang: 10.000 → "10 rb".
  */
-export function angkaPengikut(nilai: number, bahasa: Bahasa) {
+export function angkaSosial(nilai: number, bahasa: Bahasa) {
   if (nilai < 10_000) return angkaPenuh(nilai, bahasa);
 
-  for (const [ambang, akhiran] of SATUAN_PENGIKUT[bahasa]) {
+  for (const [ambang, akhiran] of SATUAN_RINGKAS[bahasa]) {
     if (nilai < ambang) continue;
 
     const dipotong = Math.floor((nilai / ambang) * 10) / 10;

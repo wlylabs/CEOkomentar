@@ -20,7 +20,7 @@ import {
   type Gambar,
   type JenisMedia,
 } from "@/lib/image";
-import { angkaPengikut, angkaPenuh, bulanTahun, ringkasAngka } from "@/lib/time";
+import { angkaPenuh, angkaSosial, bulanTahun } from "@/lib/time";
 import type { User } from "@/lib/types";
 
 const BATAS_BIO = 160;
@@ -30,16 +30,25 @@ type Tertunda = { gambar: Gambar } | { hapus: true } | null;
 
 type Props = {
   pengguna: User;
+  /** profil sendiri boleh disunting; profil orang lain hanya bisa diikuti */
+  milikSaya: boolean;
+  mengikuti: boolean;
+  menungguIkut: boolean;
   jumlahKomentar: number;
   jumlahSukaDiterima: number;
+  onIkuti: () => void;
   onSimpan: (pengguna: User) => void;
   onKabar: (pesan: string) => void;
 };
 
 export default function ProfileHeader({
   pengguna,
+  milikSaya,
+  mengikuti,
+  menungguIkut,
   jumlahKomentar,
   jumlahSukaDiterima,
+  onIkuti,
   onSimpan,
   onKabar,
 }: Props) {
@@ -294,9 +303,29 @@ export default function ProfileHeader({
                 {t(menyimpan ? "umum.menyimpan" : "umum.simpan")}
               </button>
             </>
-          ) : (
+          ) : milikSaya ? (
             <button type="button" className="tombol tombol-garis" onClick={buka}>
               {t("profil.edit")}
+            </button>
+          ) : (
+            /* Label berganti saat kursor menyentuhnya — sama seperti di Twitter,
+               "Mengikuti" berubah menjadi "Berhenti mengikuti" tepat sebelum
+               ditekan, jadi tidak ada yang batal mengikuti tanpa sadar. */
+            <button
+              type="button"
+              className={`tombol tombol-ikut${mengikuti ? " tombol-garis tombol-ikut-aktif" : " tombol-utama"}`}
+              onClick={onIkuti}
+              disabled={menungguIkut}
+              aria-pressed={mengikuti}
+            >
+              {mengikuti ? (
+                <>
+                  <span className="ikut-tetap">{t("profil.sedangMengikuti")}</span>
+                  <span className="ikut-ganti">{t("profil.berhentiIkuti")}</span>
+                </>
+              ) : (
+                t("profil.ikuti")
+              )}
             </button>
           )}
         </div>
@@ -430,24 +459,26 @@ export default function ProfileHeader({
             </li>
           </ul>
 
+          {/* Angka ringkas seperti di Twitter, angka penuhnya tetap terbaca
+              lewat judul saat kursor berhenti di atasnya. */}
           <ul className="profil-angka">
-            <li>
-              <strong>{angkaPengikut(pengguna.following, bahasa)}</strong>{" "}
+            <li title={angkaPenuh(pengguna.following, bahasa)}>
+              <strong>{angkaSosial(pengguna.following, bahasa)}</strong>{" "}
               {t("profil.mengikuti")}
             </li>
-            <li>
-              <strong>{angkaPengikut(pengguna.followers, bahasa)}</strong>{" "}
+            <li title={angkaPenuh(pengguna.followers, bahasa)}>
+              <strong>{angkaSosial(pengguna.followers, bahasa)}</strong>{" "}
               {t("profil.pengikut")}
             </li>
           </ul>
 
           <ul className="profil-statistik">
-            <li>
-              <strong>{angkaPenuh(jumlahKomentar, bahasa)}</strong>
+            <li title={angkaPenuh(jumlahKomentar, bahasa)}>
+              <strong>{angkaSosial(jumlahKomentar, bahasa)}</strong>
               <span>{t("profil.komentar")}</span>
             </li>
-            <li>
-              <strong>{ringkasAngka(jumlahSukaDiterima, bahasa)}</strong>
+            <li title={angkaPenuh(jumlahSukaDiterima, bahasa)}>
+              <strong>{angkaSosial(jumlahSukaDiterima, bahasa)}</strong>
               <span>{t("profil.sukaDiterima")}</span>
             </li>
           </ul>

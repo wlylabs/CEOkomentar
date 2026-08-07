@@ -30,12 +30,15 @@ const KAMUS_ID = {
 
   /* --------------------------------------------------------------- meta */
   "meta.deskripsi":
-    "Antarmuka satu halaman bergaya Twitter dengan dua fitur: profil dan feed komentar.",
+    "Antarmuka bergaya Twitter: komentar berumur 24 jam, profil, notifikasi, simpanan, dan tren.",
   "meta.judulSandi": "Kata sandi baru — Twitter Mini",
+  "meta.judulUtas": "Komentar @{handle} — Twitter Mini",
+  "meta.deskripsiUtas": "“{kutipan}” — @{handle} di Twitter Mini.",
 
   /* ----------------------------------------------------------- navigasi */
   "nav.utama": "Navigasi utama",
   "nav.beranda": "Beranda",
+  "nav.notifikasi": "Notifikasi",
   "nav.profil": "Profil",
   "nav.temaTerang": "Tema terang",
   "nav.temaGelap": "Tema gelap",
@@ -57,6 +60,7 @@ const KAMUS_ID = {
   "tab.komentar": "Komentar",
   "tab.balasan": "Balasan",
   "tab.disukai": "Disukai",
+  "tab.disimpan": "Disimpan",
   "tab.saringan": "Saringan komentar",
 
   /* ---------------------------------------------------------------- cari */
@@ -81,6 +85,8 @@ const KAMUS_ID = {
   "kosong.disukai": "Komentar yang kamu sukai akan muncul di sini.",
   "kosong.balasan": "Balasan yang kamu kirim akan muncul di sini.",
   "kosong.komentar": "Komentar yang kamu tulis akan muncul di sini.",
+  "kosong.disimpan": "Komentar yang kamu simpan akan muncul di sini.",
+  "kosong.profilOrang": "Tidak ada komentar @{handle} dalam 24 jam terakhir.",
   "kosong.beranda": "Belum ada komentar sama sekali. Tulis yang pertama.",
   "kosong.hapusCari": "Hapus pencarian",
 
@@ -98,10 +104,44 @@ const KAMUS_ID = {
   "aksi.batalUlang": "Batalkan posting ulang",
   "aksi.suka": "Suka",
   "aksi.batalSuka": "Batalkan suka",
+  "aksi.simpan": "Simpan komentar",
+  "aksi.batalSimpan": "Hapus dari simpanan",
   "aksi.salinTautan": "Salin tautan",
   "lencana.terverifikasiJudul": "Akun terverifikasi",
   "lencana.adminJudul":
     "Akun resmi — admin yang dapat menghapus komentar siapa pun",
+
+  /* ----------------------------------------------------------------- utas */
+  "utas.judul": "Komentar",
+  "utas.balasan": "Balasan",
+  "utas.kosong": "Belum ada balasan. Jadilah yang pertama.",
+  "utas.memuat": "Memuat utas…",
+  "utas.takAdaJudul": "Komentar tidak ditemukan",
+  "utas.takAdaTeks":
+    "Komentar ini sudah dihapus atau umurnya sudah lewat {jam} jam.",
+  "utas.keBeranda": "Ke beranda",
+
+  /* ----------------------------------------------------------- notifikasi */
+  "notif.sub": "Suka, posting ulang, balasan, dan pengikut baru.",
+  "notif.suka": "menyukai komentarmu",
+  "notif.ulang": "memposting ulang komentarmu",
+  "notif.balas": "membalas komentarmu",
+  "notif.ikut": "mulai mengikutimu",
+  "notif.belumDibaca": "{jumlah} kabar belum dibaca",
+  "notif.kosongJudul": "Belum ada kabar",
+  "notif.kosongTeks":
+    "Begitu ada yang menyukai, membalas, atau mengikutimu, kabarnya muncul di sini.",
+
+  /* ----------------------------------------------------------------- tren */
+  "tren.judul": "Sedang ramai",
+  "tren.jumlah": "{komentar} komentar · {penulis} orang",
+  "tren.masa": "Dihitung dari 24 jam terakhir.",
+
+  /* -------------------------------------------------------------- pasang */
+  "pasang.judul": "Pasang aplikasinya",
+  "pasang.teks":
+    "Tambahkan ke layar utama supaya terbuka seperti aplikasi biasa, lengkap dengan ikonnya sendiri.",
+  "pasang.tombol": "Pasang",
 
   /* ---------------------------------------------------------- panel kanan */
   "rel.label": "Panel samping",
@@ -113,6 +153,8 @@ const KAMUS_ID = {
   "rel.ulangDiterima": "Posting ulang diterima",
   "rel.kaki":
     "Twitter Mini — profil dan feed komentar dengan data tersimpan di Supabase.",
+  "rel.kreditAvatar":
+    "Avatar bawaan memakai gaya Adventurer Neutral karya Lisa Wischofsky (CC BY 4.0) lewat DiceBear.",
 
   /* -------------------------------------------------------------- profil */
   "profil.label": "Profil",
@@ -137,6 +179,10 @@ const KAMUS_ID = {
   "profil.bergabung": "Bergabung {waktu}",
   "profil.mengikuti": "Mengikuti",
   "profil.pengikut": "Pengikut",
+  "profil.buka": "Buka profil @{handle}",
+  "profil.ikuti": "Ikuti",
+  "profil.sedangMengikuti": "Mengikuti",
+  "profil.berhentiIkuti": "Berhenti mengikuti",
   "profil.komentar": "Komentar",
   "profil.sukaDiterima": "Suka diterima",
   "profil.galatIzin": "Tidak punya izin menyimpan perubahan ini.",
@@ -154,6 +200,11 @@ const KAMUS_ID = {
   "pesan.komentarTerkirim": "Komentar terkirim",
   "pesan.balasanTerkirim": "Balasan terkirim",
   "pesan.komentarDihapus": "Komentar dihapus",
+  "pesan.komentarDisimpan": "Komentar disimpan",
+  "pesan.simpananDibuang": "Dihapus dari simpanan",
+  "pesan.mulaiMengikuti": "Mulai mengikuti @{handle}",
+  "pesan.berhentiMengikuti": "Berhenti mengikuti @{handle}",
+  "pesan.profilTakDitemukan": "Tidak ada akun dengan handle @{handle}",
   "pesan.tautanDisalin": "Tautan komentar disalin",
   "pesan.papanKlipDitolak": "Peramban menolak akses papan klip",
   "pesan.profilDiperbarui": "Profil diperbarui",
@@ -167,6 +218,9 @@ const KAMUS_ID = {
   "galat.kirimKomentar": "Komentar gagal dikirim.",
   "galat.suka": "Suka gagal disimpan.",
   "galat.ulang": "Posting ulang gagal disimpan.",
+  "galat.simpan": "Simpanan gagal diperbarui.",
+  "galat.ikut": "Perubahan pengikut gagal disimpan.",
+  "galat.muatNotifikasi": "Notifikasi gagal dimuat.",
   "galat.hapusKomentar": "Komentar gagal dihapus.",
 
   /* -------------------------------------------------------- dialog keluar */
@@ -292,12 +346,15 @@ const KAMUS_EN: Record<KunciTeks, string> = {
 
   /* --------------------------------------------------------------- meta */
   "meta.deskripsi":
-    "A single-page Twitter-style interface with two features: a profile and a comment feed.",
+    "A Twitter-style interface: comments that live 24 hours, profiles, notifications, saved posts, and trends.",
   "meta.judulSandi": "New password — Twitter Mini",
+  "meta.judulUtas": "@{handle}'s comment — Twitter Mini",
+  "meta.deskripsiUtas": "“{kutipan}” — @{handle} on Twitter Mini.",
 
   /* ----------------------------------------------------------- navigasi */
   "nav.utama": "Main navigation",
   "nav.beranda": "Home",
+  "nav.notifikasi": "Notifications",
   "nav.profil": "Profile",
   "nav.temaTerang": "Light theme",
   "nav.temaGelap": "Dark theme",
@@ -319,6 +376,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "tab.komentar": "Comments",
   "tab.balasan": "Replies",
   "tab.disukai": "Likes",
+  "tab.disimpan": "Saved",
   "tab.saringan": "Comment filters",
 
   /* ---------------------------------------------------------------- cari */
@@ -342,6 +400,8 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "kosong.disukai": "Comments you like will show up here.",
   "kosong.balasan": "Replies you post will show up here.",
   "kosong.komentar": "Comments you write will show up here.",
+  "kosong.disimpan": "Comments you save will show up here.",
+  "kosong.profilOrang": "Nothing from @{handle} in the last 24 hours.",
   "kosong.beranda": "No comments at all yet. Write the first one.",
   "kosong.hapusCari": "Clear the search",
 
@@ -359,9 +419,43 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "aksi.batalUlang": "Undo repost",
   "aksi.suka": "Like",
   "aksi.batalSuka": "Undo like",
+  "aksi.simpan": "Save comment",
+  "aksi.batalSimpan": "Remove from saved",
   "aksi.salinTautan": "Copy link",
   "lencana.terverifikasiJudul": "Verified account",
   "lencana.adminJudul": "Official account — admin, can delete anyone's comment",
+
+  /* ----------------------------------------------------------------- utas */
+  "utas.judul": "Comment",
+  "utas.balasan": "Replies",
+  "utas.kosong": "No replies yet. Be the first.",
+  "utas.memuat": "Loading the thread…",
+  "utas.takAdaJudul": "Comment not found",
+  "utas.takAdaTeks":
+    "This comment was deleted or is already older than {jam} hours.",
+  "utas.keBeranda": "Go home",
+
+  /* ----------------------------------------------------------- notifikasi */
+  "notif.sub": "Likes, reposts, replies, and new followers.",
+  "notif.suka": "liked your comment",
+  "notif.ulang": "reposted your comment",
+  "notif.balas": "replied to your comment",
+  "notif.ikut": "started following you",
+  "notif.belumDibaca": "{jumlah} unread notifications",
+  "notif.kosongJudul": "Nothing here yet",
+  "notif.kosongTeks":
+    "The moment someone likes, replies to, or follows you, it shows up here.",
+
+  /* ----------------------------------------------------------------- tren */
+  "tren.judul": "Trending",
+  "tren.jumlah": "{komentar} comments · {penulis} people",
+  "tren.masa": "Counted over the last 24 hours.",
+
+  /* -------------------------------------------------------------- pasang */
+  "pasang.judul": "Install the app",
+  "pasang.teks":
+    "Add it to your home screen so it opens like any other app, icon and all.",
+  "pasang.tombol": "Install",
 
   /* ---------------------------------------------------------- panel kanan */
   "rel.label": "Side panel",
@@ -373,6 +467,8 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "rel.ulangDiterima": "Reposts received",
   "rel.kaki":
     "Twitter Mini — a profile and comment feed with everything stored in Supabase.",
+  "rel.kreditAvatar":
+    "Default avatars use the Adventurer Neutral style by Lisa Wischofsky (CC BY 4.0) via DiceBear.",
 
   /* -------------------------------------------------------------- profil */
   "profil.label": "Profile",
@@ -397,6 +493,10 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "profil.bergabung": "Joined {waktu}",
   "profil.mengikuti": "Following",
   "profil.pengikut": "Followers",
+  "profil.buka": "Open @{handle}'s profile",
+  "profil.ikuti": "Follow",
+  "profil.sedangMengikuti": "Following",
+  "profil.berhentiIkuti": "Unfollow",
   "profil.komentar": "Comments",
   "profil.sukaDiterima": "Likes received",
   "profil.galatIzin": "You do not have permission to save this change.",
@@ -414,6 +514,11 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "pesan.komentarTerkirim": "Comment posted",
   "pesan.balasanTerkirim": "Reply posted",
   "pesan.komentarDihapus": "Comment deleted",
+  "pesan.komentarDisimpan": "Comment saved",
+  "pesan.simpananDibuang": "Removed from saved",
+  "pesan.mulaiMengikuti": "Following @{handle}",
+  "pesan.berhentiMengikuti": "Unfollowed @{handle}",
+  "pesan.profilTakDitemukan": "No account with the handle @{handle}",
   "pesan.tautanDisalin": "Comment link copied",
   "pesan.papanKlipDitolak": "The browser denied clipboard access",
   "pesan.profilDiperbarui": "Profile updated",
@@ -427,6 +532,9 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "galat.kirimKomentar": "The comment could not be posted.",
   "galat.suka": "The like could not be saved.",
   "galat.ulang": "The repost could not be saved.",
+  "galat.simpan": "The saved list could not be updated.",
+  "galat.ikut": "The follow could not be saved.",
+  "galat.muatNotifikasi": "Notifications could not be loaded.",
   "galat.hapusKomentar": "The comment could not be deleted.",
 
   /* -------------------------------------------------------- dialog keluar */

@@ -1,16 +1,19 @@
 "use client";
 
 import Avatar from "./Avatar";
-import { IkonCari, IkonKeluar } from "./Icons";
+import TombolPasang from "./TombolPasang";
+import { IkonCari, IkonKeluar, IkonTren } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
-import { angkaPenuh, ringkasAngka } from "@/lib/time";
-import type { Statistik, User } from "@/lib/types";
+import { angkaPenuh, angkaSosial } from "@/lib/time";
+import type { Statistik, Tren, User } from "@/lib/types";
 
 type Props = {
   kueri: string;
   onKueri: (nilai: string) => void;
   statistik: Statistik;
+  tren: Tren[];
   pengguna: User;
+  onTagar: (tagar: string) => void;
   onKeluar: () => void;
 };
 
@@ -18,10 +21,16 @@ export default function RightRail({
   kueri,
   onKueri,
   statistik,
+  tren,
   pengguna,
+  onTagar,
   onKeluar,
 }: Props) {
   const { bahasa, t } = useBahasa();
+
+  const angka = (nilai: number) => (
+    <strong title={angkaPenuh(nilai, bahasa)}>{angkaSosial(nilai, bahasa)}</strong>
+  );
 
   return (
     <aside className="rel" aria-label={t("rel.label")}>
@@ -41,31 +50,64 @@ export default function RightRail({
           />
         </div>
 
+        {/* Tren hanya muncul kalau memang ada yang sedang ramai; kartu kosong
+            berisi kalimat "belum ada apa-apa" cuma menambah kebisingan. */}
+        {tren.length > 0 && (
+          <section className="kartu">
+            <h2 className="kartu-judul">
+              <IkonTren size={16} />
+              {t("tren.judul")}
+            </h2>
+            <ul className="tren-daftar">
+              {tren.map((butir) => (
+                <li key={butir.tagar}>
+                  <button
+                    type="button"
+                    className="tren-butir"
+                    onClick={() => onTagar(butir.tagar)}
+                  >
+                    <span className="tren-tagar">#{butir.tagar}</span>
+                    <span className="tren-jumlah">
+                      {t("tren.jumlah", {
+                        komentar: angkaSosial(butir.komentar, bahasa),
+                        penulis: angkaSosial(butir.penulis, bahasa),
+                      })}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <p className="kartu-kaki">{t("tren.masa")}</p>
+          </section>
+        )}
+
         <section className="kartu">
           <h2 className="kartu-judul">{t("rel.ringkasan")}</h2>
           <ul className="kartu-daftar">
             <li>
               <span>{t("rel.komentar")}</span>
-              <strong>{angkaPenuh(statistik.komentar, bahasa)}</strong>
+              {angka(statistik.komentar)}
             </li>
             <li>
               <span>{t("rel.balasan")}</span>
-              <strong>{angkaPenuh(statistik.balasan, bahasa)}</strong>
+              {angka(statistik.balasan)}
             </li>
             <li>
               <span>{t("rel.disukai")}</span>
-              <strong>{angkaPenuh(statistik.disukai, bahasa)}</strong>
+              {angka(statistik.disukai)}
             </li>
             <li>
               <span>{t("rel.sukaDiterima")}</span>
-              <strong>{ringkasAngka(statistik.sukaDiterima, bahasa)}</strong>
+              {angka(statistik.sukaDiterima)}
             </li>
             <li>
               <span>{t("rel.ulangDiterima")}</span>
-              <strong>{ringkasAngka(statistik.ulangDiterima, bahasa)}</strong>
+              {angka(statistik.ulangDiterima)}
             </li>
           </ul>
         </section>
+
+        <TombolPasang />
 
         <section className="kartu kartu-akun">
           <div className="akun-baris">
@@ -86,6 +128,7 @@ export default function RightRail({
         </section>
 
         <p className="rel-kaki">{t("rel.kaki")}</p>
+        <p className="rel-kaki">{t("rel.kreditAvatar")}</p>
       </div>
     </aside>
   );
