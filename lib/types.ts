@@ -2,6 +2,8 @@ export type User = {
   id: string;
   name: string;
   handle: string;
+  /** foto profil sebagai data URL; null berarti memakai avatar inisial */
+  avatar: string | null;
   bio: string;
   location: string;
   /** Bulan bergabung, mis. "Maret 2021" */

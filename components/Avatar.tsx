@@ -31,11 +31,19 @@ export default function Avatar({ pengguna, ukuran = 44 }: Props) {
         width: ukuran,
         height: ukuran,
         fontSize: Math.round(ukuran * 0.36),
-        background: `linear-gradient(140deg, hsl(${h} 70% 58%), hsl(${(h + 42) % 360} 68% 44%))`,
+        background: pengguna.avatar
+          ? "var(--latar-naik)"
+          : `linear-gradient(140deg, hsl(${h} 70% 58%), hsl(${(h + 42) % 360} 68% 44%))`,
       }}
       aria-hidden="true"
     >
-      {inisial(pengguna.name)}
+      {pengguna.avatar ? (
+        // Sumbernya data URL hasil pemrosesan di peramban, jadi <img> biasa sudah tepat.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="avatar-foto" src={pengguna.avatar} alt="" />
+      ) : (
+        inisial(pengguna.name)
+      )}
     </span>
   );
 }

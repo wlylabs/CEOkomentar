@@ -147,6 +147,15 @@ export function IkonKembali(p: IkonProps) {
   );
 }
 
+export function IkonKamera(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <path d="M3.6 8.9a2 2 0 0 1 2-2h1.9l1.3-2.3h6.4l1.3 2.3h1.9a2 2 0 0 1 2 2v8.6a2 2 0 0 1-2 2H5.6a2 2 0 0 1-2-2z" />
+      <circle cx="12" cy="13.1" r="3.7" />
+    </Dasar>
+  );
+}
+
 export function IkonTutup(p: IkonProps) {
   return (
     <Dasar {...p}>

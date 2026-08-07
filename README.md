@@ -19,6 +19,10 @@ komentar**. Seluruh aplikasi berjalan di satu rute (`/`) tanpa perpindahan halam
 **Profil**
 
 - Sampul, avatar, bio, lokasi, tanggal bergabung, jumlah mengikuti dan pengikut
+- Foto profil bisa diganti lewat tombol kamera di atas avatar saat menyunting:
+  gambar dipangkas persegi dari bagian tengah, dikecilkan ke 400 px, dan
+  ditampilkan sebagai pratinjau sebelum disimpan. Ada pilihan hapus foto untuk
+  kembali ke avatar inisial
 - Penyuntingan nama, bio, dan lokasi langsung di halaman
 - Tab **Komentar**, **Balasan**, dan **Disukai** yang menyaring feed
 - Ringkasan jumlah komentar dan suka yang diterima
@@ -60,14 +64,17 @@ components/
   ProfileHeader.tsx  kepala profil beserta form penyuntingan
   CommentCard.tsx    kartu komentar beserta aksinya
   Composer.tsx    kotak tulis untuk komentar dan balasan
-  Avatar.tsx      avatar inisial dengan warna turunan dari handle
+  Avatar.tsx      foto profil bila ada, jika tidak avatar inisial berwarna
   Icons.tsx       kumpulan ikon SVG
   Brand.tsx       tanda visual aplikasi
 lib/
   data.ts         data contoh pengguna dan komentar
+  image.ts        pemangkasan dan pengecilan foto profil di sisi peramban
   time.ts         format waktu relatif dan peringkas angka
   types.ts        tipe bersama
 ```
 
-Data disimpan di memori peramban: perubahan hilang saat halaman dimuat ulang, kecuali
-pilihan tema.
+Data disimpan di memori peramban: perubahan, termasuk foto profil, hilang saat halaman
+dimuat ulang. Hanya pilihan tema yang bertahan karena disimpan di `localStorage`.
+Foto tidak pernah dikirim ke server; pemrosesannya seluruhnya memakai `<canvas>` di
+peramban.

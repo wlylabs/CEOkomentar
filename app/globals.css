@@ -483,16 +483,25 @@ ul {
    ============================================================ */
 
 .avatar {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: none;
+  overflow: hidden;
   border-radius: 50%;
   color: #ffffff;
   font-weight: 700;
   letter-spacing: 0.3px;
   user-select: none;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.avatar-foto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .lencana {
@@ -835,10 +844,51 @@ ul {
 }
 
 .profil-avatar {
+  position: relative;
   display: inline-flex;
   padding: 4px;
   border-radius: 50%;
   background: var(--latar);
+}
+
+/* Lapisan pemilih foto, hanya muncul saat profil disunting. */
+.foto-lapis {
+  position: absolute;
+  inset: 4px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  transition: background-color 0.15s ease;
+}
+
+.foto-lapis:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.58);
+}
+
+.foto-lapis:disabled {
+  cursor: progress;
+}
+
+.foto-bulat {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(15, 20, 25, 0.6);
+  transition: background-color 0.15s ease;
+}
+
+.foto-lapis:hover:not(:disabled) .foto-bulat {
+  background: rgba(15, 20, 25, 0.85);
+}
+
+.foto-aksi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .profil-avatar .avatar {
@@ -977,6 +1027,18 @@ ul {
 .bidang-sisa-lebih {
   color: var(--suka);
   font-weight: 700;
+}
+
+.bidang-bantuan {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--teks-samar);
+}
+
+.bidang-galat {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--suka);
 }
 
 .bidang-masukan {

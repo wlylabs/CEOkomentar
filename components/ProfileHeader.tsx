@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import Avatar from "./Avatar";
-import { IkonKalender, IkonLokasi, IkonTerverifikasi } from "./Icons";
+import { IkonKalender, IkonKamera, IkonLokasi, IkonTerverifikasi } from "./Icons";
+import { GalatFoto, siapkanFotoProfil } from "@/lib/image";
 import { angkaPenuh, ringkasAngka } from "@/lib/time";
 import type { User } from "@/lib/types";
 
@@ -12,7 +13,9 @@ type Props = {
   pengguna: User;
   jumlahKomentar: number;
   jumlahSukaDiterima: number;
-  onSimpan: (perubahan: Pick<User, "name" | "bio" | "location">) => void;
+  onSimpan: (
+    perubahan: Pick<User, "name" | "bio" | "location" | "avatar">,
+  ) => void;
 };
 
 export default function ProfileHeader({
@@ -25,12 +28,48 @@ export default function ProfileHeader({
   const [nama, setNama] = useState(pengguna.name);
   const [bio, setBio] = useState(pengguna.bio);
   const [lokasi, setLokasi] = useState(pengguna.location);
+  const [foto, setFoto] = useState(pengguna.avatar);
+  const [galat, setGalat] = useState<string | null>(null);
+  const [memuat, setMemuat] = useState(false);
+
+  const berkasRef = useRef<HTMLInputElement>(null);
+
+  /* Saat menyunting, avatar menampilkan pratinjau foto yang belum disimpan. */
+  const pratinjau: User = menyunting ? { ...pengguna, avatar: foto } : pengguna;
 
   function buka() {
     setNama(pengguna.name);
     setBio(pengguna.bio);
     setLokasi(pengguna.location);
+    setFoto(pengguna.avatar);
+    setGalat(null);
     setMenyunting(true);
+  }
+
+  function tutup() {
+    setGalat(null);
+    setMenyunting(false);
+  }
+
+  async function pilihFoto(e: ChangeEvent<HTMLInputElement>) {
+    const berkas = e.target.files?.[0];
+    // Kosongkan nilainya agar memilih berkas yang sama dua kali tetap memicu onChange.
+    e.target.value = "";
+    if (!berkas) return;
+
+    setGalat(null);
+    setMemuat(true);
+    try {
+      setFoto(await siapkanFotoProfil(berkas));
+    } catch (kesalahan) {
+      setGalat(
+        kesalahan instanceof GalatFoto
+          ? kesalahan.message
+          : "Foto gagal diproses. Coba gambar lain.",
+      );
+    } finally {
+      setMemuat(false);
+    }
   }
 
   function simpan() {
@@ -40,6 +79,7 @@ export default function ProfileHeader({
       name: namaBersih,
       bio: bio.trim(),
       location: lokasi.trim(),
+      avatar: foto,
     });
     setMenyunting(false);
   }
@@ -50,19 +90,46 @@ export default function ProfileHeader({
 
       <div className="profil-atas">
         <div className="profil-avatar">
-          <Avatar pengguna={pengguna} ukuran={128} />
+          <Avatar pengguna={pratinjau} ukuran={128} />
+
+          {menyunting && (
+            <>
+              <input
+                ref={berkasRef}
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={pilihFoto}
+              />
+              <button
+                type="button"
+                className="foto-lapis"
+                onClick={() => berkasRef.current?.click()}
+                disabled={memuat}
+                aria-label={
+                  foto ? "Ganti foto profil" : "Unggah foto profil"
+                }
+              >
+                <span className="foto-bulat">
+                  <IkonKamera size={22} />
+                </span>
+              </button>
+            </>
+          )}
         </div>
 
         {menyunting ? (
           <div className="profil-tombol">
-            <button type="button" className="tombol tombol-garis" onClick={() => setMenyunting(false)}>
+            <button type="button" className="tombol tombol-garis" onClick={tutup}>
               Batal
             </button>
             <button
               type="button"
               className="tombol tombol-utama"
               onClick={simpan}
-              disabled={nama.trim().length === 0 || bio.length > BATAS_BIO}
+              disabled={
+                memuat || nama.trim().length === 0 || bio.length > BATAS_BIO
+              }
             >
               Simpan
             </button>
@@ -84,6 +151,42 @@ export default function ProfileHeader({
             simpan();
           }}
         >
+          <div className="bidang">
+            <span className="bidang-label">Foto profil</span>
+            <div className="foto-aksi">
+              <button
+                type="button"
+                className="tombol tombol-garis"
+                onClick={() => berkasRef.current?.click()}
+                disabled={memuat}
+              >
+                {memuat ? "Memproses…" : foto ? "Ganti foto" : "Unggah foto"}
+              </button>
+              {foto && (
+                <button
+                  type="button"
+                  className="tombol tombol-sunyi"
+                  onClick={() => {
+                    setFoto(null);
+                    setGalat(null);
+                  }}
+                  disabled={memuat}
+                >
+                  Hapus foto
+                </button>
+              )}
+            </div>
+            <p className="bidang-bantuan">
+              JPG, PNG, atau WebP hingga 8 MB. Gambar dipangkas persegi dari bagian
+              tengah.
+            </p>
+            {galat && (
+              <p className="bidang-galat" role="alert">
+                {galat}
+              </p>
+            )}
+          </div>
+
           <label className="bidang">
             <span className="bidang-label">Nama</span>
             <input
