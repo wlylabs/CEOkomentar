@@ -63,9 +63,6 @@ const KAMUS_ID = {
   "tab.disimpan": "Disimpan",
   "tab.saringan": "Saringan komentar",
 
-  /* ---------------------------------------------------------------- cari */
-  "cari.label": "Cari komentar",
-
   /* ------------------------------------------------------------ komposer */
   "komposer.bawaan": "Apa komentarmu?",
   "komposer.komentar": "Tulis komentar",
@@ -117,7 +114,6 @@ const KAMUS_ID = {
 
   /* ----------------------------------------------------------------- utas */
   "utas.judul": "Komentar",
-  "utas.balasan": "Balasan",
   "utas.kosong": "Belum ada balasan. Jadilah yang pertama.",
   "utas.memuat": "Memuat utas…",
   "utas.takAdaJudul": "Komentar tidak ditemukan",
@@ -384,9 +380,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "tab.disimpan": "Saved",
   "tab.saringan": "Comment filters",
 
-  /* ---------------------------------------------------------------- cari */
-  "cari.label": "Search comments",
-
   /* ------------------------------------------------------------ komposer */
   "komposer.bawaan": "What's your comment?",
   "komposer.komentar": "Write a comment",
@@ -436,7 +429,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
 
   /* ----------------------------------------------------------------- utas */
   "utas.judul": "Comment",
-  "utas.balasan": "Replies",
   "utas.kosong": "No replies yet. Be the first.",
   "utas.memuat": "Loading the thread…",
   "utas.takAdaJudul": "Comment not found",

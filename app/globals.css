@@ -930,7 +930,6 @@ input::-webkit-strong-password-auto-fill-button {
 }
 
 .komentar-balasan .komentar-aksi {
-  max-width: 300px;
   margin-top: 6px;
 }
 
@@ -967,12 +966,16 @@ input::-webkit-strong-password-auto-fill-button {
 }
 
 /* Empat penghitung, bukan tujuh benda: sisanya pindah ke menu titik tiga.
-   Lebarnya ikut mengecil supaya keempatnya berkelompok, tidak tercerai
-   sepanjang kartu. */
+   Keempatnya berkelompok di kiri, tidak lagi direntang selebar kartu. Angka nol
+   tidak ditulis, jadi merentangnya membuat komentar yang belum punya suka
+   maupun posting ulang menyisakan jarak menganga di antara ketiga ikonnya —
+   dan jaraknya berubah-ubah dari satu kartu ke kartu berikutnya. Berkelompok
+   di kiri, barisnya terbaca sama rapatnya entah angkanya sudah terisi atau
+   belum. */
 .komentar-aksi {
   display: flex;
-  justify-content: space-between;
-  max-width: 340px;
+  align-items: center;
+  gap: 2px;
   margin-top: 10px;
   margin-left: -8px;
 }
@@ -985,6 +988,7 @@ input::-webkit-strong-password-auto-fill-button {
   font-size: 13px;
   transition: color 0.15s ease;
 }
+
 
 .aksi-ikon {
   display: grid;
@@ -1109,11 +1113,13 @@ input::-webkit-strong-password-auto-fill-button {
   color: var(--aksen);
 }
 
+/* Di atas bilah bawah: kartu terakhir di layar membuka menunya persis di
+   ketinggian bilah itu, dan sebelumnya menunya lewat di belakangnya. */
 .menu-kartu-daftar {
   position: absolute;
   top: calc(100% + 4px);
   inset-inline-end: 0;
-  z-index: 25;
+  z-index: 40;
   display: grid;
   min-width: 200px;
   padding: 6px 0;
@@ -1121,6 +1127,12 @@ input::-webkit-strong-password-auto-fill-button {
   border-radius: 14px;
   background: var(--latar);
   box-shadow: var(--bayang);
+}
+
+/* Kalau ruang di bawah tombol tidak cukup, menunya berdiri di atasnya. */
+.menu-kartu-daftar[data-arah="atas"] {
+  top: auto;
+  bottom: calc(100% + 4px);
 }
 
 .menu-kartu-butir {
@@ -1590,51 +1602,44 @@ input::-webkit-strong-password-auto-fill-button {
   }
 }
 
-.cari {
-  display: flex;
+/* Saringan tagar: satu keping yang menyebut apa yang sedang menyaring daftar,
+   dengan silang untuk melepaskannya. Hanya muncul saat saringannya menyala. */
+.saringan {
+  padding: 12px 16px;
+}
+
+.saringan-keping {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  height: 44px;
-  padding: 0 14px;
-  border: 1px solid transparent;
+  gap: 4px;
+  max-width: 100%;
+  padding: 6px 6px 6px 14px;
   border-radius: 999px;
-  background: var(--latar-naik);
-  transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease;
+  background: var(--aksen-lembut);
+  color: var(--aksen);
+  font-size: 14px;
+  font-weight: 700;
 }
 
-.cari:focus-within {
-  border-color: var(--aksen);
-  background: var(--latar);
+.saringan-teks {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.cari-ikon {
+.saringan-lepas {
+  display: grid;
   flex: none;
-  color: var(--teks-samar);
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: inherit;
+  transition: background-color 0.15s ease;
 }
 
-.cari-masukan {
-  flex: 1;
-  min-width: 0;
-  background: transparent;
-  border: 0;
-  outline: 0;
-}
-
-.cari-masukan::-webkit-search-cancel-button {
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.cari-mobil {
-  margin: 12px 16px;
-}
-
-@media (min-width: 880px) {
-  .cari-mobil {
-    display: none;
-  }
+.saringan-lepas:hover {
+  background: var(--lapis-hover-kuat);
 }
 
 .kartu {
@@ -2502,15 +2507,15 @@ input::-webkit-strong-password-auto-fill-button {
   color: var(--aksen);
 }
 
-.utas-judul {
-  padding: 16px 16px 4px;
-  font-size: 17px;
-  font-weight: 800;
+.utas-kosong {
+  padding: 16px 16px 20px;
+  color: var(--teks-samar);
 }
 
-.utas-kosong {
-  padding: 4px 16px 20px;
-  color: var(--teks-samar);
+/* Halaman utas tidak punya bilah bawah maupun tombol tulis yang mengambang,
+   jadi kabarnya tidak perlu menghindari keduanya dan duduk di dekat tepi. */
+.kerangka-tunggal .kabar-wadah {
+  bottom: calc(24px + env(safe-area-inset-bottom));
 }
 
 /* ============================================================
