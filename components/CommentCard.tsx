@@ -1,16 +1,19 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import Avatar from "./Avatar";
 import Composer from "./Composer";
 import {
   IkonBagikan,
   IkonBalas,
+  IkonJam,
+  IkonSampah,
   IkonSuka,
   IkonTerverifikasi,
   IkonUlang,
 } from "./Icons";
-import { ringkasAngka, waktuLengkap, waktuRelatif } from "@/lib/time";
+import { MASA_KOMENTAR_MS } from "@/lib/kebijakan";
+import { ringkasAngka, sisaWaktu, waktuLengkap, waktuRelatif } from "@/lib/time";
 import type { Comment, User } from "@/lib/types";
 
 type AksiProps = {
@@ -49,8 +52,6 @@ function Aksi({
 type Props = {
   komentar: Comment;
   penulis: User;
-  handleInduk: string | null;
-  jumlahBalasan: number;
   akunSaya: User;
   /** epoch ms untuk menghitung label waktu relatif */
   sekarang: number;
@@ -60,13 +61,12 @@ type Props = {
   onBukaBalas: () => void;
   onKirimBalasan: (teks: string) => void;
   onBagikan: () => void;
+  onHapus: () => void;
 };
 
 export default function CommentCard({
   komentar,
   penulis,
-  handleInduk,
-  jumlahBalasan,
   akunSaya,
   sekarang,
   balasTerbuka,
@@ -75,7 +75,12 @@ export default function CommentCard({
   onBukaBalas,
   onKirimBalasan,
   onBagikan,
+  onHapus,
 }: Props) {
+  const [konfirmasiHapus, setKonfirmasiHapus] = useState(false);
+  const milikSaya = komentar.authorId === akunSaya.id;
+  const sisa = sisaWaktu(komentar.createdAt, MASA_KOMENTAR_MS, sekarang);
+
   return (
     <article className="komentar">
       <div className="komentar-baris">
@@ -99,20 +104,68 @@ export default function CommentCard({
             >
               {waktuRelatif(komentar.createdAt, sekarang)}
             </time>
+
+            {sisa && (
+              <span
+                className="komentar-sisa"
+                title={`Terhapus otomatis pada ${waktuLengkap(
+                  komentar.createdAt + MASA_KOMENTAR_MS,
+                )}`}
+              >
+                <IkonJam size={13} />
+                <span>{sisa}</span>
+              </span>
+            )}
+
+            {milikSaya && (
+              <button
+                type="button"
+                className="komentar-hapus"
+                onClick={() => setKonfirmasiHapus(true)}
+                aria-label="Hapus komentar"
+              >
+                <IkonSampah size={17} />
+              </button>
+            )}
           </header>
 
-          {handleInduk && (
+          {komentar.parentHandle && (
             <p className="komentar-konteks">
-              Membalas <span className="sebut">@{handleInduk}</span>
+              Membalas <span className="sebut">@{komentar.parentHandle}</span>
             </p>
           )}
 
           <p className="komentar-teks">{komentar.text}</p>
 
+          {konfirmasiHapus && (
+            <div className="komentar-konfirmasi" role="alertdialog" aria-label="Konfirmasi hapus">
+              <p>Hapus komentar ini beserta seluruh balasannya?</p>
+              <div className="komentar-konfirmasi-aksi">
+                <button
+                  type="button"
+                  className="tombol tombol-sunyi"
+                  onClick={() => setKonfirmasiHapus(false)}
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  className="tombol tombol-bahaya"
+                  onClick={() => {
+                    setKonfirmasiHapus(false);
+                    onHapus();
+                  }}
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="komentar-aksi">
             <Aksi
               label="Balas"
-              jumlah={jumlahBalasan}
+              jumlah={komentar.replies}
               warna="biru"
               aktif={balasTerbuka}
               onClick={onBukaBalas}

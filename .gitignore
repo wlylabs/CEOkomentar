@@ -8,6 +8,10 @@
 /out/
 next-env.d.ts
 
+# panduan agen yang dibuat ulang otomatis oleh `next dev`
+/AGENTS.md
+/CLAUDE.md
+
 # production
 /build
 

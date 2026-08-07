@@ -36,6 +36,36 @@ export function waktuRelatif(createdAt: number, now: number = Date.now()) {
     : `${hari} ${bulan} ${tahun}`;
 }
 
+const BULAN_PANJANG = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+];
+
+/** "Maret 2021" — dipakai pada baris "Bergabung …" di profil. */
+export function bulanTahun(iso: string) {
+  const t = new Date(iso);
+  if (Number.isNaN(t.getTime())) return "";
+  return `${BULAN_PANJANG[t.getMonth()]} ${t.getFullYear()}`;
+}
+
+/** Sisa umur komentar: "3j lagi", "12m lagi". null berarti sudah lewat. */
+export function sisaWaktu(createdAt: number, masaMs: number, now: number) {
+  const sisa = createdAt + masaMs - now;
+  if (sisa <= 0) return null;
+  if (sisa < JAM) return `${Math.max(1, Math.floor(sisa / MENIT))}m lagi`;
+  return `${Math.floor(sisa / JAM)}j lagi`;
+}
+
 /** Label lengkap untuk atribut title/datetime. */
 export function waktuLengkap(createdAt: number) {
   const t = new Date(createdAt);
