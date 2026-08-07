@@ -20,7 +20,7 @@ import {
   type Gambar,
   type JenisMedia,
 } from "@/lib/image";
-import { angkaPenuh, bulanTahun, ringkasAngka } from "@/lib/time";
+import { angkaPengikut, angkaPenuh, bulanTahun, ringkasAngka } from "@/lib/time";
 import type { User } from "@/lib/types";
 
 const BATAS_BIO = 160;
@@ -432,11 +432,11 @@ export default function ProfileHeader({
 
           <ul className="profil-angka">
             <li>
-              <strong>{angkaPenuh(pengguna.following, bahasa)}</strong>{" "}
+              <strong>{angkaPengikut(pengguna.following, bahasa)}</strong>{" "}
               {t("profil.mengikuti")}
             </li>
             <li>
-              <strong>{angkaPenuh(pengguna.followers, bahasa)}</strong>{" "}
+              <strong>{angkaPengikut(pengguna.followers, bahasa)}</strong>{" "}
               {t("profil.pengikut")}
             </li>
           </ul>

@@ -166,7 +166,45 @@ export function ringkasAngka(nilai: number, bahasa: Bahasa) {
   return bahasa === "id" ? `${angka} jt` : `${angka}M`;
 }
 
-/** Pemisah ribuan sesuai bahasa untuk angka pengikut. */
+/** Pemisah ribuan sesuai bahasa. */
 export function angkaPenuh(nilai: number, bahasa: Bahasa) {
   return nilai.toLocaleString(LOKAL[bahasa]);
+}
+
+const SATUAN_PENGIKUT: Record<Bahasa, [number, string][]> = {
+  id: [
+    [1_000_000_000, " M"],
+    [1_000_000, " jt"],
+    [1_000, " rb"],
+  ],
+  en: [
+    [1_000_000_000, "B"],
+    [1_000_000, "M"],
+    [1_000, "K"],
+  ],
+};
+
+/**
+ * Angka pengikut bergaya Twitter: utuh sampai 9.999, di atas itu disingkat satu
+ * angka desimal. Desimalnya dipotong, bukan dibulatkan, supaya jumlah pengikut
+ * tak pernah tampak lebih besar dari yang sebenarnya — 1.999.999 → "1,9 jt".
+ * Desimal nol ikut hilang: 10.000 → "10 rb".
+ */
+export function angkaPengikut(nilai: number, bahasa: Bahasa) {
+  if (nilai < 10_000) return angkaPenuh(nilai, bahasa);
+
+  for (const [ambang, akhiran] of SATUAN_PENGIKUT[bahasa]) {
+    if (nilai < ambang) continue;
+
+    const dipotong = Math.floor((nilai / ambang) * 10) / 10;
+    const angka = Number.isInteger(dipotong)
+      ? String(dipotong)
+      : bahasa === "id"
+        ? dipotong.toFixed(1).replace(".", ",")
+        : dipotong.toFixed(1);
+
+    return `${angka}${akhiran}`;
+  }
+
+  return angkaPenuh(nilai, bahasa);
 }
