@@ -27,6 +27,7 @@ import type { KunciTeks } from "@/lib/i18n/kamus";
 import { klienPeramban } from "@/lib/supabase/client";
 import {
   ambilFeed,
+  ambilJejakKomentar,
   ambilKomentar,
   ambilNotifikasi,
   ambilProfil,
@@ -43,6 +44,7 @@ import {
   setUlang,
   tandaiNotifikasiDibaca,
 } from "@/lib/api";
+import { jangkauanTerkumpul, type JejakKomentar } from "@/lib/jangkauan";
 import { MASA_KOMENTAR_JAM, MASA_KOMENTAR_MS } from "@/lib/kebijakan";
 import { bacaPilihan, beralihTema, temaTerpasang } from "@/lib/tema";
 import { susunUtas } from "@/lib/utas";
@@ -71,6 +73,32 @@ const STATISTIK_KOSONG: Statistik = {
   sukaDiterima: 0,
   ulangDiterima: 0,
 };
+
+/**
+ * Menambahkan suka dan posting ulang bawaan ke ringkasan seorang penulis.
+ *
+ * Kartu komentar akun resmi menampilkan angka basis data ditambah jangkauan
+ * yang tumbuh seiring umurnya. Tanpa penambahan yang sama di sini, "suka
+ * diterima" di profil dan panel kanan akan lebih kecil daripada satu kartu
+ * yang tepat di bawahnya — dan diam sementara kartunya terus naik.
+ *
+ * Dihitung ulang tiap jam aplikasi berdetak, jadi angkanya ikut merangkak.
+ */
+function denganJangkauan(
+  dasar: Statistik,
+  jejak: JejakKomentar[],
+  penulis: User | null,
+  sekarang: number,
+): Statistik {
+  if (!penulis?.admin || jejak.length === 0) return dasar;
+
+  const { suka, ulang } = jangkauanTerkumpul(jejak, penulis, sekarang);
+  return {
+    ...dasar,
+    sukaDiterima: dasar.sukaDiterima + suka,
+    ulangDiterima: dasar.ulangDiterima + ulang,
+  };
+}
 
 /**
  * Pesan dari Supabase selalu berbahasa Inggris dan lebih tepat daripada
@@ -110,12 +138,16 @@ export default function App({
     [akunAwal.id]: akunAwal,
   });
   const [statistik, setStatistik] = useState<Statistik>(STATISTIK_KOSONG);
+  /* Komentar yang masih hidup milik akun sendiri dan milik profil yang sedang
+     dibuka. Hanya diisi untuk akun resmi — akun lain tidak punya angka bawaan
+     yang perlu dijumlahkan. */
+  const [jejakSaya, setJejakSaya] = useState<JejakKomentar[]>([]);
+  const [jejakProfil, setJejakProfil] = useState<JejakKomentar[]>([]);
 
   const [tampilan, setTampilan] = useState<View>("beranda");
   const [tab, setTab] = useState<Tab>("komentar");
   const [kueri, setKueri] = useState("");
   const [kueriTertunda, setKueriTertunda] = useState("");
-  const [balasUntuk, setBalasUntuk] = useState<string | null>(null);
   const [kabar, setKabar] = useState<IsiKabar | null>(null);
   const [sekarang, setSekarang] = useState(() => Date.now());
   /* Komentar yang baru saja dituju dari sebuah balasan; sorotannya padam
@@ -245,7 +277,18 @@ export default function App({
       .catch(() => {
         /* ringkasan boleh tertinggal sesaat; feed tetap yang utama */
       });
-  }, [supabase, akun.id]);
+
+    if (!akun.admin) {
+      setJejakSaya([]);
+      return;
+    }
+
+    ambilJejakKomentar(supabase, akun.id)
+      .then(setJejakSaya)
+      .catch(() => {
+        /* tanpa jejaknya ringkasan hanya memakai angka basis data */
+      });
+  }, [supabase, akun.id, akun.admin]);
 
   const segarkanTren = useCallback(() => {
     ambilTren(supabase)
@@ -342,6 +385,27 @@ export default function App({
       batal = true;
     };
   }, [supabase, profilId, profilSaya, statistik]);
+
+  /* Jejak komentar profil orang lain, untuk menjumlahkan angka bawaannya.
+     Profil sendiri memakai `jejakSaya` yang sudah ikut disegarkan bersama
+     ringkasan. */
+  useEffect(() => {
+    if (profilSaya || !profilLain?.admin) {
+      setJejakProfil([]);
+      return;
+    }
+
+    let batal = false;
+    ambilJejakKomentar(supabase, profilLain.id)
+      .then((jejak) => {
+        if (!batal) setJejakProfil(jejak);
+      })
+      .catch(() => {});
+
+    return () => {
+      batal = true;
+    };
+  }, [supabase, profilSaya, profilLain]);
 
   /* Lencana kabar menyala sejak halaman dibuka, bukan hanya setelah daftarnya
      dilihat sekali. */
@@ -448,8 +512,15 @@ export default function App({
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "comments" },
         async (muatan) => {
-          const baris = muatan.new as { id: string; author_id: string };
+          const baris = muatan.new as {
+            id: string;
+            author_id: string;
+            parent_id: string | null;
+          };
           if (baris.author_id === akun.id) return;
+          /* Balasan orang lain tidak menyela beranda; tempatnya di utas
+             komentar yang dibalasnya. */
+          if (baris.parent_id !== null) return;
 
           const hasil = await ambilKomentar(supabase, baris.id, akun.id);
           if (!hasil) return;
@@ -477,30 +548,27 @@ export default function App({
     setKomentar((sebelum) => sebelum.map((k) => (k.id === id ? ubah(k) : k)));
   }
 
-  async function buatKomentar(teks: string, parentId: string | null) {
+  /**
+   * Mengirim komentar utama.
+   *
+   * Hanya komentar utama: balasan ditulis di halaman utas, tempat komentar yang
+   * dibalas terpampang di atas komposernya, dan tidak pernah lewat sini.
+   */
+  async function buatKomentar(teks: string) {
     try {
-      const baru = await kirimKomentar(supabase, akun.id, teks, parentId);
-      baru.parentHandle = parentId
-        ? (pengguna[komentar.find((k) => k.id === parentId)?.authorId ?? ""]
-            ?.handle ?? null)
-        : null;
+      const baru = await kirimKomentar(supabase, akun.id, teks, null);
 
+      /* Daftar yang sedang terbuka belum tentu tempatnya: tab "Disukai" dan
+         hasil pencarian punya syaratnya sendiri, dan komentar baru tidak
+         memenuhi keduanya. */
       const masukDaftar =
         tampilan === "beranda"
           ? !kueriTertunda
-          : profilSaya &&
-            tab === (parentId ? "balasan" : "komentar") &&
-            !kueriTertunda;
+          : profilSaya && tab === "komentar" && !kueriTertunda;
 
       if (masukDaftar) setKomentar((sebelum) => [baru, ...sebelum]);
-      if (parentId) {
-        ubahKomentar(parentId, (k) => ({ ...k, replies: k.replies + 1 }));
-      }
 
-      beriKabar(
-        t(parentId ? "pesan.balasanTerkirim" : "pesan.komentarTerkirim"),
-        "berhasil",
-      );
+      beriKabar(t("pesan.komentarTerkirim"), "berhasil");
       segarkanStatistik();
       /* Tagar di komentar baru bisa langsung mengubah papan tren. */
       if (teks.includes("#")) segarkanTren();
@@ -687,7 +755,6 @@ export default function App({
       setTab("komentar");
     }
     setTampilan(berikut);
-    setBalasUntuk(null);
     keAtas();
   }
 
@@ -696,7 +763,6 @@ export default function App({
     setProfilLain(sasaran.id === akun.id ? null : sasaran);
     setTab("komentar");
     setTampilan("profil");
-    setBalasUntuk(null);
     keAtas();
   }
 
@@ -718,6 +784,18 @@ export default function App({
     }
   }
 
+  /**
+   * Membuka satu komentar beserta seluruh balasannya di halamannya sendiri.
+   *
+   * Beranda hanya memuat komentar utama, jadi ke sinilah jalan menuju
+   * percakapannya — sekaligus jalan untuk ikut membalas. `siapMembalas`
+   * menyalakan komposer di sana begitu halamannya terbuka, supaya menekan
+   * "Balas" di beranda terasa satu gerakan, bukan dua.
+   */
+  function bukaUtas(id: string, siapMembalas = false) {
+    router.push(`/komentar/${id}${siapMembalas ? "?balas=1" : ""}`);
+  }
+
   /* Dari sebuah balasan, yang dicari adalah percakapan asalnya. Kalau komentar
      itu memang sedang ada di layar, cukup digulir ke sana dan disorot sebentar;
      kalau tidak — halamannya sudah lewat, atau daftarnya sedang tersaring —
@@ -726,7 +804,7 @@ export default function App({
     setSorotId(null);
 
     if (!daftar.some(({ komentar: k }) => k.id === indukId)) {
-      router.push(`/komentar/${indukId}`);
+      bukaUtas(indukId);
       return;
     }
 
@@ -747,7 +825,6 @@ export default function App({
   function pilihTagar(tagar: string) {
     setKueri(`#${tagar}`);
     setTampilan("beranda");
-    setBalasUntuk(null);
     keAtas();
   }
 
@@ -766,6 +843,21 @@ export default function App({
   const daftarPengguna = useMemo(
     () => ({ ...pengguna, [akun.id]: akun }),
     [pengguna, akun],
+  );
+
+  /* Ringkasan yang benar-benar ditampilkan: angka basis data ditambah
+     jangkauan bawaan, dihitung ulang tiap menit bersama jam aplikasi. */
+  const statistikTampil = useMemo(
+    () => denganJangkauan(statistik, jejakSaya, akun, sekarang),
+    [statistik, jejakSaya, akun, sekarang],
+  );
+
+  const statistikProfilTampil = useMemo(
+    () =>
+      profilSaya
+        ? statistikTampil
+        : denganJangkauan(statistikProfil, jejakProfil, profilLain, sekarang),
+    [profilSaya, statistikTampil, statistikProfil, jejakProfil, profilLain, sekarang],
   );
 
   /* Basis data yang menentukan, tetapi daftar di layar tetap disaring sendiri
@@ -801,13 +893,10 @@ export default function App({
       : t("kosong.beranda");
 
   /* Beranda memakai lambangnya di kiri bilah, jadi namanya tidak perlu diulang
-     lagi di tengah; ruang kosongnya tetap dipakai untuk menjaga tata letak. */
-  const judulBilah =
-    tampilan === "profil"
-      ? (penggunaProfil?.name ?? t("nav.profil"))
-      : tampilan === "notifikasi"
-        ? t("nav.notifikasi")
-        : "";
+     lagi di tengah; ruang kosongnya tetap dipakai untuk menjaga tata letak.
+     Profil pun begitu: nama dan fotonya sudah sebesar itu di kartu tepat di
+     bawah bilah, jadi mengulangnya di sini hanya menumpuk. */
+  const judulBilah = tampilan === "notifikasi" ? t("nav.notifikasi") : "";
 
   return (
     <div className="kerangka">
@@ -823,7 +912,7 @@ export default function App({
 
       <main className="utama" ref={utamaRef}>
         <div className="bilah-mobil">
-          {tampilan === "beranda" ? (
+          {tampilan !== "notifikasi" ? (
             <span className="bilah-merek">
               <Brand size={26} />
             </span>
@@ -859,32 +948,22 @@ export default function App({
         )}
 
         {tampilan === "profil" && penggunaProfil && (
-          <>
-            {/* Hanya tombol kembali: nama dan jumlah komentarnya sudah terbaca
-                utuh di kartu profil tepat di bawah bilah ini. */}
-            <div className="kepala-profil">
-              <button
-                type="button"
-                className="bulat"
-                onClick={() => gantiTampilan("beranda")}
-                aria-label={t("nav.kembali")}
-              >
-                <IkonKembali size={20} />
-              </button>
-            </div>
-
-            <ProfileHeader
-              pengguna={penggunaProfil}
-              milikSaya={profilSaya}
-              mengikuti={mengikuti}
-              menungguIkut={menungguIkut}
-              jumlahKomentar={statistikProfil.komentar + statistikProfil.balasan}
-              jumlahSukaDiterima={statistikProfil.sukaDiterima}
-              onIkuti={alihkanIkut}
-              onSimpan={simpanProfilLokal}
-              onKabar={beriKabar}
-            />
-          </>
+          /* Tanpa bilah nama dan tanpa panah kembali: keduanya hanya mengulang
+             apa yang sudah ada — nama lengkapnya di kartu profil tepat di
+             bawah, jalan pulangnya di navigasi bawah dan bilah samping. */
+          <ProfileHeader
+            pengguna={penggunaProfil}
+            milikSaya={profilSaya}
+            mengikuti={mengikuti}
+            menungguIkut={menungguIkut}
+            jumlahKomentar={
+              statistikProfilTampil.komentar + statistikProfilTampil.balasan
+            }
+            jumlahSukaDiterima={statistikProfilTampil.sukaDiterima}
+            onIkuti={alihkanIkut}
+            onSimpan={simpanProfilLokal}
+            onKabar={beriKabar}
+          />
         )}
 
         {tampilan === "beranda" ? (
@@ -916,10 +995,7 @@ export default function App({
                 role="tab"
                 aria-selected={tab === kunci}
                 className={`tab-butir${tab === kunci ? " tab-butir-aktif" : ""}`}
-                onClick={() => {
-                  setTab(kunci);
-                  setBalasUntuk(null);
-                }}
+                onClick={() => setTab(kunci)}
               >
                 <span>{t(label)}</span>
               </button>
@@ -950,7 +1026,7 @@ export default function App({
               pengguna={akun}
               placeholder={t("komposer.komentar")}
               labelTombol={t("komposer.kirim")}
-              onKirim={(teks) => buatKomentar(teks, null)}
+              onKirim={buatKomentar}
             />
           </div>
         )}
@@ -1029,9 +1105,22 @@ export default function App({
             </div>
           ) : (
             <>
-              {daftar.map(({ komentar: k, kedalaman }) => {
+              {daftar.map(({ komentar: k }, i) => {
                 const penulis = daftarPengguna[k.authorId];
                 if (!penulis) return null;
+
+                /* "Membalas @siapa" hanya ditulis kalau ia menambah sesuatu.
+                   Pada balasan langsung atas komentar utama yang persis di
+                   atasnya, kalimat itu cuma mengeja ulang susunan yang sudah
+                   terlihat. Balasan atas balasan tetap menyebutkannya — semua
+                   balasan berdiri di garis yang sama, jadi tanpa baris itu tak
+                   ada lagi yang membedakannya. */
+                const atas = daftar[i - 1];
+                const konteksJelas =
+                  atas !== undefined &&
+                  atas.kedalaman === 0 &&
+                  atas.komentar.id === k.parentId;
+
                 return (
                   <div className="daftar-butir" id={k.id} key={k.id}>
                     <CommentCard
@@ -1039,19 +1128,13 @@ export default function App({
                       penulis={penulis}
                       akunSaya={akun}
                       sekarang={sekarang}
-                      kedalaman={kedalaman}
+                      konteksJelas={konteksJelas}
                       sorot={sorotId === k.id}
-                      balasTerbuka={balasUntuk === k.id}
                       onSuka={() => alihkanSuka(k.id)}
                       onUlang={() => alihkanUlang(k.id)}
                       onSimpan={() => alihkanSimpan(k.id)}
-                      onBukaBalas={() =>
-                        setBalasUntuk(balasUntuk === k.id ? null : k.id)
-                      }
-                      onKirimBalasan={(teks) => {
-                        buatKomentar(teks, k.id);
-                        setBalasUntuk(null);
-                      }}
+                      onBukaBalas={() => bukaUtas(k.id, true)}
+                      onBukaUtas={() => bukaUtas(k.id)}
                       onBagikan={() => salinTautan(k.id)}
                       onHapus={() => hapus(k.id)}
                       onBukaProfil={bukaProfil}
@@ -1085,7 +1168,7 @@ export default function App({
       <RightRail
         kueri={kueri}
         onKueri={setKueri}
-        statistik={statistik}
+        statistik={statistikTampil}
         tren={tren}
         pengguna={akun}
         onTagar={pilihTagar}

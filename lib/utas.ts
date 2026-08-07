@@ -1,13 +1,20 @@
 import type { Comment } from "./types";
 
-/** Satu baris daftar: komentarnya beserta seberapa dalam ia menjorok. */
+/** Satu baris daftar: komentarnya beserta letaknya dalam percakapan. */
 export type BarisUtas = {
   komentar: Comment;
-  /** 0 untuk komentar utama, naik satu tiap tingkat balasan */
+  /**
+   * 0 untuk komentar utama, naik satu tiap tingkat balasan.
+   *
+   * Semua balasan tampil pada indentasi yang sama, jadi angka ini bukan
+   * penentu jarak melainkan penentu apakah baris "Membalas @siapa" masih
+   * dibutuhkan — pada balasan tingkat satu yang induknya tepat di atasnya,
+   * baris itu hanya mengulang apa yang sudah terlihat.
+   */
   kedalaman: number;
 };
 
-/** Balasan berhenti menjorok setelah tingkat ini; lebih dalam sudah tak terbaca. */
+/** Sedalam apa pun percakapannya, kedalaman berhenti dihitung di sini. */
 export const KEDALAMAN_MAKS = 3;
 
 /**
@@ -19,8 +26,8 @@ export const KEDALAMAN_MAKS = 3;
  * terbaca dari atas ke bawah.
  *
  * Balasan yang induknya tidak ikut termuat (masih di halaman berikutnya, atau
- * sudah lewat 24 jam) berdiri sendiri di tempatnya semula, hanya sudah menjorok
- * satu tingkat karena ia tetap sebuah balasan.
+ * sudah lewat 24 jam) berdiri sendiri di tempatnya semula, tetap terhitung
+ * sebagai balasan tingkat satu.
  */
 export function susunUtas(daftar: Comment[]): BarisUtas[] {
   const ada = new Set(daftar.map((k) => k.id));

@@ -1,5 +1,19 @@
 import { MASA_KOMENTAR_MS } from "./kebijakan";
-import type { Comment, User } from "./types";
+import type { User } from "./types";
+
+/**
+ * Sekeping komentar, secukupnya untuk menghitung jangkauannya.
+ *
+ * Yang menentukan hanya dua hal: id sebagai benih pengacak, dan waktu tulis
+ * sebagai penentu sudah sejauh mana kurvanya berjalan. `Comment` utuh memenuhi
+ * bentuk ini, begitu juga daftar ringkas yang dibaca untuk menjumlahkan
+ * jangkauan satu penulis.
+ */
+export type JejakKomentar = {
+  id: string;
+  /** waktu pembuatan dalam epoch ms */
+  createdAt: number;
+};
 
 /**
  * Seberapa jauh sebuah komentar sampai ke orang: berapa kali terlihat, dan —
@@ -79,7 +93,7 @@ function pertumbuhan(bagianUmur: number) {
  * orang lain memakai angka apa adanya dan hanya mendapat tayangan.
  */
 export function jangkauan(
-  komentar: Comment,
+  komentar: JejakKomentar,
   penulis: User,
   sekarang: number,
 ): Jangkauan {
@@ -105,6 +119,32 @@ export function jangkauan(
   const ulang = Math.round(
     suka * (RASIO_ULANG_MIN + undiUlang * (RASIO_ULANG_MAKS - RASIO_ULANG_MIN)),
   );
+
+  return { tayang, suka, ulang };
+}
+
+/**
+ * Menjumlahkan jangkauan seluruh komentar seorang penulis.
+ *
+ * Ringkasan di profil dan panel kanan memakai ini supaya "suka diterima" di
+ * sana adalah jumlah dari angka-angka yang benar-benar terbaca di tiap kartu —
+ * bukan hitungan basis data yang diam sementara kartunya terus naik.
+ */
+export function jangkauanTerkumpul(
+  daftar: JejakKomentar[],
+  penulis: User,
+  sekarang: number,
+): Jangkauan {
+  let tayang = 0;
+  let suka = 0;
+  let ulang = 0;
+
+  for (const komentar of daftar) {
+    const bagian = jangkauan(komentar, penulis, sekarang);
+    tayang += bagian.tayang;
+    suka += bagian.suka;
+    ulang += bagian.ulang;
+  }
 
   return { tayang, suka, ulang };
 }
