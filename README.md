@@ -137,9 +137,16 @@ alih-alih halaman kosong.
 
    Baris berbintang mencakup URL preview tiap pull request. Tanpa langkah ini
    tautan konfirmasi email dan pemulihan kata sandi akan ditolak di produksi.
-4. **Jalankan migrasi di proyek produksi.** Kalau proyek Supabase untuk produksi
-   berbeda dari yang dipakai saat mengembangkan, ulangi langkah 2–4 dari bagian
-   sebelumnya di proyek itu: kedua berkas SQL, pg_cron, dan Anonymous sign-in.
+4. **Pastikan proyek Supabase yang dipakai Vercel sudah disiapkan.** Satu proyek
+   Supabase sama dengan satu basis data, dan isinya tidak ikut tersalin ke
+   proyek lain.
+
+   - Kalau kamu hanya punya satu proyek Supabase — yang itu juga yang dipakai
+     saat mengembangkan di localhost — langkah ini sudah beres, lanjut saja.
+   - Kalau produksi memakai proyek Supabase terpisah, proyek itu masih kosong.
+     Ulangi penyiapannya di sana: jalankan kedua berkas SQL, aktifkan pg_cron,
+     lalu aktifkan Anonymous Sign-Ins. Tabel, kebijakan RLS, bucket, dan
+     pengaturan Authentication tidak berpindah sendiri antarproyek.
 5. **Deploy ulang.** Environment variable baru hanya terbaca oleh build
    berikutnya, jadi tekan **Redeploy** setelah menambahkannya.
 
