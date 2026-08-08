@@ -68,7 +68,6 @@ type Props = {
   sekarang: number;
   onSuka: () => void;
   onUlang: () => void;
-  onSimpan: () => void;
   onBagikan: () => void;
   onHapus: () => void;
   onBukaProfil: (pengguna: User) => void;
@@ -83,7 +82,6 @@ export default function CommentCard({
   sekarang,
   onSuka,
   onUlang,
-  onSimpan,
   onBagikan,
   onHapus,
   onBukaProfil,
@@ -161,9 +159,7 @@ export default function CommentCard({
             )}
 
             <MenuKartu
-              disimpan={komentar.saved}
               bisaHapus={bisaHapus}
-              onSimpan={onSimpan}
               onBagikan={onBagikan}
               onHapus={() => setKonfirmasiHapus(true)}
             />

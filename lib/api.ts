@@ -1,12 +1,17 @@
+import type { KunciTeks } from "./i18n/kamus";
 import type { KlienSupabase } from "./supabase/client";
 import type {
   BarisKomentar,
+  BarisMisi,
+  BarisMisiPengguna,
   BarisNotifikasi,
   BarisProfil,
 } from "./supabase/database.types";
 import type { Gambar, JenisMedia } from "./image";
 import type { JejakKomentar } from "./jangkauan";
 import { PENDUDUK_INDONESIA, ambangKedaluwarsa } from "./kebijakan";
+import { bacaLencana, type KodeLencana } from "./lencana";
+import { misiDikenal, type Misi, type StatusMisi } from "./misi";
 import type {
   Comment,
   Notifikasi,
@@ -25,7 +30,7 @@ const EMBER: Record<JenisMedia, "avatars" | "banners"> = {
 };
 
 export const KOLOM_PROFIL =
-  "id, handle, name, bio, location, avatar_url, banner_url, verified, is_admin, following_count, followers_count, created_at, updated_at";
+  "id, handle, name, bio, location, avatar_url, banner_url, verified, is_admin, lencana, following_count, followers_count, created_at, updated_at";
 
 const KOLOM_KOMENTAR =
   "id, author_id, body, created_at, like_count, repost_count";
@@ -54,7 +59,25 @@ export function keUser(baris: BarisProfil): User {
       : baris.followers_count,
     verified: baris.verified,
     admin: baris.is_admin,
+    lencana: lencanaProfil(baris),
   };
+}
+
+/**
+ * Lencana yang dipakai antarmuka.
+ *
+ * Kolom `lencana` yang menentukan; dua kolom lama hanya jadi cadangan untuk
+ * basis data yang migrasi misinya belum dijalankan, supaya centang akun resmi
+ * tidak hilang di antara dua penerapan.
+ */
+function lencanaProfil(baris: BarisProfil): KodeLencana[] {
+  const daftar = bacaLencana(baris.lencana);
+  if (daftar.length > 0) return daftar;
+
+  const cadangan: KodeLencana[] = [];
+  if (baris.is_admin) cadangan.push("emas");
+  if (baris.verified && !baris.is_admin) cadangan.push("biru");
+  return cadangan;
 }
 
 function keComment(baris: BarisKomentar): Comment {
@@ -67,8 +90,28 @@ function keComment(baris: BarisKomentar): Comment {
     reposts: baris.repost_count,
     liked: false,
     reposted: false,
-    saved: false,
   };
+}
+
+/* ============================================================
+   Galat yang kalimatnya milik kamus
+   ============================================================ */
+
+/**
+ * Sebagian besar pesan galat datang dari Supabase dan ditampilkan apa adanya —
+ * kalimatnya lebih tepat daripada tebakan kita. Tetapi beberapa keadaan punya
+ * pesan yang tidak berarti apa-apa bagi pemakai; untuk itu galatnya diberi
+ * kunci kamus, dan lapisan tampilan yang memilih bahasanya.
+ */
+export function galatKamus(kunci: KunciTeks): Error {
+  return Object.assign(new Error(kunci), { kunci });
+}
+
+export function kunciGalat(kesalahan: unknown): KunciTeks | null {
+  if (kesalahan && typeof kesalahan === "object" && "kunci" in kesalahan) {
+    return (kesalahan as { kunci: KunciTeks }).kunci;
+  }
+  return null;
 }
 
 /**
@@ -100,7 +143,7 @@ export async function ambilProfil(
 }
 
 export type OpsiFeed = {
-  /** akun yang sedang masuk; penentu tanda suka, posting ulang, dan simpanan */
+  /** akun yang sedang masuk; penentu tanda suka dan posting ulang */
   akunId: string;
   tampilan: View;
   /** pemilik profil yang sedang dibuka; kosong berarti profil sendiri */
@@ -153,16 +196,10 @@ export async function ambilFeed(
   let baris: BarisFeed[];
   let kursorBerikut: string | null;
 
-  /* Dua tab tidak berisi tulisan pemilik profil melainkan komentar yang ia
-     tandai, jadi keduanya dibaca dari tabel tandanya. Simpanan hanya terbaca
-     oleh pemiliknya sendiri — itu urusan kebijakan RLS, bukan kueri ini. */
-  const tabelTanda: "likes" | "bookmarks" | null = !diProfil
-    ? null
-    : opsi.tab === "disukai"
-      ? "likes"
-      : opsi.tab === "disimpan"
-        ? "bookmarks"
-        : null;
+  /* Tab "Disukai" tidak berisi tulisan pemilik profil melainkan komentar yang
+     ia sukai, jadi isinya dibaca dari tabel tandanya. */
+  const tabelTanda: "likes" | null =
+    diProfil && opsi.tab === "disukai" ? "likes" : null;
 
   if (tabelTanda) {
     /* Urutannya menurut kapan komentar itu ditandai, bukan kapan komentar
@@ -226,7 +263,7 @@ export async function ambilFeed(
   };
 }
 
-/** Menandai komentar mana yang sudah disukai, diulang, atau disimpan akun ini. */
+/** Menandai komentar mana yang sudah disukai atau diulang akun ini. */
 async function tandaiInteraksi(
   sb: KlienSupabase,
   komentar: Comment[],
@@ -235,20 +272,17 @@ async function tandaiInteraksi(
   if (komentar.length === 0) return;
   const id = komentar.map((k) => k.id);
 
-  const [suka, ulang, simpan] = await Promise.all([
+  const [suka, ulang] = await Promise.all([
     sb.from("likes").select("comment_id").eq("user_id", akunId).in("comment_id", id),
     sb.from("reposts").select("comment_id").eq("user_id", akunId).in("comment_id", id),
-    sb.from("bookmarks").select("comment_id").eq("user_id", akunId).in("comment_id", id),
   ]);
 
   const disukai = new Set((suka.data ?? []).map((b) => b.comment_id));
   const diulang = new Set((ulang.data ?? []).map((b) => b.comment_id));
-  const disimpan = new Set((simpan.data ?? []).map((b) => b.comment_id));
 
   for (const k of komentar) {
     k.liked = disukai.has(k.id);
     k.reposted = diulang.has(k.id);
-    k.saved = disimpan.has(k.id);
   }
 }
 
@@ -436,6 +470,70 @@ export async function tandaiNotifikasiDibaca(
 }
 
 /* ============================================================
+   Misi
+   ============================================================ */
+
+/**
+ * Katalog misi yang sedang berlaku beserta kemajuan akun ini atas masing-masing.
+ *
+ * Dua kueri kecil, bukan satu gabungan: katalognya sama untuk semua orang
+ * sementara kemajuannya hanya terbaca oleh pemiliknya, jadi menggabungkannya
+ * lewat relasi justru membuat kebijakan RLS-nya sulit dibaca. Misi yang belum
+ * dikenal versi antarmuka ini dilewati — basis data boleh lebih dulu tahu.
+ */
+export async function ambilMisi(
+  sb: KlienSupabase,
+  akunId: string,
+): Promise<Misi[]> {
+  const [katalog, kemajuan] = await Promise.all([
+    sb
+      .from("misi")
+      .select("kode, lencana, urutan, aktif")
+      .eq("aktif", true)
+      .order("urutan", { ascending: true })
+      .returns<BarisMisi[]>(),
+    sb
+      .from("misi_pengguna")
+      .select("user_id, misi, status, bukti, dibuat_at, selesai_at")
+      .eq("user_id", akunId)
+      .returns<BarisMisiPengguna[]>(),
+  ]);
+
+  if (katalog.error) throw katalog.error;
+  if (kemajuan.error) throw kemajuan.error;
+
+  const punya = new Map(
+    (kemajuan.data ?? []).map((baris) => [baris.misi, baris]),
+  );
+
+  const daftar: Misi[] = [];
+  for (const baris of katalog.data ?? []) {
+    /* Misi maupun lencana yang belum dikenal versi antarmuka ini dilewati:
+       tanpa kalimat dan tanpa warna, kartunya hanya akan jadi kotak kosong. */
+    const hadiah = bacaLencana([baris.lencana])[0];
+    if (!misiDikenal(baris.kode) || !hadiah) continue;
+
+    const jejak = punya.get(baris.kode);
+    const status: StatusMisi =
+      jejak?.status === "selesai"
+        ? "selesai"
+        : jejak?.status === "menunggu"
+          ? "menunggu"
+          : "belum";
+
+    daftar.push({
+      kode: baris.kode,
+      lencana: hadiah,
+      urutan: baris.urutan,
+      status,
+      bukti: jejak?.bukti ?? {},
+    });
+  }
+
+  return daftar;
+}
+
+/* ============================================================
    Tren
    ============================================================ */
 
@@ -471,6 +569,9 @@ export async function kirimKomentar(
     .select(KOLOM_KOMENTAR)
     .single<BarisKomentar>();
 
+  /* Rem laju di basis data menolak dengan 54000 (program_limit_exceeded), dan
+     kalimat aslinya bukan untuk dibaca orang. */
+  if (error?.code === "54000") throw galatKamus("galat.terlaluCepat");
   if (error) throw error;
   return keComment(data);
 }
@@ -508,23 +609,6 @@ export async function setUlang(
     ? await sb.from("reposts").insert({ comment_id: komentarId, user_id: akunId })
     : await sb
         .from("reposts")
-        .delete()
-        .eq("comment_id", komentarId)
-        .eq("user_id", akunId);
-
-  if (error && error.code !== "23505") throw error;
-}
-
-export async function setSimpan(
-  sb: KlienSupabase,
-  komentarId: string,
-  akunId: string,
-  simpan: boolean,
-) {
-  const { error } = simpan
-    ? await sb.from("bookmarks").insert({ comment_id: komentarId, user_id: akunId })
-    : await sb
-        .from("bookmarks")
         .delete()
         .eq("comment_id", komentarId)
         .eq("user_id", akunId);

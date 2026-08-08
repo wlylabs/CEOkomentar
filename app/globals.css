@@ -593,11 +593,15 @@ input::-webkit-strong-password-auto-fill-button {
   color: var(--aksen);
 }
 
-/* Centang emas menandai akun resmi (admin), sama seperti di Twitter. Warnanya
-   yang membedakan, bukan bentuknya, jadi satu akun tidak pernah memakai dua
-   lencana sekaligus. */
+/* Warnanya yang membedakan arti tiap lencana, bukan bentuknya: emas untuk akun
+   resmi, biru untuk hasil misi centang biru. Satu akun boleh memakai keduanya —
+   urutannya diatur katalog di lib/lencana.ts. */
 .lencana-emas {
   color: var(--emas);
+}
+
+.lencana-biru {
+  color: var(--aksen);
 }
 
 /* ============================================================
@@ -1841,6 +1845,146 @@ input::-webkit-strong-password-auto-fill-button {
   font-size: 12.5px;
   line-height: 1.5;
   color: var(--teks-samar);
+}
+
+/* ============================================================
+   Misi
+   ============================================================ */
+
+.misi-daftar {
+  display: grid;
+  gap: 12px;
+  padding: 12px 16px 4px;
+}
+
+.misi {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--garis);
+  border-radius: 16px;
+  background: var(--latar-naik);
+}
+
+/* Misi yang sudah selesai tidak lagi menuntut apa-apa, jadi bingkainya
+   mengambil warna lencananya alih-alih garis netral. */
+.misi-selesai {
+  border-color: var(--aksen);
+  background: var(--aksen-lembut);
+}
+
+.misi-kepala {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.misi-lencana {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: var(--latar);
+}
+
+.misi-judul-teks {
+  min-width: 0;
+  flex: 1;
+}
+
+.misi-judul {
+  font-size: 16.5px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.misi-hadiah {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--teks-samar);
+}
+
+.misi-tanda {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  padding: 4px 10px;
+  border: 1px solid var(--garis-kuat);
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--teks-samar);
+}
+
+.misi-tanda-selesai {
+  border-color: transparent;
+  background: var(--aksen);
+  color: #ffffff;
+}
+
+.misi-teks {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--teks-samar);
+}
+
+.misi-langkah {
+  display: grid;
+  gap: 6px;
+  padding-left: 20px;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.misi-langkah li::marker {
+  color: var(--teks-samar);
+  font-weight: 700;
+}
+
+.misi-bukti {
+  font-size: 13.5px;
+  color: var(--teks-samar);
+}
+
+.misi-aksi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+/* Salah satu tombolnya berupa tautan ke luar, jadi garis bawah dan warna
+   tautan bawaannya perlu dilepas supaya keduanya terlihat sama. */
+.misi-aksi .tombol {
+  gap: 7px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.misi-aksi .tombol-utama {
+  color: #ffffff;
+}
+
+.misi-catatan {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--teks-samar);
+}
+
+@media (max-width: 420px) {
+  .misi-daftar {
+    padding-inline: 12px;
+  }
+
+  .misi-aksi .tombol {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
 }
 
 /* ============================================================

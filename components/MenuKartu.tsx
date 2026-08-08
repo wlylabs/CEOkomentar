@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
-import { IkonBagikan, IkonLainnya, IkonSampah, IkonSimpan } from "./Icons";
+import { IkonBagikan, IkonLainnya, IkonSampah } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 
 /** Jarak menu dari tombolnya; harus sama dengan yang dipakai globals.css. */
@@ -16,31 +16,23 @@ const TINGGI_BILAH = 54;
 const LEBAR_TANPA_BILAH = "(min-width: 768px)";
 
 type Props = {
-  disimpan: boolean;
   /** admin boleh menghapus komentar orang lain; kalimat konfirmasinya berbeda */
   bisaHapus: boolean;
-  onSimpan: () => void;
   onBagikan: () => void;
   onHapus: () => void;
 };
 
 /**
- * Tindakan yang jarang dipakai — simpan, salin tautan, hapus — dikumpulkan di
- * balik satu tombol titik tiga di pojok kartu.
+ * Tindakan yang jarang dipakai — salin tautan dan hapus — dikumpulkan di balik
+ * satu tombol titik tiga di pojok kartu.
  *
- * Sebelumnya ketiganya berjajar di baris aksi bersama balas, posting ulang,
- * suka, dan tayangan; tujuh benda dalam satu baris membuat yang sering ditekan
+ * Sebelumnya keduanya berjajar di baris aksi bersama posting ulang, suka, dan
+ * tayangan; terlalu banyak benda dalam satu baris membuat yang sering ditekan
  * pun ikut sulit ditemukan. Ikon hapus juga tak lagi menempel di baris nama
  * setiap kartu — di layar sentuh ia selalu terlihat karena tidak ada kursor
  * yang bisa disembunyikan darinya.
  */
-export default function MenuKartu({
-  disimpan,
-  bisaHapus,
-  onSimpan,
-  onBagikan,
-  onHapus,
-}: Props) {
+export default function MenuKartu({ bisaHapus, onBagikan, onHapus }: Props) {
   const { t } = useBahasa();
   const [terbuka, setTerbuka] = useState(false);
   /* Ke bawah selama muat; kartu terakhir di layar membukanya ke atas. */
@@ -137,16 +129,6 @@ export default function MenuKartu({
           id={idMenu}
           role="menu"
         >
-          <button
-            type="button"
-            role="menuitem"
-            className="menu-kartu-butir"
-            onClick={() => jalankan(onSimpan)}
-          >
-            <IkonSimpan size={18} terisi={disimpan} />
-            <span>{t(disimpan ? "aksi.batalSimpan" : "aksi.simpan")}</span>
-          </button>
-
           <button
             type="button"
             role="menuitem"

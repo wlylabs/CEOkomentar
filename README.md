@@ -2,7 +2,7 @@
 
 Antarmuka bergaya Twitter yang dibangun dengan Next.js (App Router), TypeScript,
 dan **Supabase**: feed komentar berumur 24 jam, profil yang bisa diikuti,
-notifikasi, simpanan, papan tren, dan penunjuk jam emas audiens X Indonesia.
+notifikasi, misi lencana, papan tren, dan penunjuk jam emas audiens X Indonesia.
 Hampir seluruh aplikasi berjalan di satu rute (`/`) tanpa perpindahan halaman;
 satu rute lagi (`/komentar/[id]`) melayani tautan tetap satu komentar.
 
@@ -58,8 +58,6 @@ lewat pengalih di navigasi.
 - Hapus komentar sendiri
 - Komentar baru dari orang lain muncul sendiri lewat Supabase Realtime
 - Waktu relatif (`9m`, `5j`, `3h`) yang menyegarkan sendiri tiap menit
-- **Simpan komentar** untuk dibaca lagi; daftarnya pribadi dan tidak terlihat
-  siapa pun, dijaga kebijakan RLS, bukan hanya disembunyikan di antarmuka
 - **Tautan tetap** `/komentar/[id]`: satu komentar di halamannya sendiri, dengan
   judul dan deskripsi halaman mengikuti isinya sehingga tautannya sudah bercerita
   sebelum dibuka
@@ -100,6 +98,20 @@ lewat pengalih di navigasi.
 - **Tren 24 jam** di panel kanan: tagar teramai dihitung langsung dari komentar
   yang masih hidup lewat satu fungsi SQL, tanpa tabel yang perlu dijaga sinkron
 
+**Misi dan lencana**
+
+- **Misi centang biru**: mengikuti [@CEOkomentar](https://x.com/CEOkomentar) di
+  X. Pengikutannya **diperiksa langsung ke X** lewat OAuth 2.0 — bukan dijanjikan
+  sendiri lewat kotak centang
+- **Tidak ada jalan memberi lencana pada diri sendiri**: tabel misi dan lencana
+  tidak punya satu pun kebijakan tulis untuk pengguna, dan fungsi pemberinya
+  hanya bisa dipanggil `service_role` dari server
+- **Satu akun X, satu lencana**: ikatannya permanen, jadi satu pengikutan tidak
+  bisa dipakai ulang oleh akun-akun baru
+- **Pemeriksaan ulang** melepas lencana bila akun resminya sudah tidak diikuti
+- **Bisa bertambah**: katalog misi hidup di basis data dan katalog lencananya di
+  `lib/lencana.ts`; misi berikutnya tidak memerlukan perubahan skema
+
 **Profil**
 
 - Sampul, avatar, bio, lokasi, tanggal bergabung, jumlah mengikuti dan pengikut
@@ -108,9 +120,8 @@ lewat pengalih di navigasi.
   diunggah ke Supabase Storage. Berkas lama dibuang setelah baris profil
   tersimpan
 - Penyuntingan nama, bio, dan lokasi langsung di halaman
-- Tab **Komentar**, **Disukai**, dan **Disimpan** yang menyaring
-  feed lewat kueri terpisah, bukan penyaringan di sisi peramban. Tab "Disimpan"
-  hanya ada di profil sendiri
+- Tab **Komentar** dan **Disukai** yang menyaring feed lewat kueri terpisah,
+  bukan penyaringan di sisi peramban
 - **Avatar bawaan DiceBear** bergaya *adventurer-neutral*, dibangkitkan dari
   handle sehingga satu orang selalu mendapat wajah yang sama. SVG-nya dirakit di
   dalam aplikasi, jadi tidak ada permintaan ke server DiceBear dan avatarnya
@@ -141,8 +152,8 @@ lewat pengalih di navigasi.
 ## Menyiapkan Supabase
 
 1. Buat proyek di [supabase.com](https://supabase.com).
-2. Buka **SQL Editor**, lalu jalankan keenam berkas di `supabase/migrations/`
-   secara berurutan:
+2. Buka **SQL Editor**, lalu jalankan kesembilan berkas di
+   `supabase/migrations/` secara berurutan:
 
    - `20260807090000_awal.sql` — tabel, pemicu penghitung, kebijakan RLS, dua
      bucket penyimpanan, dan fungsi bantu
@@ -159,8 +170,17 @@ lewat pengalih di navigasi.
      `parent_id` dan `reply_count`, pemicu penghitung dan pemicu notifikasinya,
      kabar berjenis `balas`, serta kolom "balasan" pada `statistik_pengguna()`.
      Balasan yang telanjur ada ikut terhapus
+   - `20260808090000_tanpa-simpanan.sql` — pembongkaran fitur simpan komentar:
+     tabel `bookmarks` beserta kebijakan, indeks, dan haknya
+   - `20260808100000_misi-lencana.sql` — katalog misi, kemajuan per akun, daftar
+     lencana, ikatan akun X, dan fungsi pemberian lencana yang hanya bisa
+     dipanggil `service_role`
+   - `20260808110000_penguat-keamanan.sql` — penguncian kolom yang hanya boleh
+     ditulis pemicu (penghitung suka, posting ulang, dan pengikut), handle akun
+     resmi yang tidak bisa diambil alih, serta rem laju penulisan komentar
 
-   Keenamnya aman dijalankan ulang. Bila memakai Supabase CLI: `supabase db push`.
+   Kesembilannya aman dijalankan ulang. Bila memakai Supabase CLI:
+   `supabase db push`.
 3. Aktifkan **pg_cron** di **Database → Extensions** supaya komentar
    kedaluwarsa benar-benar terhapus. Migrasi mencoba memasangnya sendiri dan
    hanya memberi catatan bila tidak bisa. Lihat "Masa hidup komentar" di bawah
@@ -184,6 +204,9 @@ lewat pengalih di navigasi.
 Selama kedua nilai di `.env.local` kosong, aplikasi menampilkan layar penyiapan
 alih-alih halaman kosong.
 
+Untuk menyalakan misi centang biru, ada tiga nilai tambahan — semuanya opsional
+dan dijelaskan di bagian [Misi dan lencana](#misi-dan-lencana).
+
 ## Menerbitkan ke Vercel
 
 1. **Hubungkan repositori.** Di [vercel.com/new](https://vercel.com/new), impor
@@ -205,8 +228,14 @@ alih-alih halaman kosong.
 
    Keduanya berawalan `NEXT_PUBLIC_` karena memang dipakai di peramban. Itu
    aman: kunci anon memang untuk publik, dan yang menjaga data adalah RLS.
-   Jangan pernah menaruh `service_role` key di Vercel untuk proyek ini —
-   tidak ada kode yang membutuhkannya.
+
+   Untuk menyalakan misi centang biru, tambahkan pula `SUPABASE_SERVICE_ROLE_KEY`,
+   `X_CLIENT_ID`, `X_CLIENT_SECRET`, dan `APP_URL` (lihat bagian
+   [Misi dan lencana](#misi-dan-lencana)). Keempatnya **tanpa** awalan
+   `NEXT_PUBLIC_` dan tidak boleh diberi awalan itu: `service_role` melewati
+   seluruh kebijakan RLS, dan hanya Route Handler di server yang memakainya.
+   Bila misinya tidak dipakai, keempatnya boleh dikosongkan dan sisa aplikasi
+   tetap berjalan.
 3. **Daftarkan URL Vercel di Supabase.** Buka **Authentication → URL
    Configuration**, lalu isi:
 
@@ -223,7 +252,8 @@ alih-alih halaman kosong.
    tautan konfirmasi email dan pemulihan kata sandi akan ditolak di produksi.
 4. **Jalankan migrasi di proyek produksi.** Kalau proyek Supabase untuk produksi
    berbeda dari yang dipakai saat mengembangkan, ulangi langkah 2–4 dari bagian
-   sebelumnya di proyek itu: ketiga berkas SQL, pg_cron, dan Anonymous sign-in.
+   sebelumnya di proyek itu: kesembilan berkas SQL, pg_cron, dan Anonymous
+   sign-in.
 5. **Deploy ulang.** Environment variable baru hanya terbaca oleh build
    berikutnya, jadi tekan **Redeploy** setelah menambahkannya.
 
@@ -251,6 +281,7 @@ app/
   layout.tsx        kerangka dokumen, metadata, bahasa awal, penetapan tema
   page.tsx          rute utama: penyiapan, gerbang masuk, atau aplikasi
   komentar/[id]/    tautan tetap satu komentar
+  api/misi/x/       alur izin X: mulai (PKCE) dan kembali (pemeriksa follow)
   manifest.ts       keterangan aplikasi untuk pemasangan (PWA)
   sandi-baru/       halaman penggantian kata sandi dari tautan email
   auth/callback/    penukaran kode tautan email menjadi sesi
@@ -270,6 +301,8 @@ components/
   TautanX.tsx       kartu untuk tautan X yang dilampirkan di komentar
   Utas.tsx          halaman tautan tetap satu komentar
   JamEmas.tsx       jam emas audiens Indonesia: kartu panel kanan dan baris ringkas
+  DaftarMisi.tsx    kartu misi beserta lencana hadiah dan tombol verifikasinya
+  Lencana.tsx       lencana yang berjajar di sebelah nama akun
   DaftarNotifikasi.tsx daftar suka, posting ulang, dan pengikut baru
   LencanaKabar.tsx  titik merah berisi jumlah kabar yang belum dibaca
   Kabar.tsx         kabar sekilas di sudut layar: berhasil, info, dan galat
@@ -279,7 +312,7 @@ components/
   PemilihBahasa.tsx pengalih Indonesia/Inggris dalam tiga bentuk
   TombolPasang.tsx  ajakan memasang aplikasi, muncul bila peramban menawarkannya
   DaftarSW.tsx      pendaftaran service worker
-  menu.ts           tiga tujuan navigasi, dipakai bilah samping dan bilah bawah
+  menu.ts           empat tujuan navigasi, dipakai bilah samping dan bilah bawah
   Icons.tsx         kumpulan ikon SVG
   Brand.tsx         tanda visual aplikasi
 lib/
@@ -288,14 +321,18 @@ lib/
   avatar.ts         avatar bawaan DiceBear yang dibangkitkan dari handle
   jamEmas.ts        jendela jam emas WIB dan hitungan potensi jangkauannya
   kebijakan.ts      masa hidup komentar, disamakan dengan basis data
+  lencana.ts        katalog lencana: kode, urutan tampil, dan keterangannya
+  misi.ts           katalog misi: kalimat, langkah, dan kata hasil verifikasi
   tautan.ts         pengenalan dan perapian tautan X; penolak alamat lain
   tema.ts           tema terang/gelap: skrip pra-lukis, peralihan, warna bilah
   i18n/             daftar bahasa, kamus ID/EN, konteks React, dan teks berformat
-  supabase/         klien peramban, klien server, tipe basis data, kredensial
+  keamanan/         header keamanan beserta CSP, dan rem laju Route Handler
+  supabase/         klien peramban, klien server, klien layanan, tipe, kredensial
+  x/                OAuth 2.0 PKCE ke X dan pemeriksaan "apakah mengikuti"
   image.ts          pemangkasan dan pengecilan gambar di sisi peramban
   time.ts           format waktu dan angka mengikuti bahasa yang dipakai
   types.ts          tipe bersama
-proxy.ts            penyegaran sesi Supabase tiap permintaan
+proxy.ts            penyegaran sesi Supabase dan header keamanan tiap permintaan
 public/             ikon PWA, service worker, dan halaman luring
 supabase/migrations/ skema, kebijakan RLS, bucket, masa hidup, dan fungsi bantu
 ```
@@ -311,9 +348,11 @@ tawaran itu, jadi di sana kartunya memang tidak ada.
 
 Service worker-nya sengaja hanya mengerjakan dua hal:
 
-1. Menyimpan berkas build (`/_next/static/*`) dan ikon, yang isinya tidak pernah
-   berubah tanpa ganti nama berkas.
+1. Menyimpan berkas build (`/_next/static/*`), ikon, dan `public/luring.js`,
+   yang isinya tidak pernah berubah tanpa ganti nama berkas.
 2. Menjawab permintaan halaman dengan `public/luring.html` ketika jaringan mati.
+   Skrip temanya berkas terpisah (`luring.js`), bukan sebaris, supaya halaman
+   itu tetap berjalan di bawah Content Security Policy aplikasi.
 
 Yang **tidak** disimpan: HTML halaman dan jawaban Supabase. Keduanya milik satu
 akun yang sedang masuk, dan menyimpannya berarti komentar serta profil orang bisa
@@ -434,8 +473,8 @@ salinan skrip itu supaya halaman luring ikut tema yang sama.
 Admin adalah akun biasa dengan satu hak tambahan: **menghapus komentar siapa
 pun**. Tidak ada yang lain — admin tidak bisa membaca komentar kedaluwarsa,
 menyunting profil orang lain, atau mengangkat admin baru dari dalam aplikasi.
-Di antarmuka ia tampil sebagai lencana **ADMIN** di sebelah nama, dan tombol
-hapus ikut muncul pada komentar orang lain.
+Di antarmuka ia tampil sebagai centang emas di sebelah nama, dan tombol hapus
+ikut muncul pada komentar orang lain.
 
 Siapa yang admin ditentukan `public.handle_admin()` di
 `supabase/migrations/20260807150000_admin.sql`:
@@ -470,18 +509,140 @@ Perintah itu harus dijalankan dari SQL Editor, bukan dari aplikasi. Kebijakan
 RLS mengizinkan tiap orang menyunting barisnya sendiri, dan tanpa penjagaan itu
 termasuk kolom `is_admin` — satu panggilan `update` dari peramban sudah cukup
 untuk mengangkat diri sendiri. Pemicu `profiles_jaga_kolom_istimewa`
-mengembalikan `is_admin` dan `verified` ke nilai lamanya untuk setiap perubahan
-yang datang dari sesi pengguna; perintah tanpa `auth.uid()` — SQL Editor,
-migrasi, `service_role` — tetap bisa mengubahnya.
+mengembalikan `is_admin`, `verified`, `lencana`, dan kedua penghitung pengikut
+ke nilai lamanya untuk setiap perubahan yang datang dari sesi pengguna; perintah
+tanpa `auth.uid()` — SQL Editor, migrasi, `service_role` — tetap bisa
+mengubahnya.
+
+## Misi dan lencana
+
+Lencana tidak diberikan karena diminta, melainkan karena syaratnya diperiksa.
+Misi pertama — dan sejauh ini satu-satunya — adalah **mengikuti @CEOkomentar di
+X**, dengan hadiah **centang biru**.
+
+### Bagaimana pengikutannya dipastikan
+
+Aplikasi tidak bertanya "apakah kamu sudah follow?" kepada pemakainya, dan tidak
+pula percaya pada jawaban peramban. Yang terjadi:
+
+1. Pemakai menekan **Hubungkan X & verifikasi**. `GET /api/misi/x/mulai`
+   menyusun `state` dan `code_verifier` acak, menitipkannya di kuki `HttpOnly`
+   `SameSite=Lax` berumur sepuluh menit, lalu mengantarnya ke halaman izin X
+   (OAuth 2.0 Authorization Code + PKCE, cakupan hanya baca).
+2. X memulangkannya ke `GET /api/misi/x/kembali`. `state` dicocokkan dengan
+   kuki titipan memakai perbandingan waktu tetap sebelum satu pun panggilan
+   keluar dilakukan.
+3. Kodenya ditukar menjadi token, lalu tiga pertanyaan diajukan ke X: siapa
+   pemilik token ini, siapa id `@CEOkomentar`, dan apakah yang pertama mengikuti
+   yang kedua (`GET /2/users/:id/following`, ditelusuri per seribu).
+4. Tokennya **dicabut** sebelum jawaban meninggalkan server. Tidak ada token X
+   yang disimpan di mana pun — yang tersimpan hanya id dan username X-nya.
+5. Bila mengikuti, `selesaikan_misi_x()` dipanggil dengan kunci `service_role`.
+   Fungsi itulah satu-satunya yang bisa menulis ke tabel lencana.
+
+Tiga hal yang membuatnya sulit diakali:
+
+- **Peramban tidak ikut memutuskan.** Tabel `misi_pengguna` dan
+  `lencana_pengguna` hanya punya kebijakan `select` untuk pemiliknya; tidak ada
+  `insert`, `update`, maupun `delete` untuk peran `authenticated`. Kolom
+  `profiles.lencana` dan `profiles.verified` dikembalikan ke nilai lamanya oleh
+  pemicu untuk setiap `update` yang datang dari sesi pengguna.
+- **Satu akun X hanya sekali dipakai.** Tabel `akun_x` menyimpan ikatannya
+  secara permanen dengan `x_user_id` sebagai kunci utama dan `user_id` yang
+  unik. Mengikuti sekali lalu memberi centang pada sepuluh akun buatan tidak
+  bisa dilakukan.
+- **Lencananya bisa dicabut.** Menekan **Periksa ulang** menanyakan hal yang
+  sama ke X. Bila akun resminya sudah tidak diikuti, `batalkan_misi()` melepas
+  lencananya — dan itu hanya berlaku bila akun X yang memeriksa memang akun yang
+  dulu terikat, sehingga tidak ada yang bisa mencabut lencana orang lain.
+
+Bila daftar "mengikuti" akun itu terlalu panjang untuk ditelusuri, atau X sedang
+menolak, jawabannya adalah "tidak yakin" — bukan "tidak mengikuti". Yang seperti
+itu tidak pernah mencabut lencana siapa pun.
+
+### Menyalakannya
+
+Tiga nilai di `.env.local` (lihat `.env.example`):
+
+```
+SUPABASE_SERVICE_ROLE_KEY=...   # Project Settings → API → service_role
+X_CLIENT_ID=...                 # X Developer Portal → aplikasimu
+X_CLIENT_SECRET=...             # kosongkan bila aplikasinya public client
+APP_URL=https://contoh.app      # tanpa garis miring di akhir
+```
+
+Di **X Developer Portal → Projects & Apps → aplikasimu → User authentication
+settings**, pilih *App permissions: Read*, *Type of App: Web App*, dan isi
+*Callback URI* dengan `<APP_URL>/api/misi/x/kembali`. Titik akhir daftar
+"mengikuti" berada di paket berbayar X; tanpa akses itu pemeriksaannya akan
+selalu menjawab "tidak yakin" dan lencananya tidak diberikan.
+
+Tanpa ketiga nilai tersebut, misinya tetap tampil beserta langkah-langkahnya,
+tombol verifikasinya menjawab "belum diaktifkan di server ini", dan tidak ada
+lencana yang bisa diberikan lewat jalan lain. Selebihnya aplikasi berjalan
+seperti biasa.
+
+`SUPABASE_SERVICE_ROLE_KEY` sengaja tanpa awalan `NEXT_PUBLIC_` — kunci itu
+melewati seluruh kebijakan RLS dan tidak boleh pernah sampai ke peramban.
+`lib/supabase/admin.ts` menolak dijalankan di sana.
+
+### Menambah misi baru
+
+Tiga langkah, dan tidak ada perubahan skema:
+
+1. `insert into public.misi (kode, lencana, urutan) values ('kode-misi', 'kode-lencana', 2);`
+2. Tambahkan lencananya di `lib/lencana.ts` (bila baru) dan misinya di
+   `KATALOG` pada `lib/misi.ts`, beserta kalimatnya di `lib/i18n/kamus.ts`.
+3. Tulis pemeriksanya di server, lalu panggil `selesaikan_misi()` dengan kunci
+   `service_role`. Sebuah misi tidak pernah boleh ditandai selesai dari
+   peramban.
+
+## Keamanan
+
+Yang dilakukan aplikasi ini untuk menjaga dirinya, dan yang sengaja tidak.
+
+**Di basis data.** Row Level Security menyala di seluruh tabel, dan kebijakannya
+ditulis per peran, bukan per rute. Kebijakan RLS menjawab "baris mana", jadi
+pertanyaan "kolom mana" dijawab pemicu penjaga: penghitung suka, posting ulang,
+dan pengikut hanya boleh ditulis pemicu bawaannya; `author_id` sebuah komentar
+tidak bisa berpindah; handle akun resmi tidak bisa diambil alih lewat penyuntingan
+profil; dan `is_admin`, `verified`, serta `lencana` selalu kembali ke nilai
+lamanya bila perubahannya datang dari sesi pengguna. Pemicu tepercaya
+membedakan dirinya lewat tanda transaksi yang tidak bisa dipasang dari
+PostgREST. Penulisan komentar direm di dua belas per menit per akun.
+
+**Di jalur permintaan.** `proxy.ts` memasang Content Security Policy bernonce
+untuk setiap jawaban — `script-src 'self' 'nonce-…' 'strict-dynamic'`, tanpa
+`unsafe-inline` — sehingga skrip yang tidak berasal dari aplikasi ini tidak akan
+berjalan sekalipun berhasil disisipkan. Bersamanya ikut `frame-ancestors 'none'`,
+`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`,
+`Permissions-Policy` yang menutup kamera sampai pembayaran,
+`Cross-Origin-Opener-Policy`, dan HSTS pada permintaan https. Halaman luring
+memakai aturan tanpa nonce karena ia berkas statis; skripnya berkas terpisah dari
+asal yang sama.
+
+**Di alur X.** PKCE, `state` yang dicocokkan dengan waktu tetap, kuki `HttpOnly`
+berawalan `__Secure-` yang jalurnya dipersempit ke `/api/misi/x` dan berumur
+sepuluh menit, rem laju per akun dan per alamat, serta token yang dicabut
+setelah dipakai.
+
+**Yang tidak dilakukan.** Tidak ada skrip pihak ketiga, tidak ada pelacak, dan
+tidak ada permintaan ke luar selain ke Supabase dan — hanya saat verifikasi
+berjalan — ke X. Kartu tautan X digambar dari alamatnya sendiri tanpa memuat
+apa pun dari server X. Service worker sengaja tidak menyimpan HTML halaman
+maupun jawaban Supabase, supaya tidak ada komentar atau profil yang tertinggal
+di perangkat setelah pemakainya keluar.
+
+**Yang perlu diingat.** Rem laju Route Handler hidup di memori proses, jadi
+hitungannya per-instans; lapis yang tidak bisa dilewati ada di basis data.
+Handle admin diberikan kepada yang lebih dulu mendaftarkannya — daftarkan lebih
+dulu (lihat bagian [Admin](#admin)).
 
 ## Catatan
 
 - Angka sosial memakai satu aturan di seluruh aplikasi (`angkaSosial` di
   `lib/time.ts`): utuh sampai 9.999, lalu disingkat satu desimal yang dipotong,
   bukan dibulatkan — 1.999.999 menjadi `1,9 jt`, bukan `2 jt`.
-- Simpanan tidak memperpanjang umur komentar. Barisnya ikut terhapus bersama
-  komentarnya, jadi daftar simpanan tidak pernah menunjuk ke komentar yang sudah
-  tidak ada.
 - Notifikasi 'ikut' tidak punya komentar yang membawanya pergi, jadi hanya jenis
   itu yang menumpuk; `sapu_notifikasi_lama()` dijadwalkan tiap hari bila pg_cron
   tersedia.
@@ -494,5 +655,8 @@ migrasi, `service_role` — tetap bisa mengubahnya.
   `<canvas>` di peramban, dan yang diunggah hanya hasil akhirnya.
 - Hak akses seluruhnya bersandar pada RLS. Kunci yang dipakai peramban adalah
   kunci anon, dan tanpa sesi tidak ada satu baris pun yang bisa dibaca.
+- Lencana tidak pernah lahir dari peramban. Yang bisa memberikannya hanya fungsi
+  `SECURITY DEFINER` yang haknya dicabut dari `public` lalu diberikan kepada
+  `service_role` saja.
 - Tombol hapus pada komentar orang lain hanya muncul untuk admin, tetapi yang
   benar-benar menentukan tetap kebijakan RLS `DELETE` di basis data.

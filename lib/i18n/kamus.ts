@@ -30,7 +30,7 @@ const KAMUS_ID = {
 
   /* --------------------------------------------------------------- meta */
   "meta.deskripsi":
-    "Antarmuka bergaya Twitter: komentar berumur 24 jam, jam emas audiens Indonesia, profil, notifikasi, simpanan, dan tren.",
+    "Antarmuka bergaya Twitter: komentar berumur 24 jam, jam emas audiens Indonesia, profil, notifikasi, misi lencana, dan tren.",
   "meta.judulSandi": "Kata sandi baru — Twitter Mini",
   "meta.judulUtas": "Komentar @{handle} — Twitter Mini",
   "meta.deskripsiUtas": "“{kutipan}” — @{handle} di Twitter Mini.",
@@ -38,6 +38,7 @@ const KAMUS_ID = {
   /* ----------------------------------------------------------- navigasi */
   "nav.utama": "Navigasi utama",
   "nav.beranda": "Beranda",
+  "nav.misi": "Misi",
   "nav.notifikasi": "Notifikasi",
   "nav.profil": "Profil",
   "nav.temaTerang": "Tema terang",
@@ -59,7 +60,6 @@ const KAMUS_ID = {
   /* ----------------------------------------------------------------- tab */
   "tab.komentar": "Komentar",
   "tab.disukai": "Disukai",
-  "tab.disimpan": "Disimpan",
   "tab.saringan": "Saringan komentar",
 
   /* ------------------------------------------------------------ komposer */
@@ -91,7 +91,6 @@ const KAMUS_ID = {
   "kosong.cari": "Tidak ada komentar yang cocok dengan “{kueri}”.",
   "kosong.disukai": "Komentar yang kamu sukai akan muncul di sini.",
   "kosong.komentar": "Komentar yang kamu tulis akan muncul di sini.",
-  "kosong.disimpan": "Komentar yang kamu simpan akan muncul di sini.",
   "kosong.profilOrang": "Tidak ada komentar @{handle} dalam 24 jam terakhir.",
   "kosong.beranda": "Belum ada komentar sama sekali. Tulis yang pertama.",
   "kosong.hapusCari": "Hapus pencarian",
@@ -106,15 +105,55 @@ const KAMUS_ID = {
   "aksi.batalUlang": "Batalkan posting ulang",
   "aksi.suka": "Suka",
   "aksi.batalSuka": "Batalkan suka",
-  "aksi.simpan": "Simpan komentar",
-  "aksi.batalSimpan": "Hapus dari simpanan",
   "aksi.salinTautan": "Salin tautan",
   "aksi.tayangJumlah": "{jumlah} tayangan",
   "aksi.lainnya": "Tindakan lain",
   "aksi.tutupMenu": "Tutup menu",
-  "lencana.terverifikasiJudul": "Akun terverifikasi",
-  "lencana.adminJudul":
+  "lencana.biru": "Akun terverifikasi — sudah mengikuti akun resmi di X",
+  "lencana.emas":
     "Akun resmi — admin yang dapat menghapus komentar siapa pun",
+
+  /* ----------------------------------------------------------------- misi */
+  "misi.sub": "Selesaikan misinya, dapatkan lencananya.",
+  "misi.memuat": "Memuat daftar misi…",
+  "misi.kosongJudul": "Belum ada misi",
+  "misi.kosongTeks": "Misi baru akan muncul di sini begitu dibuka.",
+  "misi.hadiah": "Hadiah: {lencana}",
+  "misi.status.belum": "Belum selesai",
+  "misi.status.selesai": "Selesai",
+  "misi.bukti": "Terverifikasi lewat akun X @{username}.",
+  "misi.verifikasi": "Hubungkan X & verifikasi",
+  "misi.periksaUlang": "Periksa ulang",
+  "misi.catatanIzin":
+    "Verifikasi memakai izin baca dari X. Kami hanya menanyakan satu hal — apakah kamu mengikuti akun resmi — lalu izinnya langsung dicabut. Tidak ada yang bisa kami tulis atau kirim atas namamu.",
+  "misi.ikutiX.judul": "Ikuti akun resmi di X",
+  "misi.ikutiX.teks":
+    "Centang biru diberikan kepada akun yang mengikuti @CEOkomentar di X. Pengikutannya diperiksa langsung ke X, bukan sekadar dipercaya.",
+  "misi.ikutiX.selesai":
+    "Centang biru sudah menempel di namamu. Selama kamu masih mengikuti @CEOkomentar, lencananya tetap ada.",
+  "misi.ikutiX.langkah1": "Buka profil @CEOkomentar di X, lalu tekan Follow.",
+  "misi.ikutiX.langkah2":
+    "Kembali ke sini dan tekan “Hubungkan X & verifikasi”.",
+  "misi.ikutiX.langkah3":
+    "Izinkan aplikasi ini membaca akunmu sekali saja — lencananya langsung diberikan.",
+  "misi.ikutiX.buka": "Buka @{akun} di X",
+  "misi.hasil.berhasil": "Centang biru didapat. Selamat!",
+  "misi.hasil.sudah":
+    "Masih mengikuti @CEOkomentar — centang birumu tetap berlaku.",
+  "misi.hasil.belumIkut":
+    "Akun X itu belum mengikuti @CEOkomentar. Ikuti dulu, lalu coba lagi.",
+  "misi.hasil.terpakai":
+    "Akun X itu sudah dipakai untuk memverifikasi akun lain di sini.",
+  "misi.hasil.lain":
+    "Akunmu sudah terikat ke akun X yang berbeda dan ikatan itu tidak bisa dipindah.",
+  "misi.hasil.belumSiap":
+    "Verifikasi X belum diaktifkan di server ini. Hubungi pengelolanya.",
+  "misi.hasil.ditolak": "Verifikasi dibatalkan.",
+  "misi.hasil.gagal": "Verifikasi gagal. Coba lagi sebentar lagi.",
+  "misi.hasil.terlaluSering":
+    "Terlalu banyak percobaan. Tunggu beberapa menit lalu coba lagi.",
+  "misi.hasil.dicabut":
+    "Kamu sudah tidak mengikuti @CEOkomentar, jadi centang birunya dilepas.",
 
   /* ----------------------------------------------------------------- utas */
   "utas.judul": "Komentar",
@@ -243,8 +282,6 @@ const KAMUS_ID = {
   /* --------------------------------------------------------------- pesan */
   "pesan.komentarTerkirim": "Komentar terkirim",
   "pesan.komentarDihapus": "Komentar dihapus",
-  "pesan.komentarDisimpan": "Komentar disimpan",
-  "pesan.simpananDibuang": "Dihapus dari simpanan",
   "pesan.mulaiMengikuti": "Mulai mengikuti @{handle}",
   "pesan.berhentiMengikuti": "Berhenti mengikuti @{handle}",
   "pesan.profilTakDitemukan": "Tidak ada akun dengan handle @{handle}",
@@ -260,11 +297,13 @@ const KAMUS_ID = {
   "galat.muatKomentar": "Komentar gagal dimuat.",
   "galat.muatLagi": "Gagal memuat komentar berikutnya.",
   "galat.kirimKomentar": "Komentar gagal dikirim.",
+  "galat.terlaluCepat":
+    "Terlalu banyak komentar dalam waktu singkat. Tunggu sebentar, lalu kirim lagi.",
   "galat.suka": "Suka gagal disimpan.",
   "galat.ulang": "Posting ulang gagal disimpan.",
-  "galat.simpan": "Simpanan gagal diperbarui.",
   "galat.ikut": "Perubahan pengikut gagal disimpan.",
   "galat.muatNotifikasi": "Notifikasi gagal dimuat.",
+  "galat.muatMisi": "Daftar misi gagal dimuat.",
   "galat.hapusKomentar": "Komentar gagal dihapus.",
 
   /* -------------------------------------------------------- dialog keluar */
@@ -390,7 +429,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
 
   /* --------------------------------------------------------------- meta */
   "meta.deskripsi":
-    "A Twitter-style interface: comments that live 24 hours, golden hours for the Indonesian audience, profiles, notifications, saved posts, and trends.",
+    "A Twitter-style interface: comments that live 24 hours, golden hours for the Indonesian audience, profiles, notifications, badge missions, and trends.",
   "meta.judulSandi": "New password — Twitter Mini",
   "meta.judulUtas": "@{handle}'s comment — Twitter Mini",
   "meta.deskripsiUtas": "“{kutipan}” — @{handle} on Twitter Mini.",
@@ -398,6 +437,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   /* ----------------------------------------------------------- navigasi */
   "nav.utama": "Main navigation",
   "nav.beranda": "Home",
+  "nav.misi": "Missions",
   "nav.notifikasi": "Notifications",
   "nav.profil": "Profile",
   "nav.temaTerang": "Light theme",
@@ -419,7 +459,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   /* ----------------------------------------------------------------- tab */
   "tab.komentar": "Comments",
   "tab.disukai": "Likes",
-  "tab.disimpan": "Saved",
   "tab.saringan": "Comment filters",
 
   /* ------------------------------------------------------------ komposer */
@@ -450,7 +489,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "kosong.cari": "No comments match “{kueri}”.",
   "kosong.disukai": "Comments you like will show up here.",
   "kosong.komentar": "Comments you write will show up here.",
-  "kosong.disimpan": "Comments you save will show up here.",
   "kosong.profilOrang": "Nothing from @{handle} in the last 24 hours.",
   "kosong.beranda": "No comments at all yet. Write the first one.",
   "kosong.hapusCari": "Clear the search",
@@ -465,14 +503,53 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "aksi.batalUlang": "Undo repost",
   "aksi.suka": "Like",
   "aksi.batalSuka": "Undo like",
-  "aksi.simpan": "Save comment",
-  "aksi.batalSimpan": "Remove from saved",
   "aksi.salinTautan": "Copy link",
   "aksi.tayangJumlah": "{jumlah} views",
   "aksi.lainnya": "More actions",
   "aksi.tutupMenu": "Close menu",
-  "lencana.terverifikasiJudul": "Verified account",
-  "lencana.adminJudul": "Official account — admin, can delete anyone's comment",
+  "lencana.biru": "Verified account — follows the official account on X",
+  "lencana.emas": "Official account — admin, can delete anyone's comment",
+
+  /* ----------------------------------------------------------------- misi */
+  "misi.sub": "Finish the mission, earn the badge.",
+  "misi.memuat": "Loading the mission list…",
+  "misi.kosongJudul": "No missions yet",
+  "misi.kosongTeks": "New missions will show up here as they open.",
+  "misi.hadiah": "Reward: {lencana}",
+  "misi.status.belum": "Not finished",
+  "misi.status.selesai": "Done",
+  "misi.bukti": "Verified through the X account @{username}.",
+  "misi.verifikasi": "Connect X & verify",
+  "misi.periksaUlang": "Check again",
+  "misi.catatanIzin":
+    "Verification uses read-only access from X. We ask a single question — whether you follow the official account — and revoke the access right after. Nothing can be written or posted on your behalf.",
+  "misi.ikutiX.judul": "Follow the official account on X",
+  "misi.ikutiX.teks":
+    "The blue check goes to accounts that follow @CEOkomentar on X. The follow is checked with X itself, not simply taken on trust.",
+  "misi.ikutiX.selesai":
+    "The blue check is on your name. It stays as long as you keep following @CEOkomentar.",
+  "misi.ikutiX.langkah1": "Open @CEOkomentar on X and press Follow.",
+  "misi.ikutiX.langkah2": "Come back here and press “Connect X & verify”.",
+  "misi.ikutiX.langkah3":
+    "Grant this app read access once — the badge is awarded right away.",
+  "misi.ikutiX.buka": "Open @{akun} on X",
+  "misi.hasil.berhasil": "Blue check earned. Congratulations!",
+  "misi.hasil.sudah":
+    "You still follow @CEOkomentar — your blue check stays.",
+  "misi.hasil.belumIkut":
+    "That X account does not follow @CEOkomentar yet. Follow first, then try again.",
+  "misi.hasil.terpakai":
+    "That X account has already verified another account here.",
+  "misi.hasil.lain":
+    "Your account is already bound to a different X account, and that binding cannot be moved.",
+  "misi.hasil.belumSiap":
+    "X verification is not enabled on this server. Ask whoever runs it.",
+  "misi.hasil.ditolak": "Verification cancelled.",
+  "misi.hasil.gagal": "Verification failed. Try again in a moment.",
+  "misi.hasil.terlaluSering":
+    "Too many attempts. Wait a few minutes, then try again.",
+  "misi.hasil.dicabut":
+    "You no longer follow @CEOkomentar, so the blue check was removed.",
 
   /* ----------------------------------------------------------------- utas */
   "utas.judul": "Comment",
@@ -601,8 +678,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   /* --------------------------------------------------------------- pesan */
   "pesan.komentarTerkirim": "Comment posted",
   "pesan.komentarDihapus": "Comment deleted",
-  "pesan.komentarDisimpan": "Comment saved",
-  "pesan.simpananDibuang": "Removed from saved",
   "pesan.mulaiMengikuti": "Following @{handle}",
   "pesan.berhentiMengikuti": "Unfollowed @{handle}",
   "pesan.profilTakDitemukan": "No account with the handle @{handle}",
@@ -618,11 +693,13 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "galat.muatKomentar": "The comments could not be loaded.",
   "galat.muatLagi": "The next batch of comments could not be loaded.",
   "galat.kirimKomentar": "The comment could not be posted.",
+  "galat.terlaluCepat":
+    "Too many comments in a short time. Wait a moment, then post again.",
   "galat.suka": "The like could not be saved.",
   "galat.ulang": "The repost could not be saved.",
-  "galat.simpan": "The saved list could not be updated.",
   "galat.ikut": "The follow could not be saved.",
   "galat.muatNotifikasi": "Notifications could not be loaded.",
+  "galat.muatMisi": "The mission list could not be loaded.",
   "galat.hapusKomentar": "The comment could not be deleted.",
 
   /* -------------------------------------------------------- dialog keluar */

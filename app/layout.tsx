@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import "./globals.css";
 import { KUNCI_BAHASA, bacaBahasa } from "@/lib/i18n/bahasa";
 import { teks } from "@/lib/i18n/kamus";
@@ -46,10 +46,15 @@ export default async function RootLayout({
      teks halaman ini dirender di server. */
   const bahasa = bacaBahasa((await cookies()).get(KUNCI_BAHASA)?.value);
 
+  /* Nonce dari proxy.ts. Content Security Policy melarang skrip sebaris yang
+     tidak membawanya, termasuk skrip tema di bawah — dan itulah gunanya:
+     skrip yang tidak berasal dari berkas ini tidak akan pernah berjalan. */
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <html lang={bahasa} data-tema={TEMA_BAWAAN} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: SKRIP_TEMA }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: SKRIP_TEMA }} />
       </head>
       <body>
         <PenyediaBahasa awal={bahasa}>{children}</PenyediaBahasa>

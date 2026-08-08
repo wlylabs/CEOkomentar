@@ -14,10 +14,27 @@ export type BarisProfil = {
   banner_url: string | null;
   verified: boolean;
   is_admin: boolean;
+  lencana: string[];
   following_count: number;
   followers_count: number;
   created_at: string;
   updated_at: string;
+};
+
+export type BarisMisi = {
+  kode: string;
+  lencana: string;
+  urutan: number;
+  aktif: boolean;
+};
+
+export type BarisMisiPengguna = {
+  user_id: string;
+  misi: string;
+  status: string;
+  bukti: { x_username?: string } | null;
+  dibuat_at: string;
+  selesai_at: string | null;
 };
 
 export type BarisKomentar = {
@@ -83,10 +100,43 @@ export type Database = {
         Update: Partial<{ follower_id: string; following_id: string }>;
         Relationships: [];
       };
-      bookmarks: {
-        Row: BarisTanda;
-        Insert: Pick<BarisTanda, "comment_id" | "user_id">;
-        Update: Partial<BarisTanda>;
+      /* Katalog misi dan kemajuannya hanya dibaca aplikasi. Yang menuliskannya
+         fungsi SECURITY DEFINER yang cuma bisa dipanggil `service_role`. */
+      misi: {
+        Row: BarisMisi;
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      misi_pengguna: {
+        Row: BarisMisiPengguna;
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      lencana_pengguna: {
+        Row: {
+          user_id: string;
+          lencana: string;
+          misi: string | null;
+          diberikan_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /* Ikatan akun X. Tidak punya satu pun kebijakan RLS, jadi hanya klien
+         `service_role` di server yang benar-benar bisa membacanya. */
+      akun_x: {
+        Row: {
+          x_user_id: string;
+          user_id: string;
+          username: string;
+          terhubung_at: string;
+          diperiksa_at: string;
+        };
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
       /* Baris notifikasi hanya ditulis pemicu basis data; aplikasi cuma membaca,
@@ -115,6 +165,16 @@ export type Database = {
       tren_tagar: {
         Args: { batas?: number };
         Returns: { tagar: string; komentar: number; penulis: number }[];
+      };
+      /* Dua fungsi berikut hanya bisa dipanggil `service_role`; klien peramban
+         yang mencobanya akan ditolak PostgREST. */
+      selesaikan_misi_x: {
+        Args: { pengguna: string; x_id: string; x_username: string };
+        Returns: string;
+      };
+      batalkan_misi: {
+        Args: { pengguna: string; kode_misi: string };
+        Returns: undefined;
       };
       statistik_pengguna: {
         Args: { pengguna: string };
