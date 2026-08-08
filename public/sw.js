@@ -17,13 +17,13 @@
 
 /* Dinaikkan setiap kali isi BEKAL berubah, supaya perangkat yang sudah
    menyimpan versi lama mengambil yang baru. */
-const VERSI = "tm-v3";
+const VERSI = "tm-v4";
 const SIMPANAN_STATIS = `${VERSI}-statis`;
 const LURING = "/luring.html";
 
-/* Ikon dan halaman luring diambil di depan supaya sudah siap sebelum jaringan
-   pertama kali hilang. */
-const BEKAL = [LURING, "/ikon-192.png", "/ikon-512.png"];
+/* Ikon, halaman luring, dan skripnya diambil di depan supaya sudah siap sebelum
+   jaringan pertama kali hilang. */
+const BEKAL = [LURING, "/luring.js", "/ikon-192.png", "/ikon-512.png"];
 
 self.addEventListener("install", (peristiwa) => {
   peristiwa.waitUntil(
@@ -84,6 +84,7 @@ self.addEventListener("fetch", (peristiwa) => {
 
   if (
     alamat.pathname.startsWith("/_next/static/") ||
+    alamat.pathname === "/luring.js" ||
     alamat.pathname.endsWith(".png") ||
     alamat.pathname.endsWith(".svg")
   ) {

@@ -2,15 +2,19 @@
 
 import { IkonTerverifikasi } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
+import { judulLencana } from "@/lib/lencana";
 import type { User } from "@/lib/types";
 
 /**
- * Satu lencana centang untuk tiap akun, tidak pernah dua.
+ * Lencana yang dimiliki sebuah akun, berjajar di sebelah namanya.
  *
- * Admin memakai centang emas seperti akun resmi di Twitter; akun terverifikasi
- * biasa memakai centang biru. Bentuknya sama persis, yang membedakan hanya
- * warna — jadi arti "ini akun yang benar" terbaca sekali lihat, dan peran admin
- * cukup dijelaskan lewat tooltip alih-alih pil bertuliskan "ADMIN".
+ * Bentuknya sama untuk semua, yang membedakan hanya warna: emas untuk akun
+ * resmi, biru untuk yang sudah menyelesaikan misi centang biru. Dengan begitu
+ * arti "ini akun yang benar" terbaca sekali lihat, dan bedanya cukup dijelaskan
+ * lewat tooltip alih-alih pil bertuliskan namanya.
+ *
+ * Satu akun bisa memiliki lebih dari satu lencana sejak ada misi — urutannya
+ * ditentukan katalog di lib/lencana.ts, bukan urutan mendapatkannya.
  */
 export default function Lencana({
   pengguna,
@@ -21,19 +25,24 @@ export default function Lencana({
 }) {
   const { t } = useBahasa();
 
-  if (!pengguna.admin && !pengguna.verified) return null;
-
-  const emas = pengguna.admin;
-  const judul = t(emas ? "lencana.adminJudul" : "lencana.terverifikasiJudul");
+  if (pengguna.lencana.length === 0) return null;
 
   return (
-    <span
-      className={`lencana${emas ? " lencana-emas" : ""}`}
-      title={judul}
-      role="img"
-      aria-label={judul}
-    >
-      <IkonTerverifikasi size={size} />
-    </span>
+    <>
+      {pengguna.lencana.map((kode) => {
+        const judul = t(judulLencana(kode));
+        return (
+          <span
+            key={kode}
+            className={`lencana lencana-${kode}`}
+            title={judul}
+            role="img"
+            aria-label={judul}
+          >
+            <IkonTerverifikasi size={size} />
+          </span>
+        );
+      })}
+    </>
   );
 }

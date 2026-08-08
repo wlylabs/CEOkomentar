@@ -8,13 +8,7 @@ import Kabar, { type IsiKabar, type JenisKabar } from "./Kabar";
 import { IkonKembali } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import { klienPeramban } from "@/lib/supabase/client";
-import {
-  ambilKomentar,
-  hapusKomentar,
-  setSimpan,
-  setSuka,
-  setUlang,
-} from "@/lib/api";
+import { ambilKomentar, hapusKomentar, setSuka, setUlang } from "@/lib/api";
 import { MASA_KOMENTAR_JAM } from "@/lib/kebijakan";
 import type { Comment, User } from "@/lib/types";
 
@@ -118,25 +112,6 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
     }
   }
 
-  async function alihkanSimpan() {
-    const sebelumnya = isi?.komentar;
-    if (!sebelumnya) return;
-    const simpan = !sebelumnya.saved;
-
-    ubah((k) => ({ ...k, saved: simpan }));
-
-    try {
-      await setSimpan(supabase, sebelumnya.id, akun.id, simpan);
-      beriKabar(
-        t(simpan ? "pesan.komentarDisimpan" : "pesan.simpananDibuang"),
-        "berhasil",
-      );
-    } catch {
-      ubah(() => sebelumnya);
-      beriKabar(t("galat.simpan"), "galat");
-    }
-  }
-
   /* Menghapus komentar yang jadi pusat halaman berarti halamannya tidak punya
      isi lagi, jadi jalannya pulang ke beranda. */
   async function hapus() {
@@ -219,7 +194,6 @@ export default function Utas({ id, akun }: { id: string; akun: User }) {
                 sekarang={sekarang}
                 onSuka={alihkanSuka}
                 onUlang={alihkanUlang}
-                onSimpan={alihkanSimpan}
                 onBagikan={salinTautan}
                 onHapus={hapus}
                 onBukaProfil={(orang) => router.push(`/?profil=${orang.handle}`)}

@@ -7,6 +7,7 @@ import BottomNav from "./BottomNav";
 import Brand from "./Brand";
 import CommentCard from "./CommentCard";
 import Composer from "./Composer";
+import DaftarMisi from "./DaftarMisi";
 import DaftarNotifikasi from "./DaftarNotifikasi";
 import JamEmas from "./JamEmas";
 import Kabar, { type IsiKabar, type JenisKabar } from "./Kabar";
@@ -30,6 +31,7 @@ import {
   ambilFeed,
   ambilJejakKomentar,
   ambilKomentar,
+  ambilMisi,
   ambilNotifikasi,
   ambilProfil,
   ambilProfilHandle,
@@ -39,14 +41,21 @@ import {
   hapusKomentar,
   hitungBelumDibaca,
   kirimKomentar,
+  kunciGalat,
   setIkut,
-  setSimpan,
   setSuka,
   setUlang,
   tandaiNotifikasiDibaca,
 } from "@/lib/api";
 import { jangkauanTerkumpul, type JejakKomentar } from "@/lib/jangkauan";
 import { MASA_KOMENTAR_JAM, MASA_KOMENTAR_MS } from "@/lib/kebijakan";
+import {
+  PESAN_HASIL,
+  bacaHasil,
+  type HasilMisi,
+  type KodeMisi,
+  type Misi,
+} from "@/lib/misi";
 import { bacaPilihan, beralihTema, temaTerpasang } from "@/lib/tema";
 import { angkaSosial } from "@/lib/time";
 import type {
@@ -62,8 +71,22 @@ import type {
 const TAB: { kunci: Tab; label: KunciTeks }[] = [
   { kunci: "komentar", label: "tab.komentar" },
   { kunci: "disukai", label: "tab.disukai" },
-  { kunci: "disimpan", label: "tab.disimpan" },
 ];
+
+/* Tidak semua hasil verifikasi adalah kegagalan: "belum mengikuti" dan
+   "lencana dicabut" adalah keadaan yang wajar dan bisa diperbaiki sendiri. */
+const NADA_HASIL: Record<HasilMisi, JenisKabar> = {
+  berhasil: "berhasil",
+  sudah: "berhasil",
+  belumIkut: "info",
+  dicabut: "info",
+  terpakai: "galat",
+  lain: "galat",
+  belumSiap: "galat",
+  ditolak: "info",
+  gagal: "galat",
+  terlaluSering: "galat",
+};
 
 const STATISTIK_KOSONG: Statistik = {
   komentar: 0,
@@ -109,6 +132,11 @@ function pesanGalat(
   cadangan: KunciTeks,
   t: (kunci: KunciTeks) => string,
 ) {
+  /* Sebagian galat sudah membawa kunci kamusnya sendiri karena kalimat asli
+     dari basis data tidak berarti apa-apa bagi pemakai. */
+  const kunci = kunciGalat(kesalahan);
+  if (kunci) return t(kunci);
+
   if (kesalahan && typeof kesalahan === "object" && "message" in kesalahan) {
     const pesan = String((kesalahan as { message: unknown }).message);
     if (pesan.toLowerCase().includes("failed to fetch")) {
@@ -166,6 +194,11 @@ export default function App({
   const [penandaKabar, setPenandaKabar] = useState(0);
 
   const [tren, setTren] = useState<Tren[]>([]);
+
+  const [misi, setMisi] = useState<Misi[]>([]);
+  const [memuatMisi, setMemuatMisi] = useState(false);
+  /* Misi yang sedang diantar ke X; tombolnya dikunci sampai halaman berpindah. */
+  const [misiTertunda, setMisiTertunda] = useState<KodeMisi | null>(null);
 
   const [tanyaKeluar, setTanyaKeluar] = useState(false);
   const [memuat, setMemuat] = useState(true);
@@ -234,6 +267,25 @@ export default function App({
     window.history.replaceState(null, "", alamat.pathname + alamat.search);
   }, []);
 
+  /* Alur verifikasi misi pulang lewat query string: satu kata hasil, kalimatnya
+     dipilih di sini supaya mengikuti bahasa yang sedang dipakai. Lencana yang
+     baru didapat sudah ikut terbawa render server, jadi tidak ada yang perlu
+     dimuat ulang selain daftar misinya. */
+  useEffect(() => {
+    const alamat = new URL(window.location.href);
+    const kode = alamat.searchParams.get("misi");
+    const hasil = bacaHasil(alamat.searchParams.get("hasil"));
+    if (!kode || !hasil) return;
+
+    beriKabar(t(PESAN_HASIL[hasil]), NADA_HASIL[hasil]);
+    setTampilan("misi");
+
+    alamat.searchParams.delete("misi");
+    alamat.searchParams.delete("hasil");
+    window.history.replaceState(null, "", alamat.pathname + alamat.search);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   /* Halaman utas mengirim nama dan tagar yang ditekan ke sini lewat query
      string, karena profil dan pencarian hidup di aplikasi ini. Dijalankan
      sekali saat halaman dibuka, lalu alamatnya dirapikan kembali. */
@@ -294,8 +346,8 @@ export default function App({
   }, [supabase]);
 
   useEffect(() => {
-    /* Daftar notifikasi punya jalur muatnya sendiri. */
-    if (tampilan === "notifikasi") return;
+    /* Notifikasi dan misi punya jalur muatnya masing-masing. */
+    if (tampilan === "notifikasi" || tampilan === "misi") return;
 
     let batal = false;
     const nomor = ++nomorMuat.current;
@@ -334,6 +386,31 @@ export default function App({
 
   useEffect(segarkanStatistik, [segarkanStatistik]);
   useEffect(segarkanTren, [segarkanTren]);
+
+  /* Katalog misi dibaca ketika halamannya dibuka, bukan saat aplikasi mulai:
+     isinya jarang berubah dan tidak ada yang menunggunya di layar lain. */
+  useEffect(() => {
+    if (tampilan !== "misi") return;
+
+    let batal = false;
+    setMemuatMisi(true);
+
+    ambilMisi(supabase, akun.id)
+      .then((daftar) => {
+        if (!batal) setMisi(daftar);
+      })
+      .catch((kesalahan) => {
+        if (!batal) beriKabar(pesanGalat(kesalahan, "galat.muatMisi", t), "galat");
+      })
+      .finally(() => {
+        if (!batal) setMemuatMisi(false);
+      });
+
+    return () => {
+      batal = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supabase, akun.id, tampilan]);
 
   /* Profil orang lain: datanya sudah ada sekilas dari kartu komentar, tapi
      jumlah pengikut dan hubungan "sedang mengikuti" harus ditanyakan. */
@@ -598,28 +675,16 @@ export default function App({
     }
   }
 
-  async function alihkanSimpan(id: string) {
-    const sebelumnya = komentar.find((k) => k.id === id);
-    if (!sebelumnya) return;
-    const simpan = !sebelumnya.saved;
-
-    ubahKomentar(id, (k) => ({ ...k, saved: simpan }));
-
-    try {
-      await setSimpan(supabase, id, akun.id, simpan);
-      beriKabar(
-        t(simpan ? "pesan.komentarDisimpan" : "pesan.simpananDibuang"),
-        "berhasil",
-      );
-      /* Tab "Disimpan" adalah daftar itu sendiri, jadi barisnya langsung pergi
-         begitu tandanya dilepas. */
-      if (!simpan && tampilan === "profil" && tab === "disimpan") {
-        setKomentar((daftar) => daftar.filter((k) => k.id !== id));
-      }
-    } catch (kesalahan) {
-      ubahKomentar(id, () => sebelumnya);
-      beriKabar(pesanGalat(kesalahan, "galat.simpan", t), "galat");
-    }
+  /*
+   * Verifikasi misi selalu berangkat ke server, tidak pernah diputuskan di
+   * sini: peramban cuma mengantar pemakai ke alur izin X, dan Route Handler
+   * yang memutuskan lencananya. Karena itu yang terjadi di baris ini hanyalah
+   * perpindahan halaman.
+   */
+  function verifikasiMisi(kode: KodeMisi) {
+    if (kode !== "ikuti-x" || misiTertunda) return;
+    setMisiTertunda(kode);
+    window.location.href = "/api/misi/x/mulai";
   }
 
   async function alihkanIkut() {
@@ -774,7 +839,9 @@ export default function App({
       ? "beranda.judul"
       : tampilan === "notifikasi"
         ? "nav.notifikasi"
-        : (TAB.find((butir) => butir.kunci === tab)?.label ?? "tab.komentar"),
+        : tampilan === "misi"
+          ? "nav.misi"
+          : (TAB.find((butir) => butir.kunci === tab)?.label ?? "tab.komentar"),
   );
 
   const daftarPengguna = useMemo(
@@ -805,20 +872,13 @@ export default function App({
     [komentar, sekarang],
   );
 
-  /* Simpanan bersifat pribadi, jadi tabnya hanya ada di profil sendiri. */
-  const tabTampil = profilSaya
-    ? TAB
-    : TAB.filter((butir) => butir.kunci !== "disimpan");
-
   const teksKosong = kueriTertunda
     ? t("kosong.cari", { kueri: kueriTertunda })
     : tampilan === "profil"
       ? profilSaya
         ? tab === "disukai"
           ? t("kosong.disukai")
-          : tab === "disimpan"
-            ? t("kosong.disimpan")
-            : t("kosong.komentar")
+          : t("kosong.komentar")
         : t("kosong.profilOrang", { handle: penggunaProfil?.handle ?? "" })
       : t("kosong.beranda");
 
@@ -826,7 +886,16 @@ export default function App({
      lagi di tengah; ruang kosongnya tetap dipakai untuk menjaga tata letak.
      Profil pun begitu: nama dan fotonya sudah sebesar itu di kartu tepat di
      bawah bilah, jadi mengulangnya di sini hanya menumpuk. */
-  const judulBilah = tampilan === "notifikasi" ? t("nav.notifikasi") : "";
+  const judulBilah =
+    tampilan === "notifikasi"
+      ? t("nav.notifikasi")
+      : tampilan === "misi"
+        ? t("nav.misi")
+        : "";
+
+  /* Dua layar yang bukan tempat menulis; keduanya memakai panah pulang di
+     tempat lambang merek berada. */
+  const layarSekunder = tampilan === "notifikasi" || tampilan === "misi";
 
   return (
     <div className="kerangka">
@@ -842,7 +911,7 @@ export default function App({
 
       <main className="utama" ref={utamaRef}>
         <div className="bilah-mobil">
-          {tampilan !== "notifikasi" ? (
+          {!layarSekunder ? (
             <span className="bilah-merek">
               <Brand size={26} />
             </span>
@@ -914,9 +983,14 @@ export default function App({
             <h1 className="kepala-judul">{t("nav.notifikasi")}</h1>
             <p className="kepala-sub">{t("notif.sub")}</p>
           </div>
+        ) : tampilan === "misi" ? (
+          <div className="kepala-kolom">
+            <h1 className="kepala-judul">{t("nav.misi")}</h1>
+            <p className="kepala-sub">{t("misi.sub")}</p>
+          </div>
         ) : (
           <div className="tab" role="tablist" aria-label={t("tab.saringan")}>
-            {tabTampil.map(({ kunci, label }) => (
+            {TAB.map(({ kunci, label }) => (
               <button
                 key={kunci}
                 type="button"
@@ -934,7 +1008,7 @@ export default function App({
         {/* Menekan tagar menyaring daftar di bawahnya, dan tanpa kotak cari
             tidak ada lagi yang memperlihatkan saringan itu sedang menyala.
             Kepingan ini yang mengatakannya, sekaligus jalan melepaskannya. */}
-        {kueriTertunda && tampilan !== "notifikasi" && (
+        {kueriTertunda && !layarSekunder && (
           <div className="saringan">
             <span className="saringan-keping">
               <span className="saringan-teks">{kueriTertunda}</span>
@@ -973,7 +1047,14 @@ export default function App({
           className="daftar"
           aria-label={t("daftar.label", { judul: judulDaftar.toLowerCase() })}
         >
-          {tampilan === "notifikasi" ? (
+          {tampilan === "misi" ? (
+            <DaftarMisi
+              daftar={misi}
+              memuat={memuatMisi}
+              menunggu={misiTertunda}
+              onVerifikasi={verifikasiMisi}
+            />
+          ) : tampilan === "notifikasi" ? (
             memuatKabar && notifikasi.length === 0 ? (
               <div className="rangka" aria-hidden="true">
                 {[0, 1, 2, 3].map((i) => (
@@ -1056,7 +1137,6 @@ export default function App({
                       sekarang={sekarang}
                       onSuka={() => alihkanSuka(k.id)}
                       onUlang={() => alihkanUlang(k.id)}
-                      onSimpan={() => alihkanSimpan(k.id)}
                       onBagikan={() => salinTautan(k.id)}
                       onHapus={() => hapus(k.id)}
                       onBukaProfil={bukaProfil}
@@ -1097,7 +1177,7 @@ export default function App({
 
       {/* Di profil tombol melayang ini menutupi kartu profil dan angkanya,
           sedangkan jalan menulis sudah tersedia lewat navigasi bawah. */}
-      {tampilan === "notifikasi" && (
+      {layarSekunder && (
         <button
           type="button"
           className="apung"

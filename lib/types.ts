@@ -1,3 +1,5 @@
+import type { KodeLencana } from "./lencana";
+
 export type User = {
   id: string;
   name: string;
@@ -12,9 +14,12 @@ export type User = {
   joinedAt: string;
   following: number;
   followers: number;
+  /** ringkasan "punya centang biru"; sama dengan lencana memuat "biru" */
   verified: boolean;
   /** admin boleh menghapus komentar siapa pun; ditetapkan di basis data */
   admin: boolean;
+  /** lencana yang sudah dimiliki, urut sesuai katalog di lib/lencana.ts */
+  lencana: KodeLencana[];
 };
 
 export type Comment = {
@@ -27,8 +32,6 @@ export type Comment = {
   reposts: number;
   liked: boolean;
   reposted: boolean;
-  /** disimpan oleh akun yang sedang masuk; simpanan tidak terlihat orang lain */
-  saved: boolean;
 };
 
 export type JenisNotifikasi = "suka" | "ulang" | "ikut";
@@ -60,5 +63,5 @@ export type Statistik = {
   ulangDiterima: number;
 };
 
-export type Tab = "komentar" | "disukai" | "disimpan";
-export type View = "beranda" | "profil" | "notifikasi";
+export type Tab = "komentar" | "disukai";
+export type View = "beranda" | "misi" | "notifikasi" | "profil";

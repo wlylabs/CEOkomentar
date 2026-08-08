@@ -331,13 +331,14 @@ export function IkonLonceng({ aktif, ...p }: IkonProps & { aktif?: boolean }) {
   );
 }
 
-export function IkonSimpan({ terisi, ...p }: IkonProps & { terisi?: boolean }) {
+/* Pita penghargaan: medali bundar dengan dua ujung pita di bawahnya. Dipakai
+   navigasi misi — bentuknya berbeda dari centang lencana supaya tujuan ("ke
+   daftar misi") tidak tertukar dengan hasilnya ("akun ini terverifikasi"). */
+export function IkonMisi({ aktif, ...p }: IkonProps & { aktif?: boolean }) {
   return (
     <Dasar {...p}>
-      <path
-        d="M6.4 3.9h11.2c.6 0 1 .5 1 1.1v15.2l-6.6-4.4-6.6 4.4V5c0-.6.4-1.1 1-1.1Z"
-        fill={terisi ? "currentColor" : "none"}
-      />
+      <circle cx="12" cy="9" r="5.6" fill={aktif ? "currentColor" : "none"} />
+      <path d="m8.6 13.7-1.4 6.6 4.8-2.6 4.8 2.6-1.4-6.6" />
     </Dasar>
   );
 }
