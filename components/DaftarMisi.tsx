@@ -16,11 +16,10 @@ import {
   KATALOG,
   PROFIL_X,
   TAGAR_KLAIM,
-  bacaProfilX,
-  tautanProfilX,
   teksKlaim,
   type Misi,
 } from "@/lib/misi";
+import { bacaProfilX, tautanProfilX } from "@/lib/tautan";
 
 type Props = {
   daftar: Misi[];

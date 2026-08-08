@@ -30,7 +30,7 @@ const EMBER: Record<JenisMedia, "avatars" | "banners"> = {
 };
 
 export const KOLOM_PROFIL =
-  "id, handle, name, bio, location, avatar_url, banner_url, verified, is_admin, lencana, following_count, followers_count, created_at, updated_at";
+  "id, handle, name, bio, location, x_username, avatar_url, banner_url, verified, is_admin, lencana, following_count, followers_count, created_at, updated_at";
 
 const KOLOM_KOMENTAR =
   "id, author_id, body, created_at, like_count, repost_count";
@@ -50,6 +50,9 @@ export function keUser(baris: BarisProfil): User {
     banner: baris.banner_url,
     bio: baris.bio,
     location: baris.location,
+    /* Kolomnya boleh kosong dan memang kosong untuk hampir semua akun; yang
+       tidak diisi tiba sebagai null dan tetap null. */
+    xUsername: baris.x_username ?? null,
     joinedAt: baris.created_at,
     following: baris.following_count,
     /* Pengikut akun resmi sebanyak penduduk Indonesia. Nilai basis data yang
@@ -693,6 +696,8 @@ export type PerubahanProfil = {
   name: string;
   bio: string;
   location: string;
+  /** null menghapus tautannya; nilainya sudah handle bersih tanpa @ */
+  x_username: string | null;
   avatar_url: string | null;
   banner_url: string | null;
 };

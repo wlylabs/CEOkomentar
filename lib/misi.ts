@@ -1,6 +1,6 @@
 import type { KunciTeks } from "./i18n/kamus";
 import type { KodeLencana } from "./lencana";
-import { uraiTautanX } from "./tautan";
+import { tautanProfilX } from "./tautan";
 
 /**
  * Katalog misi.
@@ -98,36 +98,6 @@ export function misiDikenal(kode: string): kode is KodeMisi {
  * berkumpul di satu tagar yang sama.
  */
 export const TAGAR_KLAIM = "TwitterMini";
-
-/** Handle X: huruf, angka, dan garis bawah, paling panjang 15. */
-const POLA_HANDLE = /^[A-Za-z0-9_]{1,15}$/;
-
-/**
- * Membaca isian "tautan profil X" dengan lapang dada.
- *
- * Yang diterima: tautan penuh (`https://x.com/budi`), tautan tanpa protokol
- * (`x.com/budi`), nama berawalan @, dan nama polos. Yang ditolak: tautan ke
- * sebuah postingan, alamat di luar X, dan nama yang bentuknya tidak mungkin
- * menjadi handle X. Mengembalikan handle-nya saja, tanpa @.
- */
-export function bacaProfilX(masukan: string): string | null {
-  const bersih = masukan.trim();
-  if (!bersih) return null;
-
-  if (POLA_HANDLE.test(bersih.replace(/^@/, ""))) {
-    return bersih.replace(/^@/, "");
-  }
-
-  const tautan = uraiTautanX(bersih);
-  /* Tautan yang menunjuk sebuah postingan punya `status`; yang dibutuhkan di
-     sini profilnya, karena itu yang bisa dicocokkan ke daftar pengikut. */
-  if (!tautan || tautan.status || !tautan.handle) return null;
-  return tautan.handle;
-}
-
-export function tautanProfilX(handle: string): string {
-  return `https://x.com/${handle}`;
-}
 
 /**
  * Isi komentar yang diposting pemakai sebagai pengajuan misi: kalimat klaim di

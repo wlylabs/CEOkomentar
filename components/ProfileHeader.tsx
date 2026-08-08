@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useId, useRef, useState, type ChangeEvent } from "react";
 import Avatar from "./Avatar";
 import KelolaLencana from "./KelolaLencana";
 import Lencana from "./Lencana";
@@ -10,6 +10,7 @@ import {
   IkonKamera,
   IkonLokasi,
   IkonTutup,
+  IkonX,
 } from "./Icons";
 import type { JenisKabar } from "./Kabar";
 import { useBahasa } from "@/lib/i18n/konteks";
@@ -23,6 +24,7 @@ import {
   type JenisMedia,
 } from "@/lib/image";
 import type { KodeLencana } from "@/lib/lencana";
+import { bacaProfilX, tautanProfilX } from "@/lib/tautan";
 import { angkaPenuh, angkaSosial, bulanTahun } from "@/lib/time";
 import type { User } from "@/lib/types";
 
@@ -67,6 +69,7 @@ export default function ProfileHeader({
   const [nama, setNama] = useState(pengguna.name);
   const [bio, setBio] = useState(pengguna.bio);
   const [lokasi, setLokasi] = useState(pengguna.location);
+  const [akunX, setAkunX] = useState(pengguna.xUsername ?? "");
 
   const [avatarTertunda, setAvatarTertunda] = useState<Tertunda>(null);
   const [sampulTertunda, setSampulTertunda] = useState<Tertunda>(null);
@@ -77,6 +80,8 @@ export default function ProfileHeader({
 
   const avatarRef = useRef<HTMLInputElement>(null);
   const sampulRef = useRef<HTMLInputElement>(null);
+
+  const idAkunX = useId();
 
   function nilaiTertunda(tertunda: Tertunda, asli: string | null) {
     if (!tertunda) return asli;
@@ -103,10 +108,18 @@ export default function ProfileHeader({
 
   const pratinjauAkun: User = { ...pengguna, avatar: avatarTampil };
 
+  /* Isian akun X dibaca selapang kotak pengajuan misi: tautan penuh, tautan
+     tanpa protokol, @nama, atau nama polos — semuanya berakhir sebagai handle
+     bersih. Kosong berarti tautannya dilepas. */
+  const handleX = bacaProfilX(akunX);
+  const akunXKosong = akunX.trim().length === 0;
+  const akunXSalah = !akunXKosong && !handleX;
+
   function buka() {
     setNama(pengguna.name);
     setBio(pengguna.bio);
     setLokasi(pengguna.location);
+    setAkunX(pengguna.xUsername ?? "");
     setAvatarTertunda(null);
     setSampulTertunda(null);
     setGalat(null);
@@ -149,7 +162,7 @@ export default function ProfileHeader({
 
   async function simpan() {
     const namaBersih = nama.trim();
-    if (!namaBersih || bio.length > BATAS_BIO || menyimpan) return;
+    if (!namaBersih || bio.length > BATAS_BIO || akunXSalah || menyimpan) return;
 
     setGalat(null);
     setMenyimpan(true);
@@ -182,6 +195,7 @@ export default function ProfileHeader({
         name: namaBersih,
         bio: bio.trim(),
         location: lokasi.trim(),
+        x_username: handleX,
         avatar_url: alamatAvatar,
         banner_url: alamatSampul,
       });
@@ -305,7 +319,8 @@ export default function ProfileHeader({
                   menyimpan ||
                   memuat !== null ||
                   nama.trim().length === 0 ||
-                  bio.length > BATAS_BIO
+                  bio.length > BATAS_BIO ||
+                  akunXSalah
                 }
               >
                 {t(menyimpan ? "umum.menyimpan" : "umum.simpan")}
@@ -443,6 +458,35 @@ export default function ProfileHeader({
               maxLength={40}
             />
           </label>
+
+          {/* Sebuah <div>, bukan <label> yang membungkus semuanya: keterangan
+              dan galatnya paragraf, dan paragraf tidak boleh tinggal di dalam
+              label. Kotaknya tetap terhubung lewat htmlFor, seperti bidang foto
+              di atas. */}
+          <div className="bidang">
+            <label className="bidang-label" htmlFor={idAkunX}>
+              {t("profil.akunX")}
+            </label>
+            <input
+              id={idAkunX}
+              className="bidang-masukan"
+              type="text"
+              inputMode="url"
+              autoComplete="off"
+              spellCheck={false}
+              placeholder={t("profil.akunXBayangan")}
+              value={akunX}
+              onChange={(e) => setAkunX(e.target.value)}
+              maxLength={60}
+            />
+            {akunXSalah ? (
+              <p className="bidang-galat" role="alert">
+                {t("profil.akunXSalah")}
+              </p>
+            ) : (
+              <p className="bidang-bantuan">{t("profil.akunXBantuan")}</p>
+            )}
+          </div>
         </form>
       ) : (
         <div className="profil-detail">
@@ -461,6 +505,27 @@ export default function ProfileHeader({
                 <span>{pengguna.location}</span>
               </li>
             )}
+
+            {/* Satu-satunya butir meta yang bisa ditekan, dan ia sengaja tidak
+                digambar seperti tautan: warna, ukuran, dan jaraknya sama persis
+                dengan lokasi di sebelahnya. Yang menyatakan ia bisa ditekan
+                cukup lambang X-nya, lalu kursor dan garis bawah yang muncul
+                saat disentuh. */}
+            {pengguna.xUsername && (
+              <li>
+                <a
+                  className="profil-x"
+                  href={tautanProfilX(pengguna.xUsername)}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  title={t("profil.akunXBuka", { akun: pengguna.xUsername })}
+                >
+                  <IkonX size={15} />
+                  <span>@{pengguna.xUsername}</span>
+                </a>
+              </li>
+            )}
+
             <li>
               <IkonKalender size={17} />
               <span>{t("profil.bergabung", { waktu: bulanTahun(pengguna.joinedAt, bahasa) })}</span>

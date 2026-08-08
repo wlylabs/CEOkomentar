@@ -10,6 +10,8 @@ export type BarisProfil = {
   name: string;
   bio: string;
   location: string;
+  /** handle X yang diisi sendiri pemiliknya, tanpa @; null berarti tidak diisi */
+  x_username: string | null;
   avatar_url: string | null;
   banner_url: string | null;
   verified: boolean;

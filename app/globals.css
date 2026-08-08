@@ -1557,6 +1557,30 @@ input::-webkit-strong-password-auto-fill-button {
   gap: 5px;
 }
 
+/* Tautan ke akun X pemilik profil.
+   Ia hidup di deretan yang sama dengan lokasi dan tanggal bergabung, dan
+   dibiarkan terlihat seperti keduanya: mewarisi warna samar sekelilingnya,
+   tanpa garis bawah, tanpa biru. Yang membedakannya hanya lambang X di depan
+   namanya. Bahwa ia bisa ditekan baru dinyatakan saat kursor menyentuhnya —
+   warnanya menguat dan garis bawahnya muncul — jadi tidak ada yang menekannya
+   karena mengira itu tautan, dan tidak ada pula yang melewatkannya. */
+.profil-x {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color 0.15s ease;
+}
+
+.profil-x:hover,
+.profil-x:focus-visible {
+  color: var(--teks);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .profil-angka {
   display: flex;
   flex-wrap: wrap;

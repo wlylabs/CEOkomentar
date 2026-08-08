@@ -123,11 +123,16 @@ lewat pengalih di navigasi.
 **Profil**
 
 - Sampul, avatar, bio, lokasi, tanggal bergabung, jumlah mengikuti dan pengikut
+- **Akun X pemiliknya**, diisi sendiri lewat sunting profil dan tampil di baris
+  yang sama dengan lokasi: lambang X, nama akunnya, dan menekannya membuka
+  profil itu di x.com. Ia sengaja tidak digambar seperti tautan — warnanya sama
+  dengan teks meta di sebelahnya, tanpa garis bawah dan tanpa biru; garis
+  bawahnya baru muncul saat kursor menyentuhnya
 - Foto profil dan sampul bisa diganti atau dihapus: gambar dipangkas di peramban
   (persegi untuk avatar, 3:1 untuk sampul), dikecilkan, diubah ke WebP, lalu
   diunggah ke Supabase Storage. Berkas lama dibuang setelah baris profil
   tersimpan
-- Penyuntingan nama, bio, dan lokasi langsung di halaman
+- Penyuntingan nama, bio, lokasi, dan akun X langsung di halaman
 - Tab **Komentar** dan **Disukai** yang menyaring feed lewat kueri terpisah,
   bukan penyaringan di sisi peramban
 - **Avatar bawaan DiceBear** bergaya *adventurer-neutral*, dibangkitkan dari
@@ -160,7 +165,7 @@ lewat pengalih di navigasi.
 ## Menyiapkan Supabase
 
 1. Buat proyek di [supabase.com](https://supabase.com).
-2. Buka **SQL Editor**, lalu jalankan kesembilan berkas di
+2. Buka **SQL Editor**, lalu jalankan seluruh berkas di
    `supabase/migrations/` secara berurutan:
 
    - `20260807090000_awal.sql` — tabel, pemicu penghitung, kebijakan RLS, dua
@@ -193,8 +198,10 @@ lewat pengalih di navigasi.
    - `20260808130000_lencana-admin.sql` — `atur_lencana_admin()` yang memberi
      dan mencabut lencana atas keputusan admin, sekaligus menyesuaikan kemajuan
      misinya; dan penutupan `periksa_misi_x()` yang pemanggilnya sudah tidak ada
+   - `20260808140000_profil-x.sql` — kolom `x_username` di `profiles`, isian
+     profil yang diketik sendiri pemiliknya beserta pembatas bentuk handle X
 
-   Kesebelasnya aman dijalankan ulang. Bila memakai Supabase CLI:
+   Semuanya aman dijalankan ulang. Bila memakai Supabase CLI:
    `supabase db push`.
 3. Aktifkan **pg_cron** di **Database → Extensions** supaya komentar
    kedaluwarsa benar-benar terhapus. Migrasi mencoba memasangnya sendiri dan

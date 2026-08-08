@@ -268,6 +268,13 @@ const KAMUS_ID = {
   "profil.nama": "Nama",
   "profil.bio": "Bio",
   "profil.lokasi": "Lokasi",
+  "profil.akunX": "Akun X",
+  "profil.akunXBayangan": "https://x.com/namamu",
+  "profil.akunXBantuan":
+    "Tempel tautan profil X-mu atau ketik namanya saja. Namanya muncul di profil dan bisa ditekan untuk membukanya di X. Kosongkan untuk melepas tautannya.",
+  "profil.akunXSalah":
+    "Yang ditunggu tautan profil X, misalnya https://x.com/namamu — bukan tautan postingan dan bukan alamat lain.",
+  "profil.akunXBuka": "Buka @{akun} di X",
   "profil.bergabung": "Bergabung {waktu}",
   "profil.mengikuti": "Mengikuti",
   "profil.pengikut": "Pengikut",
@@ -674,6 +681,13 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "profil.nama": "Name",
   "profil.bio": "Bio",
   "profil.lokasi": "Location",
+  "profil.akunX": "X account",
+  "profil.akunXBayangan": "https://x.com/yourname",
+  "profil.akunXBantuan":
+    "Paste the link to your X profile, or just type the name. It shows on your profile and opens on X when pressed. Leave it empty to drop the link.",
+  "profil.akunXSalah":
+    "A link to an X profile is expected, like https://x.com/yourname — not a link to a post, and not another address.",
+  "profil.akunXBuka": "Open @{akun} on X",
   "profil.bergabung": "Joined {waktu}",
   "profil.mengikuti": "Following",
   "profil.pengikut": "Followers",
