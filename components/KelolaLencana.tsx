@@ -7,8 +7,7 @@ import { useBahasa } from "@/lib/i18n/konteks";
 import { aturLencana, kunciGalat } from "@/lib/api";
 import { TAGAR_KLAIM } from "@/lib/misi";
 import {
-  URUTAN,
-  dapatDiatur,
+  DIATUR,
   judulLencana,
   namaLencana,
   type KodeLencana,
@@ -25,11 +24,11 @@ type Props = {
 /**
  * Panel lencana milik admin, tampil di kartu profil orang lain.
  *
- * Satu baris per lencana di katalog, dengan satu tombol yang menyatakan
- * keadaannya sekaligus cara mengubahnya. Yang tidak bisa diubah — centang emas,
- * yang mengikuti peran admin — tetap ditampilkan sebagai baris terkunci beserta
- * alasannya, bukan disembunyikan: yang mencarinya berhak tahu ke mana harus
- * pergi, dan jawabannya bukan halaman ini.
+ * Yang ditampilkan hanya lencana yang benar-benar bisa diberikan dan dicabut
+ * dari sini — hari ini tepat centang biru. Centang emas mengikuti peran admin
+ * dan diputuskan pemicu basis data, jadi ia tidak lagi dipajang sebagai baris
+ * terkunci: sebuah baris yang tak pernah bisa ditekan cuma menambah barang di
+ * layar tanpa menambah yang bisa dikerjakan.
  *
  * Keputusannya dikirim ke `/api/admin/lencana`; keadminan pemanggilnya
  * ditanyakan di sana kepada basis data, jadi panel ini boleh sepenuhnya
@@ -66,53 +65,55 @@ export default function KelolaLencana({ pengguna, onUbah, onKabar }: Props) {
 
   return (
     <section className="kelola" aria-label={t("kelola.label")}>
-      <h2 className="kelola-judul">{t("kelola.judul")}</h2>
-      <p className="kelola-sub">
-        {t("kelola.sub", { handle: pengguna.handle, tagar: TAGAR_KLAIM })}
-      </p>
+      <header className="kelola-kepala">
+        <h2 className="kelola-judul">{t("kelola.judul")}</h2>
+        <p className="kelola-sub">
+          {t("kelola.sub", { handle: pengguna.handle, tagar: TAGAR_KLAIM })}
+        </p>
+      </header>
 
       <ul className="kelola-daftar">
-        {URUTAN.map((kode) => {
+        {DIATUR.map((kode) => {
           const dimiliki = punya.has(kode);
-          const terkunci = !dapatDiatur(kode);
+          const memproses = sibuk === kode;
 
           return (
-            <li className="kelola-baris" key={kode}>
+            <li
+              className={`kelola-baris${dimiliki ? " kelola-baris-ada" : ""}`}
+              key={kode}
+            >
               <span className={`kelola-lencana lencana-${kode}`} aria-hidden="true">
                 <IkonTerverifikasi size={20} />
               </span>
 
               <span className="kelola-teks">
-                <span className="kelola-nama">{t(namaLencana(kode))}</span>
-                <span className="kelola-arti">
-                  {t(terkunci ? "kelola.peran" : judulLencana(kode))}
+                <span className="kelola-nama">
+                  {t(namaLencana(kode))}
+                  {dimiliki && (
+                    <span className="kelola-keadaan">{t("kelola.ada")}</span>
+                  )}
                 </span>
+                <span className="kelola-arti">{t(judulLencana(kode))}</span>
               </span>
 
-              {terkunci ? (
-                <span className="kelola-keadaan">
-                  {t(dimiliki ? "kelola.ada" : "kelola.tiada")}
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  className={`tombol tombol-kecil ${
-                    dimiliki ? "tombol-garis" : "tombol-utama"
-                  }`}
-                  onClick={() => alihkan(kode)}
-                  disabled={sibuk !== null}
-                  aria-pressed={dimiliki}
-                >
-                  {sibuk === kode ? (
-                    t("umum.memproses")
-                  ) : (
-                    <>
-                      {dimiliki ? <IkonTutup size={14} /> : <IkonCentang size={14} />}
-                      <span>{t(dimiliki ? "kelola.cabut" : "kelola.beri")}</span>
-                    </>
-                  )}
-                </button>
-              )}
+              <button
+                type="button"
+                className={`tombol tombol-kecil ${
+                  dimiliki ? "tombol-garis" : "tombol-utama"
+                }`}
+                onClick={() => alihkan(kode)}
+                disabled={sibuk !== null}
+                aria-pressed={dimiliki}
+              >
+                {memproses ? (
+                  t("umum.memproses")
+                ) : (
+                  <>
+                    {dimiliki ? <IkonTutup size={14} /> : <IkonCentang size={14} />}
+                    <span>{t(dimiliki ? "kelola.cabut" : "kelola.beri")}</span>
+                  </>
+                )}
+              </button>
             </li>
           );
         })}

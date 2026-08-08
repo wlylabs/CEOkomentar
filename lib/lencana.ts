@@ -40,6 +40,17 @@ const DIKENAL = new Set<string>(URUTAN);
  */
 const PERAN = new Set<KodeLencana>(["emas"]);
 
+/**
+ * Lencana yang benar-benar berpindah tangan lewat keputusan admin.
+ *
+ * Panel kelola lencana memakai daftar ini, bukan `URUTAN`: yang mengikuti peran
+ * tidak punya tombol, dan sebuah baris yang tak pernah bisa ditekan hanya
+ * menambah barang di layar tanpa menambah yang bisa dikerjakan. Hari ini isinya
+ * tepat centang biru; lencana pemberian berikutnya ikut sendiri begitu
+ * ditambahkan ke katalog.
+ */
+export const DIATUR: KodeLencana[] = URUTAN.filter((kode) => !PERAN.has(kode));
+
 export function judulLencana(kode: KodeLencana): KunciTeks {
   return JUDUL[kode];
 }

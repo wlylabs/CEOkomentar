@@ -141,6 +141,10 @@ const KAMUS_ID = {
   "misi.ikutiX.buka": "Buka @{akun} di X",
   "misi.klaim.label": "Tautan profil X-mu",
   "misi.klaim.bayangan": "https://x.com/namamu",
+  /* Kalimat yang diposting pemakai sebagai pengajuan. Tagarnya tetap
+     `{tagar}` di semua bahasa — itu yang mengumpulkan pengajuan jadi satu. */
+  "misi.klaim.kalimat": "Sudah follow akun @{akun} #{tagar}",
+  "misi.klaim.pratinjau": "Yang akan diposting",
   "misi.klaim.asing":
     "Yang ditunggu tautan profil X, misalnya https://x.com/namamu — bukan tautan postingan dan bukan alamat lain.",
   "misi.klaim.kurang": "(tautan profilmu belum diisi)",
@@ -153,12 +157,10 @@ const KAMUS_ID = {
   "kelola.label": "Lencana akun ini",
   "kelola.judul": "Lencana",
   "kelola.sub":
-    "Kamu admin, jadi lencana @{handle} bisa kamu atur dari sini. Cocokkan dulu pengajuan #{tagar} miliknya dengan daftar pengikut akun resmi.",
+    "Cocokkan dulu pengajuan #{tagar} milik @{handle} dengan daftar pengikut akun resmi, baru pasang centangnya.",
   "kelola.beri": "Beri",
   "kelola.cabut": "Cabut",
   "kelola.ada": "Dimiliki",
-  "kelola.tiada": "Tidak dimiliki",
-  "kelola.peran": "Mengikuti peran admin; hanya bisa diubah dari basis data.",
   "kelola.diberikan": "{lencana} diberikan kepada @{handle}",
   "kelola.dicabut": "{lencana} dicabut dari @{handle}",
 
@@ -547,6 +549,8 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "misi.ikutiX.buka": "Open @{akun} on X",
   "misi.klaim.label": "Link to your X profile",
   "misi.klaim.bayangan": "https://x.com/yourname",
+  "misi.klaim.kalimat": "Now following @{akun} #{tagar}",
+  "misi.klaim.pratinjau": "What gets posted",
   "misi.klaim.asing":
     "A link to an X profile is expected, like https://x.com/yourname — not a link to a post, and not another address.",
   "misi.klaim.kurang": "(your profile link is still empty)",
@@ -559,12 +563,10 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "kelola.label": "Badges on this account",
   "kelola.judul": "Badges",
   "kelola.sub":
-    "You are an admin, so @{handle}'s badges are yours to set here. Match their #{tagar} claim against the official follower list first.",
+    "Match @{handle}'s #{tagar} claim against the official follower list first, then put the check on it.",
   "kelola.beri": "Award",
   "kelola.cabut": "Revoke",
   "kelola.ada": "Held",
-  "kelola.tiada": "Not held",
-  "kelola.peran": "Follows the admin role; only the database can change it.",
   "kelola.diberikan": "{lencana} awarded to @{handle}",
   "kelola.dicabut": "{lencana} revoked from @{handle}",
 
