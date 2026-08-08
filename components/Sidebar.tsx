@@ -1,7 +1,7 @@
 "use client";
 
 import Avatar from "./Avatar";
-import Brand from "./Brand";
+import Merek from "./Merek";
 import PemilihBahasa from "./PemilihBahasa";
 import LencanaKabar from "./LencanaKabar";
 import TombolTema from "./TombolTema";
@@ -35,8 +35,7 @@ export default function Sidebar({
     <header className="samping">
       <div className="samping-isi">
         <div className="samping-merek">
-          <Brand size={32} />
-          <span className="samping-merek-teks">{t("umum.merek")}</span>
+          <Merek varian="samping" />
         </div>
 
         <nav className="samping-menu" aria-label={t("nav.utama")}>
