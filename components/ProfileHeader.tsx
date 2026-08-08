@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import Avatar from "./Avatar";
+import KelolaLencana from "./KelolaLencana";
 import Lencana from "./Lencana";
 import {
   IkonGambar,
@@ -21,6 +22,7 @@ import {
   type Gambar,
   type JenisMedia,
 } from "@/lib/image";
+import type { KodeLencana } from "@/lib/lencana";
 import { angkaPenuh, angkaSosial, bulanTahun } from "@/lib/time";
 import type { User } from "@/lib/types";
 
@@ -33,24 +35,29 @@ type Props = {
   pengguna: User;
   /** profil sendiri boleh disunting; profil orang lain hanya bisa diikuti */
   milikSaya: boolean;
+  /** yang sedang masuk adalah admin; panel lencana hanya tampil untuknya */
+  adminSaya: boolean;
   mengikuti: boolean;
   menungguIkut: boolean;
   jumlahKomentar: number;
   jumlahSukaDiterima: number;
   onIkuti: () => void;
   onSimpan: (pengguna: User) => void;
+  onLencana: (daftar: KodeLencana[]) => void;
   onKabar: (pesan: string, jenis?: JenisKabar) => void;
 };
 
 export default function ProfileHeader({
   pengguna,
   milikSaya,
+  adminSaya,
   mengikuti,
   menungguIkut,
   jumlahKomentar,
   jumlahSukaDiterima,
   onIkuti,
   onSimpan,
+  onLencana,
   onKabar,
 }: Props) {
   const { bahasa, t } = useBahasa();
@@ -483,6 +490,17 @@ export default function ProfileHeader({
               <span>{t("profil.sukaDiterima")}</span>
             </li>
           </ul>
+
+          {/* Satu-satunya jalan sebuah lencana berpindah tangan, dan ia hanya
+              ada di profil orang lain: lencana sendiri tidak diberikan sendiri,
+              sekalipun oleh admin. */}
+          {adminSaya && !milikSaya && (
+            <KelolaLencana
+              pengguna={pengguna}
+              onUbah={onLencana}
+              onKabar={onKabar}
+            />
+          )}
         </div>
       )}
     </section>

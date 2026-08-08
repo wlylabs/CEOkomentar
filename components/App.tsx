@@ -6,7 +6,7 @@ import Avatar from "./Avatar";
 import BottomNav from "./BottomNav";
 import Brand from "./Brand";
 import CommentCard from "./CommentCard";
-import Composer from "./Composer";
+import Composer, { type Draf } from "./Composer";
 import DaftarMisi from "./DaftarMisi";
 import DaftarNotifikasi from "./DaftarNotifikasi";
 import JamEmas from "./JamEmas";
@@ -49,13 +49,8 @@ import {
 } from "@/lib/api";
 import { jangkauanTerkumpul, type JejakKomentar } from "@/lib/jangkauan";
 import { MASA_KOMENTAR_JAM, MASA_KOMENTAR_MS } from "@/lib/kebijakan";
-import {
-  PESAN_HASIL,
-  bacaHasil,
-  type HasilMisi,
-  type KodeMisi,
-  type Misi,
-} from "@/lib/misi";
+import type { KodeLencana } from "@/lib/lencana";
+import type { Misi } from "@/lib/misi";
 import { bacaPilihan, beralihTema, temaTerpasang } from "@/lib/tema";
 import { angkaSosial } from "@/lib/time";
 import type {
@@ -72,25 +67,6 @@ const TAB: { kunci: Tab; label: KunciTeks }[] = [
   { kunci: "komentar", label: "tab.komentar" },
   { kunci: "disukai", label: "tab.disukai" },
 ];
-
-/* Tidak semua hasil verifikasi adalah kegagalan: "menunggu pencocokan", "belum
-   mengikuti", dan "lencana dicabut" adalah keadaan yang wajar dan bisa
-   diperbaiki sendiri. Yang bernada galat hanya yang benar-benar buntu. */
-const NADA_HASIL: Record<HasilMisi, JenisKabar> = {
-  berhasil: "berhasil",
-  sudah: "berhasil",
-  menunggu: "info",
-  belumIkut: "info",
-  belumSegar: "info",
-  dicabut: "info",
-  terpakai: "galat",
-  lain: "galat",
-  belumSiap: "galat",
-  takTersedia: "galat",
-  ditolak: "info",
-  gagal: "galat",
-  terlaluSering: "galat",
-};
 
 const STATISTIK_KOSONG: Statistik = {
   komentar: 0,
@@ -201,8 +177,8 @@ export default function App({
 
   const [misi, setMisi] = useState<Misi[]>([]);
   const [memuatMisi, setMemuatMisi] = useState(false);
-  /* Misi yang sedang diantar ke X; tombolnya dikunci sampai halaman berpindah. */
-  const [misiTertunda, setMisiTertunda] = useState<KodeMisi | null>(null);
+  /* Tulisan yang dituangkan kartu misi ke kotak tulis di beranda. */
+  const [draf, setDraf] = useState<Draf | null>(null);
 
   const [tanyaKeluar, setTanyaKeluar] = useState(false);
   const [memuat, setMemuat] = useState(true);
@@ -269,25 +245,6 @@ export default function App({
     beriKabar(galat, "galat");
     alamat.searchParams.delete("galat");
     window.history.replaceState(null, "", alamat.pathname + alamat.search);
-  }, []);
-
-  /* Alur verifikasi misi pulang lewat query string: satu kata hasil, kalimatnya
-     dipilih di sini supaya mengikuti bahasa yang sedang dipakai. Lencana yang
-     baru didapat sudah ikut terbawa render server, jadi tidak ada yang perlu
-     dimuat ulang selain daftar misinya. */
-  useEffect(() => {
-    const alamat = new URL(window.location.href);
-    const kode = alamat.searchParams.get("misi");
-    const hasil = bacaHasil(alamat.searchParams.get("hasil"));
-    if (!kode || !hasil) return;
-
-    beriKabar(t(PESAN_HASIL[hasil]), NADA_HASIL[hasil]);
-    setTampilan("misi");
-
-    alamat.searchParams.delete("misi");
-    alamat.searchParams.delete("hasil");
-    window.history.replaceState(null, "", alamat.pathname + alamat.search);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* Halaman utas mengirim nama dan tagar yang ditekan ke sini lewat query
@@ -680,15 +637,30 @@ export default function App({
   }
 
   /*
-   * Verifikasi misi selalu berangkat ke server, tidak pernah diputuskan di
-   * sini: peramban cuma mengantar pemakai ke alur izin X, dan Route Handler
-   * yang memutuskan lencananya. Karena itu yang terjadi di baris ini hanyalah
-   * perpindahan halaman.
+   * Pengajuan misi berupa komentar biasa, jadi yang dikerjakan di sini cuma
+   * menuangkan kalimatnya ke kotak tulis di beranda. Yang memutuskan lencananya
+   * tetap admin, lewat kartu profil pengaju — tidak ada satu pun jalan dari
+   * peramban ke tabel lencana.
    */
-  function verifikasiMisi(kode: KodeMisi) {
-    if (kode !== "ikuti-x" || misiTertunda) return;
-    setMisiTertunda(kode);
-    window.location.href = "/api/misi/x/mulai";
+  function tulisKlaim(teks: string) {
+    setDraf((sebelum) => ({ teks, nomor: (sebelum?.nomor ?? 0) + 1 }));
+    mulaiMenulis();
+  }
+
+  /* Lencana yang baru saja diberikan atau dicabut admin. Kartu profil bukan
+     satu-satunya yang memakainya: nama pengaju juga sedang berdiri di beranda,
+     jadi peta pengguna ikut disegarkan supaya centangnya berubah di sana. */
+  function terapkanLencana(daftar: KodeLencana[]) {
+    const sasaran = profilLain;
+    if (!sasaran) return;
+
+    const baru: User = {
+      ...sasaran,
+      lencana: daftar,
+      verified: daftar.includes("biru") || sasaran.admin,
+    };
+    setProfilLain(baru);
+    setPengguna((sebelum) => ({ ...sebelum, [baru.id]: baru }));
   }
 
   async function alihkanIkut() {
@@ -744,14 +716,17 @@ export default function App({
     }
   }
 
-  async function salinTautan(id: string) {
-    const tautan = `${window.location.origin}/komentar/${id}`;
+  async function salin(teks: string, kabarBerhasil: KunciTeks) {
     try {
-      await navigator.clipboard.writeText(tautan);
-      beriKabar(t("pesan.tautanDisalin"), "berhasil");
+      await navigator.clipboard.writeText(teks);
+      beriKabar(t(kabarBerhasil), "berhasil");
     } catch {
       beriKabar(t("pesan.papanKlipDitolak"), "galat");
     }
+  }
+
+  function salinTautan(id: string) {
+    salin(`${window.location.origin}/komentar/${id}`, "pesan.tautanDisalin");
   }
 
   /* Keluar dari akun tamu berarti kehilangan akunnya, jadi ditanya dulu. */
@@ -957,12 +932,14 @@ export default function App({
           <ProfileHeader
             pengguna={penggunaProfil}
             milikSaya={profilSaya}
+            adminSaya={akun.admin}
             mengikuti={mengikuti}
             menungguIkut={menungguIkut}
             jumlahKomentar={statistikProfilTampil.komentar}
             jumlahSukaDiterima={statistikProfilTampil.sukaDiterima}
             onIkuti={alihkanIkut}
             onSimpan={simpanProfilLokal}
+            onLencana={terapkanLencana}
             onKabar={beriKabar}
           />
         )}
@@ -1041,6 +1018,7 @@ export default function App({
                 pengguna={akun}
                 placeholder={t("komposer.komentar")}
                 labelTombol={t("komposer.kirim")}
+                draf={draf}
                 onKirim={buatKomentar}
               />
             </div>
@@ -1055,8 +1033,8 @@ export default function App({
             <DaftarMisi
               daftar={misi}
               memuat={memuatMisi}
-              menunggu={misiTertunda}
-              onVerifikasi={verifikasiMisi}
+              onSalin={(teks) => salin(teks, "pesan.teksDisalin")}
+              onTulis={tulisKlaim}
             />
           ) : tampilan === "notifikasi" ? (
             memuatKabar && notifikasi.length === 0 ? (

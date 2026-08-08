@@ -1984,6 +1984,71 @@ input::-webkit-strong-password-auto-fill-button {
   color: var(--teks-samar);
 }
 
+/* Pengajuan misi: kotak tautan profil, pratinjau kalimatnya, dan tombolnya.
+   Dipisah dari kartu dengan garis atas, bukan dengan kotak di dalam kotak —
+   yang di bawahnya adalah bagian misi yang dikerjakan, bukan bagian lain. */
+.klaim {
+  display: grid;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--garis);
+}
+
+.klaim-label {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.klaim-isian {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--garis-kuat);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  outline: 0;
+  font: inherit;
+  font-size: 14px;
+  transition: border-color 0.15s ease;
+}
+
+.klaim-isian:focus {
+  border-color: var(--aksen);
+}
+
+.klaim-isian::placeholder {
+  color: var(--teks-samar);
+}
+
+.klaim-galat {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--bahaya);
+}
+
+/* Persis seperti yang akan terkirim: kalimatnya di baris pertama, tautan
+   profilnya di baris kedua — bentuk yang sama dengan komentar yang jadi. */
+.klaim-pratinjau {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--latar);
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.klaim-tautan {
+  color: var(--aksen);
+}
+
+.klaim-kurang {
+  color: var(--teks-samar);
+  font-style: italic;
+}
+
 @media (max-width: 420px) {
   .misi-daftar {
     padding-inline: 12px;
@@ -1993,6 +2058,87 @@ input::-webkit-strong-password-auto-fill-button {
     flex: 1 1 100%;
     justify-content: center;
   }
+}
+
+/* ============================================================
+   Lencana yang diatur admin
+   ============================================================ */
+
+.kelola {
+  display: grid;
+  gap: 4px;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--garis);
+  border-radius: 16px;
+  background: var(--latar-naik);
+}
+
+.kelola-judul {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.kelola-sub {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--teks-samar);
+}
+
+.kelola-daftar {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  list-style: none;
+}
+
+.kelola-baris {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kelola-lencana {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--latar);
+}
+
+.kelola-teks {
+  min-width: 0;
+  flex: 1;
+}
+
+.kelola-nama {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.kelola-arti {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--teks-samar);
+}
+
+/* Lencana yang mengikuti peran tidak punya tombol; keadaannya tetap disebut
+   supaya barisnya tidak terlihat seperti tombol yang hilang. */
+.kelola-keadaan {
+  flex: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--teks-samar);
+}
+
+.kelola-baris .tombol {
+  flex: none;
+  gap: 6px;
 }
 
 /* ============================================================
