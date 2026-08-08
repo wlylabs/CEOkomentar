@@ -1,19 +1,21 @@
 import type { KunciTeks } from "./i18n/kamus";
 
 /**
- * Bacaan atas `github.com/twitter/the-algorithm`.
+ * Bacaan atas `github.com/twitter/the-algorithm` — rilis 2023, yang sudah
+ * digantikan.
  *
- * Maret 2023 Twitter membuka kode perekomendasi linimasa "For You" — bagaimana
+ * Maret 2023 Twitter membuka kode perekomendasi linimasa "For You": bagaimana
  * kandidat dikumpulkan, dengan apa diperingkat, dan sinyal mana yang dihargai
- * berapa. Berkas ini memindahkan isinya ke dalam aplikasi, bukan sebagai
- * salinan kode melainkan sebagai keterangan: angka-angkanya apa adanya dari
- * repositori, dan kalimat "jadi lakukan ini" disimpan terpisah di `LANGKAH`
- * supaya tidak ada tebakan yang menyamar sebagai kutipan.
+ * berapa. Rilis 2026 di `lib/algoritmaKini.ts` menggantikan hampir seluruh
+ * mesinnya, tetapi berkas ini tetap tinggal karena satu alasan yang tidak bisa
+ * digantikan rilis mana pun: **hanya di sinilah bobot tiap sinyal pernah
+ * diterbitkan sebagai angka.** Penerus 2026-nya memuat rumusnya, memuat daftar
+ * aksinya, dan tidak memuat satu pun angkanya.
  *
- * Batasnya perlu dikatakan sejak awal, dan kartunya memang mengatakannya: yang
- * terbuka adalah potret sistem pada hari itu, bukan mesin yang sedang berjalan
- * hari ini. Yang bertahan lama bukan angkanya melainkan urutannya — percakapan
- * di atas suka, dan umpan negatif jauh di bawah keduanya.
+ * Jadi yang dibaca dari berkas ini bukan besar bobotnya hari ini melainkan
+ * arahnya: percakapan jauh di atas suka, dan umpan negatif jauh di bawah
+ * keduanya. Kartunya di panduan mengatakan persis itu, dan mengatakannya
+ * sebelum menampilkan satu pun angka.
  *
  * Seluruh kalimat tinggal di kamus; di sini hanya kuncinya, supaya panduannya
  * ikut berganti bahasa bersama antarmuka lainnya.
@@ -40,10 +42,10 @@ export type Tahap = {
 
 /** Empat tahap yang disebut README utama repositori, urut dari hulu ke hilir. */
 export const TAHAP: readonly Tahap[] = [
-  { kode: "kandidat", nama: "algo.tahap.kandidat", teks: "algo.tahap.kandidatTeks" },
-  { kode: "peringkat", nama: "algo.tahap.peringkat", teks: "algo.tahap.peringkatTeks" },
-  { kode: "saring", nama: "algo.tahap.saring", teks: "algo.tahap.saringTeks" },
-  { kode: "sajikan", nama: "algo.tahap.sajikan", teks: "algo.tahap.sajikanTeks" },
+  { kode: "kandidat", nama: "arsip.tahap.kandidat", teks: "arsip.tahap.kandidatTeks" },
+  { kode: "peringkat", nama: "arsip.tahap.peringkat", teks: "arsip.tahap.peringkatTeks" },
+  { kode: "saring", nama: "arsip.tahap.saring", teks: "arsip.tahap.saringTeks" },
+  { kode: "sajikan", nama: "arsip.tahap.sajikan", teks: "arsip.tahap.sajikanTeks" },
 ];
 
 /* ============================================================
@@ -61,14 +63,14 @@ export type Sumber = {
 export const SUMBER: readonly Sumber[] = [
   {
     kode: "earlybird",
-    nama: "algo.sumber.earlybird",
-    teks: "algo.sumber.earlybirdTeks",
-    tanda: "algo.sumber.earlybirdTanda",
+    nama: "arsip.sumber.earlybird",
+    teks: "arsip.sumber.earlybirdTeks",
+    tanda: "arsip.sumber.earlybirdTanda",
   },
-  { kode: "uteg", nama: "algo.sumber.uteg", teks: "algo.sumber.utegTeks" },
-  { kode: "simclusters", nama: "algo.sumber.simclusters", teks: "algo.sumber.simclustersTeks", tanda: "algo.sumber.simclustersTanda" },
-  { kode: "realgraph", nama: "algo.sumber.realgraph", teks: "algo.sumber.realgraphTeks" },
-  { kode: "frs", nama: "algo.sumber.frs", teks: "algo.sumber.frsTeks" },
+  { kode: "uteg", nama: "arsip.sumber.uteg", teks: "arsip.sumber.utegTeks" },
+  { kode: "simclusters", nama: "arsip.sumber.simclusters", teks: "arsip.sumber.simclustersTeks", tanda: "arsip.sumber.simclustersTanda" },
+  { kode: "realgraph", nama: "arsip.sumber.realgraph", teks: "arsip.sumber.realgraphTeks" },
+  { kode: "frs", nama: "arsip.sumber.frs", teks: "arsip.sumber.frsTeks" },
 ];
 
 /* ============================================================
@@ -110,71 +112,71 @@ export const BOBOT: readonly Bobot[] = [
     kode: "laporan",
     parameter: "scored_tweets_model_weight_report",
     nilai: -369,
-    nama: "algo.bobot.laporan",
-    arti: "algo.bobot.laporanArti",
+    nama: "arsip.bobot.laporan",
+    arti: "arsip.bobot.laporanArti",
   },
   {
     kode: "balasanDibalas",
     parameter: "scored_tweets_model_weight_reply_engaged_by_author",
     nilai: 75,
-    nama: "algo.bobot.balasanDibalas",
-    arti: "algo.bobot.balasanDibalasArti",
+    nama: "arsip.bobot.balasanDibalas",
+    arti: "arsip.bobot.balasanDibalasArti",
   },
   {
     kode: "umpanNegatif",
     parameter: "scored_tweets_model_weight_negative_feedback_v2",
     nilai: -74,
-    nama: "algo.bobot.umpanNegatif",
-    arti: "algo.bobot.umpanNegatifArti",
+    nama: "arsip.bobot.umpanNegatif",
+    arti: "arsip.bobot.umpanNegatifArti",
   },
   {
     kode: "balasan",
     parameter: "scored_tweets_model_weight_reply",
     nilai: 13.5,
-    nama: "algo.bobot.balasan",
-    arti: "algo.bobot.balasanArti",
+    nama: "arsip.bobot.balasan",
+    arti: "arsip.bobot.balasanArti",
   },
   {
     kode: "profilKlik",
     parameter: "scored_tweets_model_weight_good_profile_click",
     nilai: 12,
-    nama: "algo.bobot.profilKlik",
-    arti: "algo.bobot.profilKlikArti",
+    nama: "arsip.bobot.profilKlik",
+    arti: "arsip.bobot.profilKlikArti",
   },
   {
     kode: "klikBagus",
     parameter: "scored_tweets_model_weight_good_click",
     nilai: 11,
-    nama: "algo.bobot.klikBagus",
-    arti: "algo.bobot.klikBagusArti",
+    nama: "arsip.bobot.klikBagus",
+    arti: "arsip.bobot.klikBagusArti",
   },
   {
     kode: "klikLama",
     parameter: "scored_tweets_model_weight_good_click_v2",
     nilai: 10,
-    nama: "algo.bobot.klikLama",
-    arti: "algo.bobot.klikLamaArti",
+    nama: "arsip.bobot.klikLama",
+    arti: "arsip.bobot.klikLamaArti",
   },
   {
     kode: "ulang",
     parameter: "scored_tweets_model_weight_retweet",
     nilai: 1,
-    nama: "algo.bobot.ulang",
-    arti: "algo.bobot.ulangArti",
+    nama: "arsip.bobot.ulang",
+    arti: "arsip.bobot.ulangArti",
   },
   {
     kode: "suka",
     parameter: "scored_tweets_model_weight_fav",
     nilai: 0.5,
-    nama: "algo.bobot.suka",
-    arti: "algo.bobot.sukaArti",
+    nama: "arsip.bobot.suka",
+    arti: "arsip.bobot.sukaArti",
   },
   {
     kode: "video",
     parameter: "scored_tweets_model_weight_video_playback50",
     nilai: 0.005,
-    nama: "algo.bobot.video",
-    arti: "algo.bobot.videoArti",
+    nama: "arsip.bobot.video",
+    arti: "arsip.bobot.videoArti",
   },
 ];
 
@@ -219,36 +221,13 @@ export type Saring = {
 
 /** Heuristik dan penyaring yang disebut README home-mixer. */
 export const SARING: readonly Saring[] = [
-  { kode: "visibilitas", nama: "algo.saring.visibilitas", teks: "algo.saring.visibilitasTeks" },
-  { kode: "ragam", nama: "algo.saring.ragam", teks: "algo.saring.ragamTeks" },
-  { kode: "imbang", nama: "algo.saring.imbang", teks: "algo.saring.imbangTeks" },
-  { kode: "lelah", nama: "algo.saring.lelah", teks: "algo.saring.lelahTeks" },
-  { kode: "kembar", nama: "algo.saring.kembar", teks: "algo.saring.kembarTeks" },
+  { kode: "visibilitas", nama: "arsip.saring.visibilitas", teks: "arsip.saring.visibilitasTeks" },
+  { kode: "ragam", nama: "arsip.saring.ragam", teks: "arsip.saring.ragamTeks" },
+  { kode: "imbang", nama: "arsip.saring.imbang", teks: "arsip.saring.imbangTeks" },
+  { kode: "lelah", nama: "arsip.saring.lelah", teks: "arsip.saring.lelahTeks" },
+  { kode: "kembar", nama: "arsip.saring.kembar", teks: "arsip.saring.kembarTeks" },
 ];
 
-/* ============================================================
-   Turunannya untuk penulis
-   ============================================================ */
-
-export type Langkah = {
-  kode: string;
-  teks: KunciTeks;
-  /** angka atau aturan yang menjadi dasarnya; ditampilkan di bawah kalimatnya */
-  dasar: KunciTeks;
-};
-
-/**
- * Enam kesimpulan, dan tiap satunya membawa dasarnya sendiri.
- *
- * Pemisahan ini yang membedakan panduan dari kabar burung: kalimat di `teks`
- * adalah tafsir kami, sedangkan `dasar` adalah angka atau aturan yang bisa
- * dibuka dan diperiksa sendiri di repositori maupun di halaman kebijakan X.
- */
-export const LANGKAH: readonly Langkah[] = [
-  { kode: "percakapan", teks: "algo.langkah.percakapan", dasar: "algo.langkah.percakapanDasar" },
-  { kode: "balasBalik", teks: "algo.langkah.balasBalik", dasar: "algo.langkah.balasBalikDasar" },
-  { kode: "utuh", teks: "algo.langkah.utuh", dasar: "algo.langkah.utuhDasar" },
-  { kode: "topik", teks: "algo.langkah.topik", dasar: "algo.langkah.topikDasar" },
-  { kode: "jarak", teks: "algo.langkah.jarak", dasar: "algo.langkah.jarakDasar" },
-  { kode: "umpan", teks: "algo.langkah.umpan", dasar: "algo.langkah.umpanDasar" },
-];
+/* Kesimpulan untuk penulis tidak lagi tinggal di sini. Sejak rilis 2026 ia
+   ditarik dari dua rilis sekaligus, jadi tempatnya `LANGKAH` di
+   `lib/algoritmaKini.ts` — bukan di berkas yang hanya mengenal salah satunya. */

@@ -3509,6 +3509,69 @@ input::-webkit-strong-password-auto-fill-button {
   text-decoration: underline;
 }
 
+/* ----------------------------------------------- kutipan dan rumus */
+
+/* Satu kalimat dari repositorinya, dalam bahasa aslinya. Dipisahkan garis
+   tebal di sisi kiri supaya jelas ini kutipan dan bukan kalimat kami — dan
+   dibiarkan berbahasa Inggris di kedua bahasa antarmuka, karena
+   menerjemahkan kutipan berarti berhenti mengutip. */
+.pan-kutip {
+  padding: 10px 0 10px 14px;
+  border-left: 3px solid var(--aksen);
+  font-size: 14.5px;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--teks);
+}
+
+.pan-rumus {
+  display: block;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: var(--latar-naik);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--teks);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------- aksi sebagai kepingan */
+
+/*
+ * Dua puluh dua nama tanpa satu pun angka di sebelahnya.
+ *
+ * Daftar berketerangan akan memakan layar sepanjang sisa halaman untuk
+ * mengatakan sesuatu yang sebenarnya pendek: inilah yang dinilai, dan
+ * inilah yang merugikan. Kepingan mengatakannya dalam satu pandangan.
+ * Nama medan aslinya menempel di atribut judul, jadi yang ingin
+ * mencarinya di repositori tetap bisa.
+ */
+.pan-aksi-daftar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+}
+
+.pan-aksi-keping {
+  padding: 5px 10px;
+  border: 1px solid var(--garis-kuat);
+  border-radius: 999px;
+  font-size: 12.5px;
+  line-height: 1.3;
+  color: var(--teks-samar);
+}
+
+/* Yang merugikan dibedakan warna sekaligus ketebalan, supaya pemisahannya
+   tetap terbaca tanpa membedakan warna sama sekali. */
+.pan-aksi-rugi {
+  border-color: var(--bahaya);
+  color: var(--bahaya);
+  font-weight: 700;
+}
+
 /* -------------------------------------------------------- bobot sinyal */
 
 .pan-bobot {

@@ -3,7 +3,8 @@
 Antarmuka bergaya Twitter yang dibangun dengan Next.js (App Router), TypeScript,
 dan **Supabase**: feed komentar berumur 24 jam, profil yang bisa diikuti,
 notifikasi, misi lencana, papan tren, penunjuk jam emas audiens X Indonesia, dan
-panduan mengembangkan akun X yang dibaca dari kode perekomendasi X sendiri.
+panduan mengembangkan akun X yang dibaca dari dua rilis kode perekomendasi X
+sendiri.
 Hampir seluruh aplikasi berjalan di satu rute (`/`) tanpa perpindahan halaman;
 satu rute lagi (`/komentar/[id]`) melayani tautan tetap satu komentar.
 
@@ -86,9 +87,18 @@ lewat pengalih di navigasi.
 
 **Panduan**
 
-Satu halaman tersendiri di navigasi, tempat jam emas bertemu dua bacaan yang
-menjelaskan kenapa jam itu penting: kode perekomendasi X yang dibuka Twitter,
-dan kebijakan Creator Studio yang menentukan kapan jangkauan menjadi uang.
+Satu halaman tersendiri di navigasi, tempat jam emas bertemu bacaan yang
+menjelaskan kenapa jam itu penting: **dua rilis kode perekomendasi X** yang
+dibuka ke publik, dan kebijakan Creator Studio yang menentukan kapan jangkauan
+menjadi uang.
+
+Dua rilis, bukan satu, karena keduanya menjawab pertanyaan yang berbeda.
+[xai-org/x-algorithm](https://github.com/xai-org/x-algorithm) (2026) adalah
+mesin yang **berjalan sekarang**, dan ia menerbitkan susunannya tanpa satu pun
+angka bobot. [twitter/the-algorithm](https://github.com/twitter/the-algorithm)
+(2023) sudah dipensiunkan, dan ia satu-satunya yang pernah menerbitkan angka
+itu. Halaman ini menaruh yang berjalan lebih dulu dan yang lama sesudahnya,
+dengan alasan keduanya masih ada tertulis di tempatnya.
 
 - **Kartu jam emas penuh** — bukan baris ringkas — beserta satu tombol yang
   membawa langsung ke kotak tulis, dan yang berbunyi berbeda saat jendelanya
@@ -99,29 +109,53 @@ dan kebijakan Creator Studio yang menentukan kapan jangkauan menjadi uang.
   Centangnya kosong lagi tiap tengah malam WIB — yang dilatih kebiasaannya,
   bukan penyelesaiannya — dan seluruhnya tinggal di `localStorage`: tidak ada
   baris basis data dan tidak ada permintaan jaringan
-- **Bagaimana linimasa X memilih**, dibaca dari
-  [twitter/the-algorithm](https://github.com/twitter/the-algorithm): empat tahap
-  yang dilewati sebuah postingan, dari mana kandidatnya datang (indeks pencarian
-  Earlybird yang menyumbang sekitar separuh linimasa, User-Tweet Entity Graph,
-  SimClusters, RealGraph, FRS), dan apa yang menyaringnya setelah pemeringkatan
-  — keragaman penulis, imbang dalam–luar lingkaran, kelelahan umpan balik
+- **Bagaimana linimasa X memilih hari ini**, dibaca langsung dari klona
+  `xai-org/x-algorithm` pada komit `0bfc279` (15 Mei 2026) — bukan dari
+  ringkasan orang lain:
+  - dua sumber kandidat (**Thunder** menyimpan postingan dalam lingkaran di
+    memori; **Phoenix** mengambil yang di luar lingkaran lewat model dua menara)
+    dan satu pemeringkat untuk keduanya
+  - tujuh tahap yang dijalankan tiap permintaan, dari mengumpulkan konteks
+    pembaca sampai penyaring visibilitas terakhir
+  - **22 aksi** yang diramalkan untuk tiap postingan — 17 menaikkan skor, 5
+    menurunkannya — ditampilkan sebagai kepingan karena bobotnya memang tidak
+    ada. "Dilewati tanpa berhenti" berdiri di sisi yang merugikan
+  - **tiga rumus yang benar-benar tertulis**, termasuk pengali keragaman penulis
+    `(1 − lantai) × peluruhan^posisi + lantai`, yang memakai *peringkat
+    postingan itu di antara postingan penulis yang sama* — bukan jarak waktunya
+  - **Grok membaca tiap postingan** lewat `grox/`: penyaring mutu yang
+    mengeluarkan nilai mutu sekaligus nilai untuk isi dangkal, pengelas spam
+    yang khusus dijalankan untuk akun berpengikut sedikit, pemeriksa tujuh
+    kebijakan, peringkat balasan, dan sematan multimoda dari teks, gambar, dan
+    suara sekaligus
+  - **yang tidak ikut diterbitkan**, disebut satu per satu: seluruh angka bobot
+    (dibaca dari modul saklar fitur yang tidak ada di repositori), ambang umur
+    postingan, faktor peluruhan keragaman, prompt Grok, dan model produksinya.
+    Ini bukan catatan kaki — inilah alasan setiap "bobot menurut algoritma X
+    2026" yang beredar tidak berasal dari repositori itu
+- **Mesin sebelumnya, dan kenapa masih dibaca**: empat tahap 2023, sumber
+  kandidatnya (Earlybird ±50% linimasa, UTEG, SimClusters ±145 rb komunitas,
+  RealGraph, FRS), dan penyaringnya
 - **Bobot sepuluh sinyal heavy ranker** apa adanya dari
   [twitter/the-algorithm-ml](https://github.com/twitter/the-algorithm-ml), tiap
   satunya dengan bilah sepanjang angkanya dan terjemahan ke satuan yang bisa
   dibayangkan: satu balasan sebanding 27 suka, satu balasan yang dibalas
   penulisnya sebanding 150 suka, satu laporan menghapus nilai 738 suka. Nama
-  parameter aslinya ikut ditulis supaya angkanya bisa dicari sendiri
+  parameter aslinya ikut ditulis supaya angkanya bisa dicari sendiri —
+  dan kartunya mengatakan lebih dulu bahwa yang berlaku darinya urutannya,
+  bukan besarnya
 - **Kebijakan Creator Studio X**: tiga programnya, syarat masuk (langganan
   Premium, 500 pengikut, 5 juta tayangan organik dalam tiga bulan, akun
   pembayaran, kepatuhan yang berlaku terus), dan enam hal yang mencabut
   monetisasi — umpan keterlibatan di urutan pertama, persis taktik yang paling
   sering dijanjikan menaikkan jangkauan
-- **Tafsir dipisahkan dari kutipan.** Angka dan nama layanan datang dari
+- **Tafsir dipisahkan dari kutipan.** Angka, rumus, dan nama layanan datang dari
   repositori; kalimat "jadi lakukan ini" berdiri di bloknya sendiri, dan tiap
-  satunya membawa dasarnya di baris kecil di bawahnya. Halaman ditutup daftar
-  rujukan, catatan bahwa yang dibuka Twitter adalah potret 2023 dan bukan mesin
-  yang berjalan hari ini, serta pengingat bahwa ambang milik X berubah tanpa
-  pemberitahuan
+  satunya membawa dasarnya di baris kecil di bawahnya — dengan tahun rilisnya
+  disebut, karena enam kesimpulan itu ditarik dari dua rilis sekaligus. Halaman
+  ditutup daftar rujukan lengkap sampai berkasnya, catatan bahwa X menyatakan
+  memperbarui repositorinya tiap empat pekan, dan pengingat bahwa ambang milik
+  X berubah tanpa pemberitahuan
 - Twitter Mini tidak terhubung ke X dan tidak meminta izin apa pun atas akun
   siapa pun: seluruh isi halaman ini bacaan atas dokumen yang terbuka untuk umum
 
@@ -396,7 +430,8 @@ components/
 lib/
   api.ts            seluruh baca-tulis ke Supabase dan pemetaan ke tipe aplikasi
   akun.ts           akun yang sedang masuk, dibaca di server sebelum merender
-  algoritma.ts      bacaan atas twitter/the-algorithm: tahap, sumber, bobot sinyal
+  algoritmaArsip.ts bacaan atas twitter/the-algorithm 2023: tahap, sumber, bobot
+  algoritmaKini.ts  bacaan atas xai-org/x-algorithm 2026: tahap, aksi, rumus, Grok
   avatar.ts         avatar bawaan DiceBear yang dibangkitkan dari handle
   jamEmas.ts        jendela jam emas WIB dan hitungan potensi jangkauannya
   kebijakan.ts      masa hidup komentar, disamakan dengan basis data
