@@ -232,6 +232,11 @@ const KAMUS_ID = {
   "jam.bagian.siang": "Siang",
   "jam.bagian.sore": "Sore",
   "jam.bagian.malam": "Malam",
+  /* Dari mana skornya berasal: pola bawaan saja, atau pola yang sudah
+     dikoreksi hasil komentar sungguhan pada jam yang sama. */
+  "jam.sumber.pola":
+    "Dari pola kebiasaan audiens Indonesia; jam ini belum punya komentar terukur.",
+  "jam.sumber.data": "Dikoreksi hasil {jumlah} komentar yang pernah ditulis pada jam ini.",
   "jam.zona":
     "Seluruh angka memakai WIB (UTC+7), mengikuti kebiasaan audiens X Indonesia — bukan zona waktu perangkat ini.",
   "hari.0": "Min",
@@ -1000,6 +1005,9 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "jam.bagian.siang": "Midday",
   "jam.bagian.sore": "Afternoon",
   "jam.bagian.malam": "Evening",
+  "jam.sumber.pola":
+    "From Indonesian audience habits; this hour has no measured comments yet.",
+  "jam.sumber.data": "Corrected against {jumlah} comments written at this hour.",
   "jam.zona":
     "Every number here runs on Jakarta time (UTC+7), following Indonesian X audience habits — not this device's time zone.",
   "hari.0": "Sun",

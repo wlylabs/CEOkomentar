@@ -17,6 +17,11 @@
  * kapan orang Indonesia membuka ponselnya, bukan di zona mana penulisnya sedang
  * duduk. WIB tetap UTC+7 sepanjang tahun, jadi pergeserannya cukup ditambahkan
  * — tidak perlu tabel musim panas.
+ *
+ * Angka-angka di atas adalah dugaan awal, bukan kata akhir. Bila tabel
+ * `jam_emas_agregat` sudah punya isi — hasil komentar yang benar-benar ditulis
+ * di aplikasi ini, dikumpulkan penyapu kedaluwarsa — keduanya dicampur, dengan
+ * bobot yang naik seiring banyaknya sampel. Lihat `campur` di bawah.
  */
 
 /** Pergeseran WIB dari UTC. Dipakai juga jam dinding di `lib/jam.ts`. */
@@ -106,13 +111,15 @@ function diInti(jendela: Jendela | null, menit: number) {
   return menit >= jendela.inti[0] && menit < jendela.inti[1];
 }
 
+const batasi = (nilai: number) => Math.max(0, Math.min(100, Math.round(nilai)));
+
 /**
- * Potensi jangkauan pada satu titik waktu WIB, 0–100.
+ * Potensi jangkauan menurut pola bawaan, 0–100.
  *
- * Dipakai dua kali: untuk keadaan sekarang, dan untuk menggambar kurva 24 jam
- * di kartunya.
+ * Ini dugaan yang selalu tersedia: tidak butuh basis data, tidak butuh satu pun
+ * komentar pernah ditulis, dan hasilnya sama di server maupun peramban.
  */
-export function skorPada(hari: number, menit: number) {
+function skorPola(hari: number, menit: number) {
   const jendela = jendelaPada(menit);
   const dasar = jendela
     ? (diInti(jendela, menit) ? SKOR_INTI[jendela.kunci] : undefined) ??
@@ -123,7 +130,148 @@ export function skorPada(hari: number, menit: number) {
   const bobot =
     BOBOT_HARI[hari] * (akhirPekan && menit < jam(12) ? BOBOT_PAGI_AKHIR_PEKAN : 1);
 
-  return Math.max(0, Math.min(100, Math.round(dasar * bobot)));
+  return batasi(dasar * bobot);
+}
+
+/* ============================================================
+   Agregat: pola yang dikoreksi kenyataan
+   ============================================================ */
+
+const BIN = 7 * 24;
+
+/** Satu potongan jam dalam sepekan, apa adanya dari `jam_emas_agregat`. */
+export type BinAgregat = {
+  /** 0 Minggu sampai 6 Sabtu */
+  hari: number;
+  /** jam WIB, 0–23 */
+  jam: number;
+  komentar: number;
+  suka: number;
+  ulang: number;
+};
+
+/**
+ * Bentuk siap pakai dari agregat: satu skor dan satu bobot untuk tiap potongan
+ * jam sepekan, keduanya berindeks `hari * 24 + jam`.
+ */
+export type Agregat = {
+  /** potensi terukur potongan itu, 0–100 */
+  skor: number[];
+  /** seberapa jauh angka terukurnya boleh dipercaya, 0–1 */
+  bobot: number[];
+  /** banyaknya komentar yang menjadi dasarnya */
+  sampel: number[];
+};
+
+/* Posting ulang membawa sebuah komentar ke linimasa orang lain, sedangkan suka
+   berhenti di tempatnya. Karena yang diukur di sini jangkauan — bukan
+   kesukaan — satu posting ulang dihitung dua suka. */
+const BOBOT_ULANG = 2;
+
+/* Berapa banyak komentar yang harus terkumpul di sebuah potongan jam sebelum
+   angka terukurnya menyamai pola bawaan. Di bawah itu polanya yang lebih
+   berbicara; di atasnya, kenyataan. Tiga puluh cukup untuk meredam satu
+   komentar yang kebetulan meledak, dan cukup kecil untuk tercapai dalam
+   hitungan minggu, bukan tahun. */
+const AMBANG_PERCAYA = 30;
+
+/* Tinggi rata-rata pola sepanjang sepekan, dipakai sebagai titik temu kedua
+   skala. Keterlibatan rata-rata dipetakan ke angka ini, sehingga potongan jam
+   yang biasa-biasa saja bernilai sama entah datang dari pola atau dari
+   pengukuran — dan campurannya tidak pernah melompat. Dihitung dari polanya
+   sendiri supaya tetap benar bila angka di atas diubah. */
+const SKOR_RUJUKAN = (() => {
+  let jumlah = 0;
+  let banyak = 0;
+  for (let hari = 0; hari < 7; hari += 1) {
+    for (let menit = 0; menit < SEHARI; menit += 15) {
+      jumlah += skorPola(hari, menit);
+      banyak += 1;
+    }
+  }
+  return jumlah / banyak;
+})();
+
+/**
+ * Mengubah baris mentah `jam_emas_agregat` menjadi bentuk yang bisa dicampur.
+ *
+ * Mengembalikan null bila belum ada apa pun yang layak diukur — aplikasi yang
+ * baru dipasang, atau yang komentarnya belum pernah disukai sekali pun. Dalam
+ * keadaan itu kartunya berjalan dengan pola bawaan saja, persis seperti
+ * sebelum agregat ini ada.
+ */
+export function siapkanAgregat(baris: readonly BinAgregat[]): Agregat | null {
+  const skor = new Array<number>(BIN).fill(0);
+  const bobot = new Array<number>(BIN).fill(0);
+  const sampel = new Array<number>(BIN).fill(0);
+
+  /* Keterlibatan per komentar di tiap potongan jam, beserta seberapa jauh
+     angka itu boleh dipercaya. */
+  const keterlibatan = new Array<number>(BIN).fill(0);
+
+  for (const b of baris) {
+    if (b.komentar <= 0) continue;
+    if (b.hari < 0 || b.hari > 6 || b.jam < 0 || b.jam > 23) continue;
+
+    const i = b.hari * 24 + b.jam;
+    keterlibatan[i] = (b.suka + BOBOT_ULANG * b.ulang) / b.komentar;
+    bobot[i] = b.komentar / (b.komentar + AMBANG_PERCAYA);
+    sampel[i] = b.komentar;
+  }
+
+  /* Tolok ukurnya: keterlibatan sebuah potongan jam yang biasa-biasa saja.
+     Rata-ratanya ditimbang kepercayaan tiap potongan, bukan jumlah komentarnya
+     — kalau ditimbang volume, satu jam yang kebetulan paling ramai ditulisi
+     akan menarik tolok ukurnya ke dirinya sendiri, dan justru jam itu lalu
+     terbaca biasa saja. Yang dibandingkan di sini jam dengan jam, jadi
+     seberapa banyak orang menulis pada jam tertentu tidak boleh ikut
+     menggeser mistarnya. */
+  let jumlah = 0;
+  let pembagi = 0;
+  for (let i = 0; i < BIN; i += 1) {
+    jumlah += bobot[i] * keterlibatan[i];
+    pembagi += bobot[i];
+  }
+
+  /* Belum ada apa pun yang layak diukur: aplikasi yang baru dipasang, atau
+     yang komentarnya belum pernah disukai sekali pun. Membaginya hanya
+     menghasilkan NaN, dan pola bawaan memang sudah cukup. */
+  if (pembagi === 0 || jumlah === 0) return null;
+
+  const rujukan = jumlah / pembagi;
+
+  for (let i = 0; i < BIN; i += 1) {
+    if (bobot[i] === 0) continue;
+    skor[i] = batasi((keterlibatan[i] / rujukan) * SKOR_RUJUKAN);
+  }
+
+  return { skor, bobot, sampel };
+}
+
+/**
+ * Potensi jangkauan pada satu titik waktu WIB, 0–100.
+ *
+ * Dipakai dua kali: untuk keadaan sekarang, dan untuk menggambar kurva 24 jam
+ * di kartunya.
+ *
+ * Agregatnya boleh tidak ada, dan itu keadaan yang normal — bukan kegagalan.
+ * Kalaupun ada, ia hanya menggeser polanya sejauh sampelnya membenarkan:
+ * potongan jam yang baru berisi tiga komentar nyaris tidak menggeser apa pun,
+ * sedangkan yang sudah ratusan hampir sepenuhnya menggantikan tebakannya.
+ *
+ * Yang dicampur adalah nilai akhirnya, setelah bobot hari dikenakan pada pola.
+ * Angka terukur sudah membawa pengaruh harinya sendiri — ia memang dikumpulkan
+ * per hari — jadi mencampurnya lebih awal berarti menghitung hari dua kali.
+ */
+export function skorPada(hari: number, menit: number, agregat?: Agregat | null) {
+  const pola = skorPola(hari, menit);
+  if (!agregat) return pola;
+
+  const i = hari * 24 + Math.floor(menit / 60);
+  const bobot = agregat.bobot[i] ?? 0;
+  if (bobot <= 0) return pola;
+
+  return batasi(bobot * agregat.skor[i] + (1 - bobot) * pola);
 }
 
 export type WaktuWIB = {
@@ -172,6 +320,9 @@ export type Isyarat = {
   peringkat: PeringkatHari;
   /** potensi tiap jam hari ini, 24 angka, untuk bilah kurva */
   kurva: number[];
+  /** banyaknya komentar terukur yang ikut menentukan skor jam ini; 0 berarti
+      angkanya murni pola bawaan */
+  sampel: number;
 };
 
 /** Jendela terdekat setelah `menit`, melompat ke hari berikutnya bila perlu. */
@@ -191,10 +342,14 @@ function jendelaBerikut(hari: number, menit: number) {
 /**
  * Seluruh keterangan jam emas untuk satu titik waktu.
  *
- * Murni dari `sekarang`, tanpa menyentuh jam perangkat sendiri, supaya server
- * dan peramban selalu menghitung hal yang sama dari angka yang sama.
+ * Murni dari `sekarang` dan `agregat`, tanpa menyentuh jam perangkat sendiri,
+ * supaya server dan peramban selalu menghitung hal yang sama dari angka yang
+ * sama.
  */
-export function isyaratJamEmas(sekarang: number): Isyarat {
+export function isyaratJamEmas(
+  sekarang: number,
+  agregat?: Agregat | null,
+): Isyarat {
   const waktu = keWIB(sekarang);
   const jendela = jendelaPada(waktu.menit);
   const berikut = jendelaBerikut(waktu.hari, waktu.menit);
@@ -205,12 +360,12 @@ export function isyaratJamEmas(sekarang: number): Isyarat {
   const kurva = Array.from({ length: 24 }, (_, j) => {
     let tertinggi = 0;
     for (let m = 0; m < 60; m += 15) {
-      tertinggi = Math.max(tertinggi, skorPada(waktu.hari, j * 60 + m));
+      tertinggi = Math.max(tertinggi, skorPada(waktu.hari, j * 60 + m, agregat));
     }
     return tertinggi;
   });
 
-  const skor = skorPada(waktu.hari, waktu.menit);
+  const skor = skorPada(waktu.hari, waktu.menit, agregat);
 
   return {
     waktu,
@@ -224,5 +379,6 @@ export function isyaratJamEmas(sekarang: number): Isyarat {
     hariBerikut: berikut.hari,
     peringkat: peringkatHari(waktu.hari),
     kurva,
+    sampel: agregat?.sampel[waktu.hari * 24 + Math.floor(waktu.menit / 60)] ?? 0,
   };
 }

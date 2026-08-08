@@ -13,7 +13,8 @@ import {
   type PeringkatHari,
   type Tingkat,
 } from "@/lib/jamEmas";
-import { durasiSingkat, jamMenit } from "@/lib/time";
+import { useAgregatJamEmas } from "@/lib/jamEmasKonteks";
+import { angkaPenuh, durasiSingkat, jamMenit } from "@/lib/time";
 
 const NAMA: Record<KunciJendela, KunciTeks> = {
   pagi: "jam.jendela.pagi",
@@ -66,6 +67,10 @@ const URUTAN_PEKAN = [1, 2, 3, 4, 5, 6, 0];
  * `sekarang` datang dari luar — jam aplikasi yang sudah berdetak tiap menit —
  * supaya kartu ini ikut merangkak tanpa penghitung waktunya sendiri.
  *
+ * Angka terukur datang dari konteks, bukan prop: hasilnya sama untuk semua yang
+ * membacanya, dan tiga tempat kartu ini muncul berada di kedalaman yang
+ * berbeda-beda.
+ *
  * Bentuk `ringkas` adalah satu baris untuk layar sempit, tempat panel kanan
  * tidak pernah muncul.
  */
@@ -77,8 +82,9 @@ export default function JamEmas({
   varian?: "kartu" | "ringkas";
 }) {
   const { bahasa, t } = useBahasa();
+  const agregat = useAgregatJamEmas();
 
-  const isyarat = isyaratJamEmas(sekarang);
+  const isyarat = isyaratJamEmas(sekarang, agregat);
   const { jendela, berikut, skor, tingkat, waktu } = isyarat;
 
   const namaBerikut = t(NAMA[berikut.kunci]);
@@ -261,6 +267,16 @@ export default function JamEmas({
 
       <p className="jam-pekan-teks" suppressHydrationWarning>
         {t("jam.hariTerbaik")} · {t(KABAR_HARI[isyarat.peringkat])}
+      </p>
+
+      {/* Dari mana angka di atas berasal. Selama sebuah potongan jam belum
+          punya komentar terukur, skornya murni tebakan — dan kartu yang
+          menuliskan "88 dari 100" tanpa menyebut itu terbaca seperti hasil
+          pengukuran. */}
+      <p className="kartu-kaki" suppressHydrationWarning>
+        {isyarat.sampel > 0
+          ? t("jam.sumber.data", { jumlah: angkaPenuh(isyarat.sampel, bahasa) })
+          : t("jam.sumber.pola")}
       </p>
 
       <p className="kartu-kaki">{t("jam.zona")}</p>

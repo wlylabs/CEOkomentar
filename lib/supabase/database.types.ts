@@ -23,6 +23,22 @@ export type BarisProfil = {
   updated_at: string;
 };
 
+/**
+ * Satu potongan jam WIB di `jam_emas_agregat`. Angkanya bigint di Postgres dan
+ * karena itu bisa sampai sebagai string lewat PostgREST — pembacanya di
+ * `lib/api.ts` yang menormalkannya dengan Number().
+ */
+export type BarisJamEmas = {
+  /** 0 Minggu sampai 6 Sabtu */
+  hari: number;
+  /** jam WIB, 0–23 */
+  jam: number;
+  komentar: number;
+  suka: number;
+  ulang: number;
+  diperbarui: string;
+};
+
 export type BarisMisi = {
   kode: string;
   lencana: string;
@@ -100,6 +116,14 @@ export type Database = {
         Row: { follower_id: string; following_id: string; created_at: string };
         Insert: { follower_id: string; following_id: string };
         Update: Partial<{ follower_id: string; following_id: string }>;
+        Relationships: [];
+      };
+      /* Ditulis hanya oleh sapu_komentar_kedaluwarsa() sesaat sebelum komentar
+         yang jatuh tempo dihapus; aplikasi cuma membacanya. */
+      jam_emas_agregat: {
+        Row: BarisJamEmas;
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
       /* Katalog misi dan kemajuannya hanya dibaca aplikasi. Yang menuliskannya
