@@ -46,11 +46,16 @@ function Aksi({
       title={label}
     >
       <span className="aksi-ikon">{children}</span>
-      {jumlah > 0 && (
-        <span className="aksi-jumlah" title={angkaPenuh(jumlah, bahasa)}>
-          {angkaSosial(jumlah, bahasa)}
-        </span>
-      )}
+      {/* Kotak angka selalu ada, isinya yang datang belakangan. Dirender hanya
+          ketika angkanya lewat nol, menekan suka pada komentar yang belum punya
+          suka menyisipkan sebuah simpul baru di tengah baris — dan tayangan di
+          sebelahnya tergeser ke kanan tepat pada saat jari menyentuhnya. */}
+      <span
+        className="aksi-jumlah"
+        title={jumlah > 0 ? angkaPenuh(jumlah, bahasa) : undefined}
+      >
+        {jumlah > 0 ? angkaSosial(jumlah, bahasa) : ""}
+      </span>
     </button>
   );
 }
@@ -227,25 +232,37 @@ export default function CommentCard({
             </Aksi>
 
             {/* Tayangan tidak bisa ditekan — tidak ada yang bisa dilakukan
-                terhadapnya, jadi bentuknya keterangan, bukan tombol. Selama
-                belum ada yang melihat, barisnya kosong seperti penghitung lain
-                yang masih nol. */}
-            {tambahan.tayang > 0 && (
-              <span
-                className="aksi aksi-tayang"
-                title={t("aksi.tayangJumlah", {
+                terhadapnya, jadi bentuknya keterangan, bukan tombol: tak ada
+                lingkaran sorot yang menjanjikan sebaliknya, dan warnanya tetap
+                samar meski kursor lewat.
+
+                Ikutnya tetap dirender selagi angkanya nol. Dulu ia menunggu
+                sampai ada yang melihat, dan karena ketiga penghitung tumbuh
+                dari kurva yang sama, ketiganya menyembul hampir berbarengan
+                beberapa menit setelah komentar lahir — kartunya berkedip lalu
+                melebar sendiri. Sekarang bentuk barisnya sudah utuh sejak awal
+                dan hanya angkanya yang menyusul satu per satu. */}
+            <span
+              className="aksi aksi-tayang"
+              title={t("aksi.tayangJumlah", {
+                jumlah: angkaPenuh(tambahan.tayang, bahasa),
+              })}
+            >
+              <span className="aksi-ikon">
+                <IkonTayang size={19} />
+              </span>
+              {/* Angka ringkasnya untuk mata, kalimat utuhnya untuk pembaca
+                  layar — kalau keduanya terbaca, "1,2 rb" dan "1.234 tayangan"
+                  terdengar seperti dua angka yang berbeda. */}
+              <span className="aksi-jumlah" aria-hidden="true">
+                {tambahan.tayang > 0 ? angkaSosial(tambahan.tayang, bahasa) : ""}
+              </span>
+              <span className="sr-only">
+                {t("aksi.tayangJumlah", {
                   jumlah: angkaPenuh(tambahan.tayang, bahasa),
                 })}
-              >
-                <span className="aksi-ikon">
-                  <IkonTayang size={19} />
-                </span>
-                <span className="aksi-jumlah">
-                  {angkaSosial(tambahan.tayang, bahasa)}
-                </span>
-                <span className="sr-only">{t("aksi.tayang")}</span>
               </span>
-            )}
+            </span>
           </div>
         </div>
       </div>
