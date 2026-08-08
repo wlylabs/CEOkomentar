@@ -141,6 +141,17 @@ export function keWIB(sekarang: number): WaktuWIB {
   };
 }
 
+/**
+ * Tanggal WIB dalam bentuk `YYYY-MM-DD`.
+ *
+ * Dipakai sebagai kunci harian oleh rencana di panduan, dan sengaja memakai WIB
+ * seperti seluruh berkas ini: daftar hari ini berganti bersama tengah malam
+ * audiensnya, bukan bersama tengah malam di zona waktu perangkat.
+ */
+export function tanggalWIB(sekarang: number): string {
+  return new Date(sekarang + OFFSET_WIB_MS).toISOString().slice(0, 10);
+}
+
 export type Isyarat = {
   waktu: WaktuWIB;
   /** potensi jangkauan sekarang, 0–100 */

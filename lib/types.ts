@@ -70,4 +70,4 @@ export type Statistik = {
 };
 
 export type Tab = "komentar" | "disukai";
-export type View = "beranda" | "misi" | "notifikasi" | "profil";
+export type View = "beranda" | "panduan" | "misi" | "notifikasi" | "profil";

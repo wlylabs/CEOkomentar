@@ -30,7 +30,7 @@ const KAMUS_ID = {
 
   /* --------------------------------------------------------------- meta */
   "meta.deskripsi":
-    "Antarmuka bergaya Twitter: komentar berumur 24 jam, jam emas audiens Indonesia, profil, notifikasi, misi lencana, dan tren.",
+    "Antarmuka bergaya Twitter: komentar berumur 24 jam, jam emas audiens Indonesia, panduan algoritma X, profil, notifikasi, misi lencana, dan tren.",
   "meta.judulSandi": "Kata sandi baru — Twitter Mini",
   "meta.judulUtas": "Komentar @{handle} — Twitter Mini",
   "meta.deskripsiUtas": "“{kutipan}” — @{handle} di Twitter Mini.",
@@ -38,6 +38,7 @@ const KAMUS_ID = {
   /* ----------------------------------------------------------- navigasi */
   "nav.utama": "Navigasi utama",
   "nav.beranda": "Beranda",
+  "nav.panduan": "Panduan",
   "nav.misi": "Misi",
   "nav.notifikasi": "Notifikasi",
   "nav.profil": "Profil",
@@ -231,6 +232,220 @@ const KAMUS_ID = {
   "hari.4": "Kam",
   "hari.5": "Jum",
   "hari.6": "Sab",
+
+  /* ------------------------------------------------------------- panduan */
+  "panduan.sub":
+    "Kapan menulis, apa yang dihargai linimasa X, dan aturan Creator Studio.",
+  "panduan.kapan": "Kapan menulis hari ini",
+  "panduan.kapanSub":
+    "Jam yang sama menentukan dua-duanya: berapa orang yang melihat, dan berapa yang sempat membalas selagi kamu masih di layar.",
+  "panduan.tulisSekarang": "Jam emas sedang berlangsung — tulis sekarang",
+  "panduan.tulisTetap": "Tulis komentar sekarang",
+
+  "panduan.rencana": "Rencana hari ini",
+  "panduan.rencanaSub":
+    "Enam langkah yang sama tiap hari, kosong lagi tiap tengah malam WIB. Centangnya hanya disimpan di peramban ini.",
+  "panduan.rencanaMaju": "{selesai} dari {total} selesai",
+  "panduan.rencanaTuntas":
+    "Enam-enamnya selesai. Sisanya biarkan waktu yang bekerja — daftar ini kosong lagi besok pagi.",
+
+  "panduan.algoritma": "Bagaimana linimasa X memilih",
+  "panduan.algoritmaSub":
+    "Maret 2023 Twitter membuka kode perekomendasi “For You” di GitHub. Yang di bawah ini bacaan atas kode itu: empat tahap yang dilewati sebuah postingan sebelum sampai ke layar orang lain.",
+  "panduan.sumber": "Dari mana kandidat datang",
+  "panduan.saring": "Yang menyaring setelahnya",
+  "panduan.bobot": "Bobot tiap sinyal",
+  "panduan.bobotSub":
+    "Heavy ranker menjumlahkan peluang sepuluh hal terjadi, masing-masing dikalikan bobotnya. Angka di bawah ini tertulis apa adanya di repositorinya — panjang bilahnya sebanding lurus dengan angkanya.",
+  "panduan.setaraUntung": "Sebanding dengan {jumlah} suka",
+  "panduan.setaraRugi": "Menghapus nilai {jumlah} suka",
+  "panduan.bobotCatatan":
+    "Yang terbuka adalah potret sistemnya pada 2023, bukan mesin yang berjalan hari ini; X sudah mengubahnya berkali-kali sejak itu. Yang bertahan bukan angkanya melainkan urutannya: percakapan jauh di atas suka, dan satu laporan menghapus lebih banyak daripada yang bisa dikumpulkan ratusan suka.",
+
+  "panduan.langkah": "Artinya buat yang menulis",
+  "panduan.langkahSub":
+    "Enam kesimpulan, masing-masing dengan angka atau aturan yang mendasarinya. Baris kecil di bawah tiap kalimat adalah dasarnya, bukan hiasan — silakan diperiksa sendiri di repositorinya.",
+
+  "panduan.kreator": "Kebijakan Creator Studio X",
+  "panduan.kreatorSub":
+    "Jangkauan baru berarti uang setelah akunnya memenuhi syarat program X, dan syarat itu bisa hilang karena taktik yang justru dijanjikan menaikkan jangkauan.",
+  "panduan.syarat": "Syarat masuk",
+  "panduan.larangan": "Yang mencabut monetisasi",
+  "panduan.bacaAturan": "Aturannya",
+  "panduan.bukaStudio": "Buka Creator Studio",
+  "panduan.bukaStandar": "Baca standar monetisasi",
+  "panduan.kreatorCatatan":
+    "Dicocokkan terakhir dengan halaman bantuan X pada {waktu}. Ambang dan tarifnya milik X dan berubah tanpa pemberitahuan — yang berlaku selalu yang tertulis di halaman aslinya, bukan salinan di sini.",
+
+  "panduan.rujukan": "Dari mana angkanya",
+  "panduan.rujukanRepo": "Kode perekomendasi linimasa yang dibuka Twitter.",
+  "panduan.rujukanMl": "Model pembelajaran mesinnya, termasuk heavy ranker.",
+  "panduan.rujukanBobot": "Tabel bobot sepuluh sinyal beserta keterangannya.",
+  "panduan.rujukanX": "Halaman bantuan X untuk program kreator.",
+  "panduan.rujukanCatatan":
+    "Twitter Mini tidak terhubung ke X dan tidak meminta izin apa pun atas akunmu. Halaman ini bacaan atas dokumen yang terbuka untuk umum, bukan data dari dalam X.",
+
+  /* -------------------------------------------------------- rencana harian */
+  "rencana.jamEmas":
+    "Kirim satu postingan utama di dalam jendela jam emas hari ini.",
+  "rencana.jamEmasDasar": "Pagi 07.00–10.00, siang 12.00–14.00, malam 19.00–21.30 WIB.",
+  "rencana.tanya": "Tutup postingannya dengan pertanyaan yang gampang dijawab.",
+  "rencana.tanyaDasar": "Bobot balasan 13,5 — satu balasan sebanding 27 suka.",
+  "rencana.balasBalasan":
+    "Balas setiap balasan yang masuk selama satu jam pertama.",
+  "rencana.balasBalasanDasar":
+    "Balasan yang dibalas penulisnya berbobot 75 — sebanding 150 suka.",
+  "rencana.temuiOrang":
+    "Balas lima akun lain di topik yang sama, di jam yang sama.",
+  "rencana.temuiOrangDasar":
+    "RealGraph menaksir peluang dua akun berinteraksi lagi dari riwayatnya.",
+  "rencana.satuTopik": "Bertahan di satu topik sepanjang hari ini.",
+  "rencana.satuTopikDasar":
+    "SimClusters mengelompokkan akun ke sekitar 145 rb komunitas dari graf follow.",
+  "rencana.tanpaUmpan":
+    "Tanpa umpan keterlibatan: tidak ada “RT kalau setuju”, tidak ada balasan pancingan.",
+  "rencana.tanpaUmpanDasar":
+    "Umpan negatif −74, laporan −369, dan Creator Monetization Standards melarangnya.",
+
+  /* ------------------------------------------------------------ algoritma */
+  "algo.tahap.kandidat": "Kumpulkan kandidat",
+  "algo.tahap.kandidatTeks":
+    "Beberapa layanan mengumpulkan calon postingan dari dua kolam: yang ditulis akun yang kamu ikuti, dan yang datang dari luar lingkaranmu. Sekitar separuh linimasa berasal dari kolam pertama.",
+  "algo.tahap.peringkat": "Peringkatkan",
+  "algo.tahap.peringkatTeks":
+    "Penyaring ringan memangkas dulu jumlahnya, lalu heavy ranker menilai sisanya dengan sekitar 6.000 ciri per postingan dan mengurutkannya.",
+  "algo.tahap.saring": "Campur dan saring",
+  "algo.tahap.saringTeks":
+    "Urutan tadi belum jadi linimasa. Di sini penulis yang sama dijarangkan, isi dari dalam dan luar lingkaran diseimbangkan, dan apa pun yang tidak boleh tampil dibuang.",
+  "algo.tahap.sajikan": "Sajikan",
+  "algo.tahap.sajikanTeks":
+    "Hasilnya dikirim ke beranda, notifikasi, dan permukaan lain — masing-masing dengan campuran yang berbeda.",
+
+  "algo.sumber.earlybird": "Indeks pencarian (Earlybird)",
+  "algo.sumber.earlybirdTeks":
+    "Mencari dan memeringkat postingan dari akun yang kamu ikuti. Inilah sumber terbesarnya.",
+  "algo.sumber.earlybirdTanda": "±50% linimasa",
+  "algo.sumber.uteg": "User-Tweet Entity Graph",
+  "algo.sumber.utegTeks":
+    "Graf interaksi orang-dengan-postingan yang disimpan di memori. Menemukan kandidat dengan menelusurinya: apa yang disukai akun-akun yang kamu ikuti.",
+  "algo.sumber.simclusters": "SimClusters",
+  "algo.sumber.simclustersTeks":
+    "Mengelompokkan akun menjadi komunitas berdasarkan graf follow, lalu merekomendasikan postingan yang ramai di komunitas yang sama denganmu.",
+  "algo.sumber.simclustersTanda": "±145 rb komunitas",
+  "algo.sumber.realgraph": "RealGraph",
+  "algo.sumber.realgraphTeks":
+    "Menaksir peluang satu akun berinteraksi dengan akun lain, dihitung dari riwayat interaksi keduanya. Kekuatan hubungan, bukan sekadar status mengikuti.",
+  "algo.sumber.frs": "Follow Recommendation Service",
+  "algo.sumber.frsTeks":
+    "Merekomendasikan akun yang layak diikuti, berikut postingannya.",
+
+  "algo.bobot.laporan": "Dilaporkan",
+  "algo.bobot.laporanArti": "Peluang pembaca menekan “Laporkan postingan”.",
+  "algo.bobot.balasanDibalas": "Balasan yang dibalas penulisnya",
+  "algo.bobot.balasanDibalasArti":
+    "Peluang pembaca membalas postingannya, dan balasan itu ditanggapi penulis postingan.",
+  "algo.bobot.umpanNegatif": "Umpan negatif",
+  "algo.bobot.umpanNegatifArti":
+    "Peluang pembaca menekan “tampilkan lebih jarang”, membisukan, atau memblokir penulisnya.",
+  "algo.bobot.balasan": "Balasan",
+  "algo.bobot.balasanArti": "Peluang pembaca membalas postingannya.",
+  "algo.bobot.profilKlik": "Klik profil yang berlanjut",
+  "algo.bobot.profilKlikArti":
+    "Peluang pembaca membuka profil penulisnya lalu menyukai atau membalas sebuah postingan di sana.",
+  "algo.bobot.klikBagus": "Masuk percakapan lalu ikut",
+  "algo.bobot.klikBagusArti":
+    "Peluang pembaca membuka percakapan postingan ini lalu membalas atau menyukai sesuatu di dalamnya.",
+  "algo.bobot.klikLama": "Masuk percakapan lalu bertahan",
+  "algo.bobot.klikLamaArti":
+    "Peluang pembaca membuka percakapannya dan tinggal di sana setidaknya dua menit.",
+  "algo.bobot.ulang": "Posting ulang",
+  "algo.bobot.ulangArti": "Peluang pembaca memposting ulang.",
+  "algo.bobot.suka": "Suka",
+  "algo.bobot.sukaArti": "Peluang pembaca menyukainya.",
+  "algo.bobot.video": "Video ditonton separuh",
+  "algo.bobot.videoArti":
+    "Untuk postingan bervideo: peluang pembaca menonton setidaknya separuhnya.",
+
+  "algo.saring.visibilitas": "Penyaring visibilitas",
+  "algo.saring.visibilitasTeks":
+    "Akun yang diblokir dan dibisukan, setelan konten sensitif, dan kewajiban hukum. Berjalan sebelum yang lain.",
+  "algo.saring.ragam": "Keragaman penulis",
+  "algo.saring.ragamTeks":
+    "Menjarangkan postingan berturut-turut dari akun yang sama, sekalipun semuanya menang di pemeringkatan.",
+  "algo.saring.imbang": "Imbang dalam–luar lingkaran",
+  "algo.saring.imbangTeks":
+    "Menjaga campuran antara akun yang kamu ikuti dan yang belum, supaya linimasa tidak menjadi satu-satunya di antara keduanya.",
+  "algo.saring.lelah": "Kelelahan umpan balik",
+  "algo.saring.lelahTeks":
+    "Menurunkan yang mirip dengan apa yang baru saja ditolak pembacanya.",
+  "algo.saring.kembar": "Penyingkiran kembar",
+  "algo.saring.kembarTeks":
+    "Membuang postingan yang sudah dilihat dan kandidat yang sama dari beberapa sumber sekaligus.",
+
+  "algo.langkah.percakapan":
+    "Tulis sesuatu yang bisa dijawab, bukan sesuatu yang bisa disukai.",
+  "algo.langkah.percakapanDasar":
+    "Balasan 13,5 lawan suka 0,5 — satu balasan menandingi 27 suka.",
+  "algo.langkah.balasBalik":
+    "Balas balasan yang masuk. Ini satu-satunya bagian yang seluruhnya ada di tanganmu.",
+  "algo.langkah.balasBalikDasar":
+    "Balasan yang dibalas penulisnya 75 — bobot positif terbesar di seluruh daftar.",
+  "algo.langkah.utuh":
+    "Buat postingannya berdiri sendiri; percakapannya harus bisa hidup di dalam postingan itu, bukan di tempat lain.",
+  "algo.langkah.utuhDasar":
+    "Empat dari sepuluh sinyal bernilai dua digit menghitung apa yang terjadi di dalam percakapannya.",
+  "algo.langkah.topik":
+    "Bertahan di satu topik. Akun yang tidak jelas berbicara tentang apa sulit ditempatkan.",
+  "algo.langkah.topikDasar":
+    "SimClusters menempatkan akun ke komunitas dari graf follow; kandidat luar lingkaran datang dari sana.",
+  "algo.langkah.jarak":
+    "Beri jarak antarpostingan, jangan memborong satu jam emas dengan lima postingan sekaligus.",
+  "algo.langkah.jarakDasar":
+    "Keragaman penulis menjarangkan postingan berturut-turut dari akun yang sama.",
+  "algo.langkah.umpan":
+    "Jangan memancing keterlibatan. Yang membuat orang menekan “tampilkan lebih jarang” lebih mahal daripada apa pun yang bisa dikumpulkan.",
+  "algo.langkah.umpanDasar":
+    "Umpan negatif −74 dan laporan −369 lawan suka 0,5.",
+
+  /* -------------------------------------------------------------- kreator */
+  "kreator.program.bagiHasil": "Bagi hasil iklan",
+  "kreator.program.bagiHasilTeks":
+    "Bagian dari pendapatan iklan yang tampil di balasan postinganmu. X menghitungnya dari keterlibatan pelanggan berbayar, bukan dari jumlah tayangan mentah.",
+  "kreator.program.langganan": "Langganan kreator",
+  "kreator.program.langgananTeks":
+    "Pembaca membayar bulanan untuk konten khusus. Potongan toko aplikasi berlaku bila langganannya dibeli lewat aplikasi ponsel.",
+  "kreator.program.tip": "Tip",
+  "kreator.program.tipTeks":
+    "Pembayaran sekali jalan langsung dari pembaca, tanpa syarat tayangan.",
+
+  "kreator.syarat.premium": "Langganan X Premium aktif",
+  "kreator.syarat.premiumTeks":
+    "Akunnya harus berlangganan Premium (atau tingkat di atasnya) dan tetap aktif selama ikut program.",
+  "kreator.syarat.pengikut": "Minimal 500 pengikut",
+  "kreator.syarat.pengikutTeks":
+    "Dihitung dari pengikut sungguhan; akun yang membeli pengikut justru berhadapan dengan aturan manipulasi.",
+  "kreator.syarat.tayangan": "5 juta tayangan organik dalam 3 bulan",
+  "kreator.syarat.tayanganTeks":
+    "Kira-kira 1,7 juta sebulan, dan hitungannya berjalan mundur — sekali turun di bawahnya, kepesertaannya berhenti.",
+  "kreator.syarat.pembayaran": "Akun pembayaran yang terhubung",
+  "kreator.syarat.pembayaranTeks":
+    "Lewat penyedia pembayaran yang dipakai X, di negara yang didukung, dengan identitas yang terverifikasi.",
+  "kreator.syarat.standar": "Patuh pada standar monetisasi",
+  "kreator.syarat.standarTeks":
+    "Berlaku terus, bukan sekali saat mendaftar. Pelanggarannya menghentikan pembayaran walau syarat lainnya terpenuhi.",
+
+  "kreator.larangan.umpan":
+    "Umpan keterlibatan: meminta suka, balasan, atau posting ulang sebagai syarat, termasuk giveaway berantai.",
+  "kreator.larangan.spam":
+    "Spam dan manipulasi: akun ganda, balasan massal, pembelian keterlibatan.",
+  "kreator.larangan.jiplak":
+    "Konten jiplakan atau unggahan ulang tanpa tambahan apa pun dari kamu.",
+  "kreator.larangan.sesat":
+    "Konten menyesatkan, termasuk judul yang tidak sesuai isinya.",
+  "kreator.larangan.kasar":
+    "Ujaran kebencian, kekerasan, dan pelecehan — termasuk di balasan yang kamu tulis sendiri.",
+  "kreator.larangan.dewasa":
+    "Konten dewasa di luar program yang memang disediakan X untuk itu.",
 
   /* -------------------------------------------------------------- pasang */
   "pasang.judul": "Pasang aplikasinya",
@@ -448,7 +663,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
 
   /* --------------------------------------------------------------- meta */
   "meta.deskripsi":
-    "A Twitter-style interface: comments that live 24 hours, golden hours for the Indonesian audience, profiles, notifications, badge missions, and trends.",
+    "A Twitter-style interface: comments that live 24 hours, golden hours for the Indonesian audience, a playbook for the X algorithm, profiles, notifications, badge missions, and trends.",
   "meta.judulSandi": "New password — Twitter Mini",
   "meta.judulUtas": "@{handle}'s comment — Twitter Mini",
   "meta.deskripsiUtas": "“{kutipan}” — @{handle} on Twitter Mini.",
@@ -456,6 +671,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   /* ----------------------------------------------------------- navigasi */
   "nav.utama": "Main navigation",
   "nav.beranda": "Home",
+  "nav.panduan": "Playbook",
   "nav.misi": "Missions",
   "nav.notifikasi": "Notifications",
   "nav.profil": "Profile",
@@ -643,6 +859,217 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "hari.4": "Thu",
   "hari.5": "Fri",
   "hari.6": "Sat",
+
+  /* ------------------------------------------------------------- panduan */
+  "panduan.sub":
+    "When to post, what the X timeline rewards, and the Creator Studio rules.",
+  "panduan.kapan": "When to post today",
+  "panduan.kapanSub":
+    "The same hour decides both things: how many people see it, and how many can reply while you are still on the screen.",
+  "panduan.tulisSekarang": "Golden hours are running — post now",
+  "panduan.tulisTetap": "Write a comment now",
+
+  "panduan.rencana": "Today's plan",
+  "panduan.rencanaSub":
+    "The same six steps every day, cleared again at midnight Jakarta time. The ticks live in this browser only.",
+  "panduan.rencanaMaju": "{selesai} of {total} done",
+  "panduan.rencanaTuntas":
+    "All six done. Let time do the rest — the list is empty again tomorrow morning.",
+
+  "panduan.algoritma": "How the X timeline picks",
+  "panduan.algoritmaSub":
+    "In March 2023 Twitter opened the “For You” recommendation code on GitHub. What follows is a reading of that code: the four stages a post passes through before it reaches anyone else's screen.",
+  "panduan.sumber": "Where candidates come from",
+  "panduan.saring": "What filters them afterwards",
+  "panduan.bobot": "The weight of each signal",
+  "panduan.bobotSub":
+    "The heavy ranker adds up the probability of ten things happening, each multiplied by its weight. The numbers below are written exactly like that in the repository — bar length is directly proportional to the number.",
+  "panduan.setaraUntung": "Worth {jumlah} likes",
+  "panduan.setaraRugi": "Wipes out {jumlah} likes",
+  "panduan.bobotCatatan":
+    "What was opened is a snapshot of the system in 2023, not the machine running today; X has changed it many times since. What lasts is not the numbers but their order: conversation far above likes, and a single report erasing more than hundreds of likes can gather.",
+
+  "panduan.langkah": "What it means for you",
+  "panduan.langkahSub":
+    "Six conclusions, each with the number or rule behind it. The small line under every sentence is that basis, not decoration — check it yourself in the repository.",
+
+  "panduan.kreator": "X Creator Studio policy",
+  "panduan.kreatorSub":
+    "Reach only turns into money once the account meets X's program requirements — and those requirements can be lost to the very tactics that promise more reach.",
+  "panduan.syarat": "Requirements to get in",
+  "panduan.larangan": "What takes monetization away",
+  "panduan.bacaAturan": "Its rules",
+  "panduan.bukaStudio": "Open Creator Studio",
+  "panduan.bukaStandar": "Read the monetization standards",
+  "panduan.kreatorCatatan":
+    "Last checked against X's help pages in {waktu}. The thresholds and rates belong to X and change without notice — what applies is always what the original page says, not this copy.",
+
+  "panduan.rujukan": "Where the numbers come from",
+  "panduan.rujukanRepo": "The timeline recommendation code Twitter opened.",
+  "panduan.rujukanMl": "Its machine learning models, the heavy ranker included.",
+  "panduan.rujukanBobot": "The table of ten signal weights and what each one means.",
+  "panduan.rujukanX": "X's help pages for the creator programs.",
+  "panduan.rujukanCatatan":
+    "Twitter Mini is not connected to X and asks for no access at all to your account. This page is a reading of publicly open documents, not data from inside X.",
+
+  /* -------------------------------------------------------- rencana harian */
+  "rencana.jamEmas": "Post one main piece inside today's golden hours.",
+  "rencana.jamEmasDasar":
+    "Morning 07:00–10:00, midday 12:00–14:00, evening 19:00–21:30 Jakarta time.",
+  "rencana.tanya": "End it with a question that is easy to answer.",
+  "rencana.tanyaDasar": "Reply weight 13.5 — one reply is worth 27 likes.",
+  "rencana.balasBalasan": "Answer every reply that lands in the first hour.",
+  "rencana.balasBalasanDasar":
+    "A reply the author engages with weighs 75 — worth 150 likes.",
+  "rencana.temuiOrang": "Reply to five other accounts on the same topic, same hours.",
+  "rencana.temuiOrangDasar":
+    "RealGraph estimates how likely two accounts are to interact again from their history.",
+  "rencana.satuTopik": "Stay on one topic for the whole day.",
+  "rencana.satuTopikDasar":
+    "SimClusters sorts accounts into around 145k communities from the follow graph.",
+  "rencana.tanpaUmpan":
+    "No engagement bait: no “RT if you agree”, no fishing replies.",
+  "rencana.tanpaUmpanDasar":
+    "Negative feedback −74, report −369, and the Creator Monetization Standards forbid it.",
+
+  /* ------------------------------------------------------------ algoritma */
+  "algo.tahap.kandidat": "Gather candidates",
+  "algo.tahap.kandidatTeks":
+    "Several services collect candidate posts from two pools: what the accounts you follow wrote, and what comes from outside your circle. About half the timeline comes from the first pool.",
+  "algo.tahap.peringkat": "Rank them",
+  "algo.tahap.peringkatTeks":
+    "A light ranker trims the pile first, then the heavy ranker scores what is left using around 6,000 features per post and puts them in order.",
+  "algo.tahap.saring": "Mix and filter",
+  "algo.tahap.saringTeks":
+    "That order is not a timeline yet. Here the same author is spaced out, in-network and out-of-network content is balanced, and anything that must not appear is dropped.",
+  "algo.tahap.sajikan": "Serve",
+  "algo.tahap.sajikanTeks":
+    "The result goes out to the home timeline, notifications, and other surfaces — each with a different mix.",
+
+  "algo.sumber.earlybird": "Search index (Earlybird)",
+  "algo.sumber.earlybirdTeks":
+    "Finds and ranks posts from the accounts you follow. This is the largest source of all.",
+  "algo.sumber.earlybirdTanda": "±50% of the timeline",
+  "algo.sumber.uteg": "User-Tweet Entity Graph",
+  "algo.sumber.utegTeks":
+    "An in-memory graph of people and the posts they touched. It finds candidates by walking it: what the accounts you follow liked.",
+  "algo.sumber.simclusters": "SimClusters",
+  "algo.sumber.simclustersTeks":
+    "Groups accounts into communities from the follow graph, then recommends posts that are busy in the same communities as you.",
+  "algo.sumber.simclustersTanda": "±145k communities",
+  "algo.sumber.realgraph": "RealGraph",
+  "algo.sumber.realgraphTeks":
+    "Estimates how likely one account is to interact with another, computed from their interaction history. The strength of a tie, not merely the fact of a follow.",
+  "algo.sumber.frs": "Follow Recommendation Service",
+  "algo.sumber.frsTeks": "Recommends accounts worth following, and their posts.",
+
+  "algo.bobot.laporan": "Reported",
+  "algo.bobot.laporanArti": "The probability the reader clicks “Report post”.",
+  "algo.bobot.balasanDibalas": "Reply engaged by the author",
+  "algo.bobot.balasanDibalasArti":
+    "The probability the reader replies to the post and that reply is engaged by the post's author.",
+  "algo.bobot.umpanNegatif": "Negative feedback",
+  "algo.bobot.umpanNegatifArti":
+    "The probability the reader asks for “show less often”, mutes, or blocks the author.",
+  "algo.bobot.balasan": "Reply",
+  "algo.bobot.balasanArti": "The probability the reader replies to the post.",
+  "algo.bobot.profilKlik": "Profile click that goes further",
+  "algo.bobot.profilKlikArti":
+    "The probability the reader opens the author's profile and then likes or replies to a post there.",
+  "algo.bobot.klikBagus": "Into the conversation, then joins",
+  "algo.bobot.klikBagusArti":
+    "The probability the reader opens this post's conversation and replies to or likes something inside it.",
+  "algo.bobot.klikLama": "Into the conversation, then stays",
+  "algo.bobot.klikLamaArti":
+    "The probability the reader opens the conversation and stays there for at least two minutes.",
+  "algo.bobot.ulang": "Repost",
+  "algo.bobot.ulangArti": "The probability the reader reposts it.",
+  "algo.bobot.suka": "Like",
+  "algo.bobot.sukaArti": "The probability the reader likes it.",
+  "algo.bobot.video": "Video watched halfway",
+  "algo.bobot.videoArti":
+    "For a video post: the probability the reader watches at least half of it.",
+
+  "algo.saring.visibilitas": "Visibility filtering",
+  "algo.saring.visibilitasTeks":
+    "Blocked and muted accounts, sensitive content settings, and legal obligations. Runs ahead of the rest.",
+  "algo.saring.ragam": "Author diversity",
+  "algo.saring.ragamTeks":
+    "Spaces out consecutive posts from the same account, even when every one of them won on ranking.",
+  "algo.saring.imbang": "In-network / out-of-network balance",
+  "algo.saring.imbangTeks":
+    "Keeps a mix of accounts you follow and accounts you do not, so the timeline never becomes only one of the two.",
+  "algo.saring.lelah": "Feedback fatigue",
+  "algo.saring.lelahTeks":
+    "Pushes down whatever resembles what the reader just turned away.",
+  "algo.saring.kembar": "Deduplication",
+  "algo.saring.kembarTeks":
+    "Drops posts already seen and the same candidate arriving from several sources at once.",
+
+  "algo.langkah.percakapan":
+    "Write something answerable, not something likeable.",
+  "algo.langkah.percakapanDasar":
+    "Reply 13.5 against like 0.5 — one reply matches 27 likes.",
+  "algo.langkah.balasBalik":
+    "Answer the replies you get. This is the one part entirely in your hands.",
+  "algo.langkah.balasBalikDasar":
+    "A reply engaged by the author weighs 75 — the largest positive weight on the whole list.",
+  "algo.langkah.utuh":
+    "Let the post stand on its own; the conversation has to be able to live inside it, not somewhere else.",
+  "algo.langkah.utuhDasar":
+    "Four of the ten double-digit signals count what happens inside the conversation.",
+  "algo.langkah.topik":
+    "Stay on one topic. An account with no clear subject is hard to place.",
+  "algo.langkah.topikDasar":
+    "SimClusters puts accounts into communities from the follow graph; out-of-network candidates come from there.",
+  "algo.langkah.jarak":
+    "Leave space between posts; do not spend one golden window on five posts at once.",
+  "algo.langkah.jarakDasar":
+    "Author diversity spaces out consecutive posts from the same account.",
+  "algo.langkah.umpan":
+    "Never fish for engagement. Whatever makes someone press “show less often” costs more than anything you could gather.",
+  "algo.langkah.umpanDasar":
+    "Negative feedback −74 and report −369 against like 0.5.",
+
+  /* -------------------------------------------------------------- kreator */
+  "kreator.program.bagiHasil": "Ads revenue sharing",
+  "kreator.program.bagiHasilTeks":
+    "A share of the ad revenue shown in the replies to your posts. X computes it from engagement by paying subscribers, not from raw impression counts.",
+  "kreator.program.langganan": "Creator subscriptions",
+  "kreator.program.langgananTeks":
+    "Readers pay monthly for subscriber-only content. App store cuts apply when the subscription is bought inside a mobile app.",
+  "kreator.program.tip": "Tips",
+  "kreator.program.tipTeks":
+    "One-off payments straight from readers, with no impression requirement.",
+
+  "kreator.syarat.premium": "An active X Premium subscription",
+  "kreator.syarat.premiumTeks":
+    "The account must subscribe to Premium (or a tier above it) and stay subscribed while it is in the program.",
+  "kreator.syarat.pengikut": "At least 500 followers",
+  "kreator.syarat.pengikutTeks":
+    "Counted as real followers; an account that buys them runs into the manipulation rules instead.",
+  "kreator.syarat.tayangan": "5 million organic impressions in 3 months",
+  "kreator.syarat.tayanganTeks":
+    "Roughly 1.7 million a month, on a rolling count — drop below it and participation stops.",
+  "kreator.syarat.pembayaran": "A connected payout account",
+  "kreator.syarat.pembayaranTeks":
+    "Through the payment provider X uses, in a supported country, with verified identity.",
+  "kreator.syarat.standar": "Compliance with the monetization standards",
+  "kreator.syarat.standarTeks":
+    "Ongoing, not a one-time check at sign-up. Breaking them stops payouts even when every other requirement is met.",
+
+  "kreator.larangan.umpan":
+    "Engagement bait: demanding likes, replies, or reposts as a condition, chain giveaways included.",
+  "kreator.larangan.spam":
+    "Spam and manipulation: duplicate accounts, mass replies, bought engagement.",
+  "kreator.larangan.jiplak":
+    "Plagiarised content, or reposts that add nothing of your own.",
+  "kreator.larangan.sesat":
+    "Misleading content, including headlines that do not match what follows.",
+  "kreator.larangan.kasar":
+    "Hateful conduct, violence, and harassment — in the replies you write yourself as well.",
+  "kreator.larangan.dewasa":
+    "Adult content outside the program X provides for it.",
 
   /* -------------------------------------------------------------- pasang */
   "pasang.judul": "Install the app",

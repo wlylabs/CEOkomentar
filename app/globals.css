@@ -2350,6 +2350,17 @@ input::-webkit-strong-password-auto-fill-button {
 .bawah-label {
   font-size: 11px;
   font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Lima tujuan, bukan empat lagi. Di layar tersempit label terpanjang sudah
+   menyentuh tetangganya, jadi hurufnya dikecilkan sedikit di rentang itu saja
+   — mengecilkannya di semua lebar hanya membuat navigasi lebih sulit dibaca
+   di tempat yang ruangnya sebenarnya cukup. */
+@media (max-width: 380px) {
+  .bawah-label {
+    font-size: 10px;
+  }
 }
 
 .bawah-butir-aktif .bawah-label {
@@ -3305,6 +3316,462 @@ input::-webkit-strong-password-auto-fill-button {
    jadi kabarnya tidak perlu menghindari keduanya dan duduk di dekat tepi. */
 .kerangka-tunggal .kabar-wadah {
   bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
+/* ============================================================
+   Panduan
+   ============================================================ */
+
+/*
+ * Halaman terpanjang di aplikasi, dan satu-satunya yang dibaca dari atas ke
+ * bawah alih-alih digulir mencari sesuatu. Jadi bentuknya berbeda dari daftar
+ * komentar: blok-blok berjarak lebar, tiap blok satu pertanyaan, dan tidak ada
+ * kotak di dalam kotak kecuali ketika isinya memang bertingkat.
+ */
+.panduan {
+  display: grid;
+  gap: 26px;
+  padding: 14px 16px 8px;
+}
+
+.pan-blok {
+  display: grid;
+  gap: 12px;
+}
+
+/*
+ * Anak sebuah grid tidak pernah menyusut di bawah lebar minimum isinya kecuali
+ * diberi tahu. Kartu jam emas punya lebar minimum yang cukup besar — dua puluh
+ * empat batang kurva berjajar — dan tanpa baris ini kartu itu bukan menyusut
+ * melainkan melebarkan seluruh halaman, sampai setiap kalimat di panduan
+ * terpotong di tepi kanan layar ponsel.
+ */
+.panduan > *,
+.pan-blok > * {
+  min-width: 0;
+}
+
+.pan-judul {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* Kalimat pembuka tiap blok: menerangkan mengapa bloknya ada, bukan mengulang
+   judulnya. Jaraknya ke judul ditarik rapat supaya keduanya terbaca sebagai
+   satu kepala, bukan sebagai dua paragraf berurutan. */
+.pan-sub {
+  margin-top: -6px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--teks-samar);
+}
+
+.pan-tajuk {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--teks-samar);
+}
+
+.pan-catatan {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--teks-samar);
+}
+
+.pan-blok .tombol-lebar {
+  gap: 8px;
+}
+
+/* ---------------------------------------------------------- empat tahap */
+
+/* Nomornya digambar sendiri, bukan lewat penanda daftar bawaan: yang
+   dibutuhkan bulatan yang sejajar dengan baris pertama teksnya, dan penanda
+   bawaan tidak pernah mau berdiri di sana. Elemennya tetap <ol>, jadi
+   urutannya tetap terbaca pembaca layar. */
+.pan-tahap {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+}
+
+.pan-tahap li {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--garis);
+  border-radius: 14px;
+  background: var(--latar-naik);
+}
+
+.pan-tahap-nomor {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--aksen-lembut);
+  color: var(--aksen);
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.pan-tahap-teks {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.pan-tahap-teks strong {
+  font-weight: 700;
+}
+
+.pan-tahap-teks span {
+  color: var(--teks-samar);
+}
+
+/* ------------------------------------------------------ daftar keterangan */
+
+.pan-daftar {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+
+.pan-daftar li {
+  display: grid;
+  gap: 4px;
+  padding-left: 12px;
+  border-left: 2px solid var(--garis);
+}
+
+.pan-baris-kepala {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.pan-baris-teks {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--teks-samar);
+}
+
+/* Di blok "artinya buat yang menulis" kalimatnya sendiri yang utama dan
+   dasarnya yang menemani, kebalikan dari blok lain — jadi warnanya ditukar. */
+.pan-baris-utama {
+  color: var(--teks);
+}
+
+/* Angka atau aturan yang menjadi dasar sebuah kalimat. Sengaja tidak diberi
+   warna aksen: ia keterangan sumber, bukan tautan dan bukan penekanan. */
+.pan-dasar {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--teks-samar);
+  font-variant-numeric: tabular-nums;
+}
+
+.pan-keping {
+  padding: 2px 8px;
+  border: 1px solid var(--garis-kuat);
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--teks-samar);
+  white-space: nowrap;
+}
+
+.pan-tautan {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  color: var(--aksen);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.pan-tautan:hover {
+  text-decoration: underline;
+}
+
+/* -------------------------------------------------------- bobot sinyal */
+
+.pan-bobot {
+  display: grid;
+  gap: 14px;
+  list-style: none;
+}
+
+.pan-bobot-butir {
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px;
+  border: 1px solid var(--garis);
+  border-radius: 14px;
+  background: var(--latar-naik);
+}
+
+.pan-bobot-kepala {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 15px;
+}
+
+.pan-bobot-angka {
+  flex: none;
+  color: var(--ulang);
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Yang merugikan diwarnai seperti tindakan berbahaya di seluruh aplikasi:
+   angkanya, bilahnya, dan kalimat setaranya sekaligus. Warna bukan satu-satunya
+   pembeda — tanda minus di angkanya dan kalimat "menghapus nilai …" mengatakan
+   hal yang sama tanpa perlu melihat warnanya. */
+.pan-bobot-rugi .pan-bobot-angka,
+.pan-bobot-rugi .pan-bobot-setara {
+  color: var(--bahaya);
+}
+
+.pan-bobot-meter {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--lapis-hover-kuat);
+  overflow: hidden;
+}
+
+.pan-bobot-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ulang);
+}
+
+.pan-bobot-rugi .pan-bobot-meter span {
+  background: var(--bahaya);
+}
+
+.pan-bobot-arti {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--teks-samar);
+}
+
+.pan-bobot-setara {
+  color: var(--ulang);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Nama parameter aslinya, supaya angkanya bisa dicari sendiri di repositori.
+   Ditaruh paling bawah dan paling kecil: yang membutuhkannya sedikit, dan yang
+   tidak membutuhkannya tidak boleh terhalang olehnya. */
+.pan-parameter {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--teks-samar);
+  word-break: break-all;
+}
+
+/* ----------------------------------------------------------- larangan */
+
+.pan-larangan {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+}
+
+.pan-larangan li {
+  display: flex;
+  gap: 9px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--teks-samar);
+}
+
+.pan-larangan svg {
+  flex: none;
+  margin-top: 3px;
+  color: var(--bahaya);
+}
+
+.pan-aksi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pan-aksi .tombol {
+  gap: 7px;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ----------------------------------------------------------- rujukan */
+
+.pan-blok-sumber {
+  padding-top: 18px;
+  border-top: 1px solid var(--garis);
+}
+
+.pan-rujukan {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+}
+
+.pan-rujukan li {
+  display: grid;
+  gap: 2px;
+}
+
+.pan-rujukan a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--aksen);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.pan-rujukan a:hover {
+  text-decoration: underline;
+}
+
+.pan-rujukan span {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--teks-samar);
+}
+
+/* --------------------------------------------------------- rencana hari */
+
+.pan-maju {
+  display: grid;
+  gap: 6px;
+}
+
+.pan-maju-meter {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--lapis-hover-kuat);
+  overflow: hidden;
+}
+
+.pan-maju-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--aksen);
+  transition: width 0.2s ease;
+}
+
+.pan-maju-teks {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--teks-samar);
+  font-variant-numeric: tabular-nums;
+}
+
+.pan-rencana {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+}
+
+/* Seluruh baris adalah <label>, jadi menekan kalimatnya sama dengan menekan
+   kotaknya — sasaran sentuh selebar kolom, bukan selebar kotak centang. */
+.pan-rencana-butir {
+  display: flex;
+  gap: 11px;
+  padding: 12px 14px;
+  border: 1px solid var(--garis);
+  border-radius: 14px;
+  background: var(--latar-naik);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.pan-rencana-butir:hover {
+  border-color: var(--garis-kuat);
+}
+
+.pan-rencana-selesai {
+  border-color: var(--aksen);
+  background: var(--aksen-lembut);
+}
+
+.pan-rencana-kotak {
+  flex: none;
+  width: 19px;
+  height: 19px;
+  margin-top: 1px;
+  accent-color: var(--aksen);
+  cursor: pointer;
+}
+
+.pan-rencana-teks {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pan-rencana-kalimat {
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+/* Yang sudah dikerjakan tetap terbaca — dicoret akan membuat daftarnya sulit
+   dibaca ulang besok, dan daftar ini memang dibaca ulang tiap hari. */
+.pan-rencana-selesai .pan-rencana-kalimat {
+  font-weight: 700;
+}
+
+.pan-tuntas {
+  padding: 11px 14px;
+  border-radius: 14px;
+  background: var(--aksen-lembut);
+  color: var(--aksen);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+@media (max-width: 420px) {
+  .panduan {
+    padding-inline: 12px;
+  }
+
+  .pan-aksi .tombol {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
 }
 
 /* ============================================================

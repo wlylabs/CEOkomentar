@@ -343,6 +343,22 @@ export function IkonMisi({ aktif, ...p }: IkonProps & { aktif?: boolean }) {
   );
 }
 
+/* Kompas: lingkaran dengan jarum condong di tengahnya. Dipakai navigasi
+   panduan — arah, bukan bacaan, karena isinya memang daftar kerja dan bukan
+   artikel. Bentuknya juga tidak bertabrakan dengan medali misi di sebelahnya. */
+export function IkonPanduan({ aktif, ...p }: IkonProps & { aktif?: boolean }) {
+  return (
+    <Dasar {...p}>
+      <circle cx="12" cy="12" r="8.8" fill={aktif ? "currentColor" : "none"} />
+      <path
+        d="m15.4 8.6-2 4.8-4.8 2 2-4.8z"
+        fill="none"
+        stroke={aktif ? "var(--latar)" : "currentColor"}
+      />
+    </Dasar>
+  );
+}
+
 export function IkonLainnya(p: IkonProps) {
   return (
     <Dasar {...p}>

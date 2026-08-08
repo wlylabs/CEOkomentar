@@ -421,6 +421,10 @@ export default function ProfileHeader({
             )}
           </div>
 
+          {/* Tanpa autoFocus. Di ponsel, menyorot kotak ini otomatis membuka
+              papan tik seketika — separuh layar tertutup sebelum sempat
+              melihat foto, sampul, dan bio yang justru lebih sering diubah.
+              Papan tik baru naik ketika kotaknya benar-benar disentuh. */}
           <label className="bidang">
             <span className="bidang-label">{t("profil.nama")}</span>
             <input
@@ -428,7 +432,6 @@ export default function ProfileHeader({
               value={nama}
               onChange={(e) => setNama(e.target.value)}
               maxLength={50}
-              autoFocus
             />
           </label>
 
