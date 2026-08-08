@@ -13,6 +13,7 @@ import {
   alamatKembali,
   bersihkanKuki,
   https,
+  laporBelumSiap,
   namaState,
   namaVerifier,
   opsiKuki,
@@ -30,7 +31,7 @@ export const dynamic = "force-dynamic";
  * sini: sampai X menjawab, belum ada apa pun yang layak dipercaya.
  */
 export async function GET(permintaan: NextRequest) {
-  if (!supabaseSiap) return pulang(permintaan, "belumSiap");
+  if (!supabaseSiap) return pulang(permintaan, laporBelumSiap());
 
   const supabase = await klienServer();
   const {
@@ -45,7 +46,7 @@ export async function GET(permintaan: NextRequest) {
 
   /* Tanpa kredensial X atau tanpa kunci layanan, misinya memang belum bisa
      diperiksa siapa pun — dan tidak ada jalan lain untuk mendapat lencananya. */
-  if (!xSiap || !layananSiap) return pulang(permintaan, "belumSiap");
+  if (!xSiap || !layananSiap) return pulang(permintaan, laporBelumSiap());
 
   if (
     !ambilJatah(`x-mulai:${user.id}`, 8, 10 * 60_000) ||

@@ -17,6 +17,7 @@ import {
   alamatKembali,
   bersihkanKuki,
   https,
+  laporBelumSiap,
   namaState,
   namaVerifier,
   pulang,
@@ -46,7 +47,9 @@ export async function GET(permintaan: NextRequest) {
     return tanggapan;
   };
 
-  if (!supabaseSiap || !xSiap || !layananSiap) return selesai("belumSiap");
+  if (!supabaseSiap || !xSiap || !layananSiap) {
+    return selesai(laporBelumSiap());
+  }
 
   const kueri = permintaan.nextUrl.searchParams;
 

@@ -582,6 +582,21 @@ tombol verifikasinya menjawab "belum diaktifkan di server ini", dan tidak ada
 lencana yang bisa diberikan lewat jalan lain. Selebihnya aplikasi berjalan
 seperti biasa.
 
+Kalimat itu sengaja tidak menyebut nilai mana yang kurang — peramban bukan
+tempatnya. Yang menyebutkannya adalah log server, satu baris setiap kali
+tombolnya ditekan:
+
+```
+[misi/x] verifikasi ditolak: belum diisi — X_CLIENT_ID, SUPABASE_SERVICE_ROLE_KEY
+```
+
+`X_CLIENT_SECRET` tidak pernah muncul di sana: aplikasi X bertipe *public
+client* memang tidak punya rahasia, jadi kosongnya bukan kekurangan. `APP_URL`
+juga tidak — tanpa nilai itu alamat pulangnya disusun dari permintaan yang
+masuk. Bila keduanya kosong dan alurnya tetap berhenti di halaman izin X,
+periksa *Callback URI* di X Developer Portal: ia harus sama persis dengan
+`<APP_URL>/api/misi/x/kembali`.
+
 `SUPABASE_SERVICE_ROLE_KEY` sengaja tanpa awalan `NEXT_PUBLIC_` — kunci itu
 melewati seluruh kebijakan RLS dan tidak boleh pernah sampai ke peramban.
 `lib/supabase/admin.ts` menolak dijalankan di sana.
