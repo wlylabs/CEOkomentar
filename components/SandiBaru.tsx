@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import Brand from "./Brand";
+import Merek from "./Merek";
 import PemilihBahasa from "./PemilihBahasa";
 import { IkonMata, IkonPeringatan } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
@@ -63,8 +63,7 @@ export default function SandiBaru() {
     <div className="gerbang">
       <main className="gerbang-kartu">
         <div className="gerbang-merek">
-          <Brand size={40} />
-          <span className="gerbang-merek-teks">{t("umum.merek")}</span>
+          <Merek />
           <PemilihBahasa varian="gerbang" />
         </div>
 

@@ -228,6 +228,72 @@ input::-webkit-strong-password-auto-fill-button {
 }
 
 /* ============================================================
+   Kunci merek: tanda dan kata sebagai satu lambang
+   ============================================================ */
+
+.merek {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  /* Tinggi baris dikunci supaya kotak tanda dan kata benar-benar sejajar. */
+  line-height: 1;
+}
+
+/* Siluet dipindahkan ke kotak beraksen agar tampil seperti ikon aplikasi;
+   inilah yang mengikat tanda dengan kata di sebelahnya. */
+.merek-tanda {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--merek-kotak);
+  height: var(--merek-kotak);
+  border-radius: calc(var(--merek-kotak) / 3);
+  background: linear-gradient(145deg, var(--aksen), var(--aksen-gelap));
+  color: #ffffff;
+  box-shadow: 0 8px 18px -10px var(--aksen);
+}
+
+/* Kata disejajarkan di garis alas, bukan di tengah kotak, agar label kecil
+   berdiri di garis yang sama dengan kata utama. */
+.merek-teks {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+/* Lebih tebal dan jauh lebih rapat daripada teks mana pun di aplikasi. Jarak
+   huruf negatif itulah yang membuatnya dibaca sebagai lambang. */
+.merek-utama {
+  color: var(--teks);
+  font-size: var(--merek-ukuran);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+/* Kata terakhir memakai bentuk yang berlawanan: kecil, kapital, dan renggang.
+   Kontras bentuk ini bertahan meski warna aksen dimatikan. */
+.merek-ekor {
+  color: var(--aksen);
+  font-size: calc(var(--merek-ukuran) * 0.52);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  /* Jarak huruf menyisakan ruang kosong setelah huruf terakhir; ditarik lagi
+     supaya sisi kanan kunci merek tetap rata. */
+  margin-inline-end: -0.14em;
+}
+
+.merek-gerbang {
+  --merek-kotak: 42px;
+  --merek-ukuran: 21px;
+}
+
+.merek-samping {
+  --merek-kotak: 38px;
+  --merek-ukuran: 19px;
+}
+
+/* ============================================================
    Kolom kiri
    ============================================================ */
 
@@ -263,32 +329,30 @@ input::-webkit-strong-password-auto-fill-button {
 .samping-merek {
   display: flex;
   align-items: center;
-  gap: 12px;
   padding: 10px;
-  color: var(--aksen);
 }
 
-.samping-merek-teks,
 .samping-akun-teks,
 .menu-label,
 .tombol-tulis-teks {
   display: none;
 }
 
+/* Di kolom sempit hanya tandanya yang tinggal, persis seperti label menu. */
+.samping-merek .merek-teks {
+  display: none;
+}
+
 @media (min-width: 1280px) {
-  .samping-merek-teks,
   .samping-akun-teks,
   .menu-label,
   .tombol-tulis-teks {
     display: block;
   }
-}
 
-.samping-merek-teks {
-  color: var(--teks);
-  font-size: 19px;
-  font-weight: 800;
-  letter-spacing: -0.2px;
+  .samping-merek .merek-teks {
+    display: flex;
+  }
 }
 
 .samping-menu {
@@ -2589,14 +2653,6 @@ input::-webkit-strong-password-auto-fill-button {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--aksen);
-}
-
-.gerbang-merek-teks {
-  color: var(--teks);
-  font-size: 19px;
-  font-weight: 800;
-  letter-spacing: -0.2px;
 }
 
 .gerbang-merek .pilih-bahasa {

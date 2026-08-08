@@ -1,6 +1,6 @@
 "use client";
 
-import Brand from "./Brand";
+import Merek from "./Merek";
 import PemilihBahasa from "./PemilihBahasa";
 import { IkonPeringatan } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
@@ -13,8 +13,7 @@ export default function Setup() {
     <div className="gerbang">
       <main className="gerbang-kartu">
         <div className="gerbang-merek">
-          <Brand size={40} />
-          <span className="gerbang-merek-teks">{t("umum.merek")}</span>
+          <Merek />
           <PemilihBahasa varian="gerbang" />
         </div>
 
