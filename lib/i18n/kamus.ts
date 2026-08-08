@@ -248,10 +248,15 @@ const KAMUS_ID = {
   "panduan.kapan": "Kapan menulis hari ini",
   "panduan.kapanSub":
     "Jam yang sama menentukan dua-duanya: berapa orang yang melihat, dan berapa yang sempat membalas selagi kamu masih di layar.",
-  "panduan.tulisXKini": "Jam emas sedang berlangsung — tulis di X sekarang",
-  "panduan.tulisX": "Tulis di X sekarang",
+  /* Label tombol, jadi sependek label tombol: keadaan jam emasnya sudah
+     terbaca dari kartu tepat di atasnya dan dari warna tombolnya sendiri, dan
+     mengulangnya di dalam tombol hanya membuat kalimatnya menyentuh kedua
+     tepi. Yang tersisa di sini cuma perbedaan yang tidak bisa dilihat dari
+     tempat lain: sekarang, atau nanti. */
+  "panduan.tulisXKini": "Tulis di X sekarang",
+  "panduan.tulisX": "Tulis di X",
   "panduan.tulisXSebagai": "Akun X yang sedang dikembangkan:",
-  "panduan.tulisKunci": "Terkunci — akun X belum diisi",
+  "panduan.tulisKunci": "Akun X belum diisi",
   "panduan.tulisKunciTeks":
     "Isi bidang “Akun X” lewat Sunting profil, lalu tombol ini terbuka dan menyeberang ke X.",
   "panduan.tulisKunciAksi": "Buka profil",
@@ -1011,10 +1016,10 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "panduan.kapan": "When to post today",
   "panduan.kapanSub":
     "The same hour decides both things: how many people see it, and how many can reply while you are still on the screen.",
-  "panduan.tulisXKini": "Golden hours are running — post on X now",
-  "panduan.tulisX": "Post on X now",
+  "panduan.tulisXKini": "Post on X now",
+  "panduan.tulisX": "Post on X",
   "panduan.tulisXSebagai": "The X account you are growing:",
-  "panduan.tulisKunci": "Locked — no X account yet",
+  "panduan.tulisKunci": "No X account yet",
   "panduan.tulisKunciTeks":
     "Fill in the “X account” field under Edit profile and this button unlocks, taking you straight to X.",
   "panduan.tulisKunciAksi": "Open profile",

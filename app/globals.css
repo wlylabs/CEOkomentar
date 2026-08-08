@@ -483,6 +483,10 @@ input::-webkit-strong-password-auto-fill-button {
   color: var(--aksen);
 }
 
+/* Hanya halaman satu komentar yang masih menulis nama layarnya di bilah atas:
+   halaman itu berdiri di luar navigasi bawah, jadi tidak ada apa pun selain
+   bilah ini yang mengatakan sedang di mana. Kelima layar aplikasi tidak
+   memakainya — lihat komentar di atas bilahnya di App.tsx. */
 .bilah-judul {
   flex: 1;
   min-width: 0;
@@ -494,10 +498,14 @@ input::-webkit-strong-password-auto-fill-button {
   text-overflow: ellipsis;
 }
 
+/* Didorong ke kanan sendiri, bukan oleh judul yang melebar di sebelahnya:
+   tanpa judul di tengah, bilahnya tetap terbaca sebagai merek di satu ujung
+   dan alat akun di ujung lain. */
 .bilah-aksi {
   display: flex;
   align-items: center;
   gap: 2px;
+  margin-left: auto;
 }
 
 .bulat {
@@ -771,6 +779,11 @@ input::-webkit-strong-password-auto-fill-button {
 
 .tombol-lebar {
   width: 100%;
+  /* Selebar kolomnya, dan tidak pernah lebih: tanpa batas atas, tombol yang
+     labelnya kepanjangan melebar melewati tepi layar dan menyeret seluruh
+     halaman ikut bergeser ke samping. */
+  max-width: 100%;
+  min-width: 0;
   height: 44px;
 }
 
@@ -783,6 +796,28 @@ input::-webkit-strong-password-auto-fill-button {
 .tombol:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/*
+ * Label sepanjang apa pun berhenti di dalam tombolnya.
+ *
+ * Yang menentukan `min-width: 0`: anak sebuah flex tidak pernah menyusut di
+ * bawah lebar teksnya sampai diberi tahu, jadi label yang kepanjangan bukan
+ * memendek melainkan mendorong ikonnya keluar dan menempelkan hurufnya ke
+ * kedua tepi tombol. Ikonnya sendiri dikunci di ukurannya — kalau tombolnya
+ * sempit, yang boleh mengalah tulisannya, bukan lambangnya.
+ *
+ * Pemendekan ini pengaman, bukan tata letak: label yang benar tetap yang cukup
+ * pendek untuk muat utuh di layar tersempit.
+ */
+.tombol > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tombol > svg {
+  flex: none;
 }
 
 /* ============================================================
@@ -3532,6 +3567,10 @@ input::-webkit-strong-password-auto-fill-button {
    yang berubah saat akun X akhirnya diisi hanya isinya, bukan bentuknya. */
 .pan-kunci {
   display: grid;
+  /* Satu kolom yang berhenti di lebar kolom panduan. Dibiarkan `auto`, kolomnya
+     melar mengikuti isi terlebar — dan isi terlebar di sini tombol yang
+     tulisannya tidak boleh patah, jadi kolomnya menyeberangi tepi layar. */
+  grid-template-columns: minmax(0, 1fr);
   justify-items: start;
   gap: 8px;
 }
