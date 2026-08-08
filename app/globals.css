@@ -1927,6 +1927,14 @@ input::-webkit-strong-password-auto-fill-button {
   color: #ffffff;
 }
 
+/* Menunggu pencocokan bukan keadaan gagal, jadi tandanya tidak diwarnai merah;
+   ia hanya lebih tegas daripada "belum selesai" dan lebih sabar daripada
+   "selesai". */
+.misi-tanda-ditinjau {
+  border-color: var(--aksen);
+  color: var(--aksen);
+}
+
 .misi-teks {
   font-size: 14.5px;
   line-height: 1.55;

@@ -139,6 +139,24 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      /* Daftar pengikut akun resmi beserta waktu penyegarannya. Sama seperti
+         akun_x: tanpa kebijakan RLS, jadi hanya server yang membacanya. */
+      pengikut_resmi: {
+        Row: { username_kecil: string; username: string; dicatat_at: string };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      pengikut_resmi_kabar: {
+        Row: {
+          tunggal: boolean;
+          disegarkan_at: string | null;
+          jumlah: number;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       /* Baris notifikasi hanya ditulis pemicu basis data; aplikasi cuma membaca,
          menandai terbaca, dan menghapus. */
       notifications: {
@@ -166,11 +184,15 @@ export type Database = {
         Args: { batas?: number };
         Returns: { tagar: string; komentar: number; penulis: number }[];
       };
-      /* Dua fungsi berikut hanya bisa dipanggil `service_role`; klien peramban
+      /* Tiga fungsi berikut hanya bisa dipanggil `service_role`; klien peramban
          yang mencobanya akan ditolak PostgREST. */
-      selesaikan_misi_x: {
+      periksa_misi_x: {
         Args: { pengguna: string; x_id: string; x_username: string };
         Returns: string;
+      };
+      ganti_pengikut_resmi: {
+        Args: { daftar: string[]; paksa?: boolean };
+        Returns: number;
       };
       batalkan_misi: {
         Args: { pengguna: string; kode_misi: string };

@@ -41,6 +41,8 @@ export type Misi = {
 type Keterangan = {
   judul: KunciTeks;
   teks: KunciTeks;
+  /** kalimat selama misinya menunggu keputusan; hanya untuk misi bertinjauan */
+  menunggu?: KunciTeks;
   /** kalimat yang muncul setelah lencananya didapat */
   selesai: KunciTeks;
   /** langkah-langkah pengerjaan, ditampilkan sebagai daftar bernomor */
@@ -51,6 +53,7 @@ export const KATALOG: Record<KodeMisi, Keterangan> = {
   "ikuti-x": {
     judul: "misi.ikutiX.judul",
     teks: "misi.ikutiX.teks",
+    menunggu: "misi.ikutiX.menunggu",
     selesai: "misi.ikutiX.selesai",
     langkah: [
       "misi.ikutiX.langkah1",
@@ -74,10 +77,13 @@ export function misiDikenal(kode: string): kode is KodeMisi {
 export const HASIL = [
   "berhasil",
   "sudah",
+  "menunggu",
   "belumIkut",
+  "belumSegar",
   "terpakai",
   "lain",
   "belumSiap",
+  "takTersedia",
   "ditolak",
   "gagal",
   "terlaluSering",
@@ -95,10 +101,13 @@ export function bacaHasil(nilai: string | null): HasilMisi | null {
 export const PESAN_HASIL: Record<HasilMisi, KunciTeks> = {
   berhasil: "misi.hasil.berhasil",
   sudah: "misi.hasil.sudah",
+  menunggu: "misi.hasil.menunggu",
   belumIkut: "misi.hasil.belumIkut",
+  belumSegar: "misi.hasil.belumSegar",
   terpakai: "misi.hasil.terpakai",
   lain: "misi.hasil.lain",
   belumSiap: "misi.hasil.belumSiap",
+  takTersedia: "misi.hasil.takTersedia",
   ditolak: "misi.hasil.ditolak",
   gagal: "misi.hasil.gagal",
   terlaluSering: "misi.hasil.terlaluSering",

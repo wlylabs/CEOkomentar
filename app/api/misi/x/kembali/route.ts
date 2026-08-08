@@ -1,17 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { alamatPemanggil, ambilJatah } from "@/lib/keamanan/batas";
-import { AKUN_X, type HasilMisi } from "@/lib/misi";
+import { bacaHasil, type HasilMisi } from "@/lib/misi";
 import { klienLayanan, layananSiap } from "@/lib/supabase/admin";
 import { klienServer } from "@/lib/supabase/server";
 import { supabaseSiap } from "@/lib/supabase/env";
 import {
-  akunLewatUsername,
   akunSaya,
-  apakahMengikutiX,
   cabutToken,
   samaAman,
   tukarKode,
   xSiap,
+  type SebabGagalX,
 } from "@/lib/x/oauth";
 import {
   alamatKembali,
@@ -25,6 +24,13 @@ import {
 
 export const dynamic = "force-dynamic";
 
+/** Kegagalan di sisi X diterjemahkan menjadi kabar yang bisa ditindaklanjuti. */
+const KABAR_GAGAL: Record<SebabGagalX, HasilMisi> = {
+  akses: "takTersedia",
+  rem: "terlaluSering",
+  putus: "gagal",
+};
+
 /**
  * Langkah kedua: X memulangkan pemakai ke sini.
  *
@@ -32,10 +38,12 @@ export const dynamic = "force-dynamic";
  * permintaan yang tidak berasal dari alur kita berhenti sebelum satu pun
  * panggilan keluar dilakukan.
  *
- * Lencananya diberikan lewat `selesaikan_misi_x()`, satu-satunya jalan menulis
- * ke tabel lencana, dan hanya `service_role` yang boleh memanggilnya. Peramban
- * sama sekali tidak ikut menentukan hasilnya: ia cuma membaca kata di query
- * string dan menampilkan kalimatnya.
+ * X hanya ditanyai satu hal: siapa pemilik token ini. Pertanyaan "apakah ia
+ * mengikuti akun resmi" dijawab `periksa_misi_x()` dari daftar pengikut yang
+ * disegarkan pengelola — satu-satunya jalan menulis ke tabel lencana, dan hanya
+ * `service_role` yang boleh memanggilnya. Peramban sama sekali tidak ikut
+ * menentukan hasilnya: ia cuma membaca kata di query string dan menampilkan
+ * kalimatnya.
  */
 export async function GET(permintaan: NextRequest) {
   const aman = https(permintaan);
@@ -89,67 +97,28 @@ export async function GET(permintaan: NextRequest) {
 
   try {
     const saya = await akunSaya(token);
-    if (!saya) return selesai("gagal");
+    if (!saya.ok) return selesai(KABAR_GAGAL[saya.sebab]);
 
-    const target = await akunLewatUsername(token, AKUN_X);
-    if (!target) return selesai("gagal");
-
-    /* Akun resmi tidak perlu mengikuti dirinya sendiri; X pun tidak
-       mengizinkannya, jadi pertanyaannya tidak akan pernah dijawab "ya". */
-    const mengikuti =
-      saya.id === target.id
-        ? true
-        : await apakahMengikutiX(token, saya.id, target.id);
-
-    if (mengikuti === null) return selesai("gagal");
-
-    const layanan = klienLayanan();
-
-    if (!mengikuti) {
-      /*
-       * Lencana yang sudah diberikan tidak boleh bertahan setelah akun yang
-       * jadi buktinya berhenti mengikuti. Pencabutan hanya berlaku bila akun X
-       * yang baru saja masuk memang akun yang dulu terikat — kalau bukan, yang
-       * terjadi cuma pemeriksaan dari akun X orang lain, dan itu tidak boleh
-       * bisa mencabut lencana siapa pun.
-       */
-      const [{ data: ikatan }, { data: kemajuan }] = await Promise.all([
-        layanan
-          .from("akun_x")
-          .select("x_user_id")
-          .eq("user_id", user.id)
-          .maybeSingle(),
-        layanan
-          .from("misi_pengguna")
-          .select("status")
-          .eq("user_id", user.id)
-          .eq("misi", "ikuti-x")
-          .maybeSingle(),
-      ]);
-
-      if (kemajuan?.status === "selesai" && ikatan?.x_user_id === saya.id) {
-        const { error } = await layanan.rpc("batalkan_misi", {
-          pengguna: user.id,
-          kode_misi: "ikuti-x",
-        });
-        if (!error) return selesai("dicabut");
-      }
-
-      return selesai("belumIkut");
-    }
-
-    const { data: hasil, error } = await layanan.rpc("selesaikan_misi_x", {
+    /*
+     * Seluruh keputusan ada di dalam satu fungsi basis data: ikatan akun X,
+     * pencocokan ke daftar pengikut, antrean tinjauan, dan pencabutan. Ditulis
+     * begitu supaya tidak ada urutan langkah yang bisa berbeda antara sini dan
+     * penyegaran daftar — keduanya memanggil `selesaikan_misi()` yang sama.
+     */
+    const { data: hasil, error } = await klienLayanan().rpc("periksa_misi_x", {
       pengguna: user.id,
-      x_id: saya.id,
-      x_username: saya.username,
+      x_id: saya.nilai.id,
+      x_username: saya.nilai.username,
     });
 
-    if (error) return selesai("gagal");
-    if (hasil === "terpakai") return selesai("terpakai");
-    if (hasil === "lain") return selesai("lain");
-    if (hasil === "sudah") return selesai("sudah");
+    if (error) {
+      console.warn(`[misi/x] periksa_misi_x gagal: ${error.message}`);
+      return selesai("gagal");
+    }
 
-    return selesai("berhasil");
+    /* Kata yang dipulangkan basis data adalah kata yang sama yang dikenal
+       antarmuka; yang tidak dikenal berarti skemanya lebih baru dari kode ini. */
+    return selesai(bacaHasil(hasil) ?? "gagal");
   } finally {
     /* Izin yang sudah tidak diperlukan tidak dibiarkan menganggur di akun
        pemakai; ia dicabut sebelum jawaban ini meninggalkan server. */

@@ -1,6 +1,12 @@
 "use client";
 
-import { IkonBuka, IkonCentang, IkonTerverifikasi, IkonX } from "./Icons";
+import {
+  IkonBuka,
+  IkonCentang,
+  IkonJam,
+  IkonTerverifikasi,
+  IkonX,
+} from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import { judulLencana } from "@/lib/lencana";
 import { AKUN_X, KATALOG, PROFIL_X, type KodeMisi, type Misi } from "@/lib/misi";
@@ -60,6 +66,9 @@ export default function DaftarMisi({
       {daftar.map((misi) => {
         const kata = KATALOG[misi.kode];
         const selesai = misi.status === "selesai";
+        /* Keadaan ketiga: syaratnya sudah dikerjakan dan tinggal dicocokkan.
+           Bukan kegagalan, jadi kartunya tidak boleh terlihat seperti gagal. */
+        const ditinjau = misi.status === "menunggu";
         const sibuk = menunggu === misi.kode;
 
         return (
@@ -83,19 +92,38 @@ export default function DaftarMisi({
               </span>
 
               <span
-                className={`misi-tanda${selesai ? " misi-tanda-selesai" : ""}`}
+                className={`misi-tanda${selesai ? " misi-tanda-selesai" : ""}${
+                  ditinjau ? " misi-tanda-ditinjau" : ""
+                }`}
               >
                 {selesai && <IkonCentang size={14} />}
-                {t(selesai ? "misi.status.selesai" : "misi.status.belum")}
+                {ditinjau && <IkonJam size={13} />}
+                {t(
+                  selesai
+                    ? "misi.status.selesai"
+                    : ditinjau
+                      ? "misi.status.menunggu"
+                      : "misi.status.belum",
+                )}
               </span>
             </header>
 
-            <p className="misi-teks">{selesai ? t(kata.selesai) : t(kata.teks)}</p>
+            <p className="misi-teks">
+              {t(
+                selesai
+                  ? kata.selesai
+                  : ditinjau
+                    ? (kata.menunggu ?? kata.teks)
+                    : kata.teks,
+              )}
+            </p>
 
-            {selesai ? (
+            {selesai || ditinjau ? (
               misi.bukti.x_username && (
                 <p className="misi-bukti">
-                  {t("misi.bukti", { username: misi.bukti.x_username })}
+                  {t(ditinjau ? "misi.terhubung" : "misi.bukti", {
+                    username: misi.bukti.x_username,
+                  })}
                 </p>
               )
             ) : (
@@ -121,7 +149,9 @@ export default function DaftarMisi({
 
               <button
                 type="button"
-                className={`tombol ${selesai ? "tombol-garis" : "tombol-utama"}`}
+                className={`tombol ${
+                  selesai || ditinjau ? "tombol-garis" : "tombol-utama"
+                }`}
                 onClick={() => onVerifikasi(misi.kode)}
                 disabled={sibuk}
               >
@@ -130,7 +160,11 @@ export default function DaftarMisi({
                 ) : (
                   <>
                     <span>
-                      {t(selesai ? "misi.periksaUlang" : "misi.verifikasi")}
+                      {t(
+                        selesai || ditinjau
+                          ? "misi.periksaUlang"
+                          : "misi.verifikasi",
+                      )}
                     </span>
                     <IkonBuka size={15} />
                   </>
@@ -138,7 +172,10 @@ export default function DaftarMisi({
               </button>
             </div>
 
-            {!selesai && <p className="misi-catatan">{t("misi.catatanIzin")}</p>}
+            {/* Catatan izin hanya perlu dibaca sebelum izinnya diberikan. */}
+            {!selesai && !ditinjau && (
+              <p className="misi-catatan">{t("misi.catatanIzin")}</p>
+            )}
           </article>
         );
       })}

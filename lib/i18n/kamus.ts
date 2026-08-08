@@ -120,40 +120,50 @@ const KAMUS_ID = {
   "misi.kosongTeks": "Misi baru akan muncul di sini begitu dibuka.",
   "misi.hadiah": "Hadiah: {lencana}",
   "misi.status.belum": "Belum selesai",
+  "misi.status.menunggu": "Sedang ditinjau",
   "misi.status.selesai": "Selesai",
   "misi.bukti": "Terverifikasi lewat akun X @{username}.",
+  "misi.terhubung": "Terhubung lewat akun X @{username}.",
   "misi.verifikasi": "Hubungkan X & verifikasi",
   "misi.periksaUlang": "Periksa ulang",
   "misi.catatanIzin":
-    "Verifikasi memakai izin baca dari X. Kami hanya menanyakan satu hal — apakah kamu mengikuti akun resmi — lalu izinnya langsung dicabut. Tidak ada yang bisa kami tulis atau kirim atas namamu.",
+    "Verifikasi memakai izin baca dari X, dan yang kami tanyakan cuma satu: akun X mana yang sedang masuk. Izinnya langsung dicabut sesudahnya. Tidak ada yang bisa kami tulis atau kirim atas namamu.",
   "misi.ikutiX.judul": "Ikuti akun resmi di X",
   "misi.ikutiX.teks":
-    "Centang biru diberikan kepada akun yang mengikuti @CEOkomentar di X. Pengikutannya diperiksa langsung ke X, bukan sekadar dipercaya.",
+    "Centang biru diberikan kepada akun yang mengikuti @CEOkomentar di X. Namamu dicocokkan dengan daftar pengikut akun resmi, bukan sekadar dipercaya.",
+  "misi.ikutiX.menunggu":
+    "Akun X-mu sudah terhubung dan sedang menunggu pencocokan. Begitu daftar pengikut akun resmi disegarkan, centang birunya diberikan sendiri — kamu tidak perlu menekan apa-apa lagi.",
   "misi.ikutiX.selesai":
     "Centang biru sudah menempel di namamu. Selama kamu masih mengikuti @CEOkomentar, lencananya tetap ada.",
   "misi.ikutiX.langkah1": "Buka profil @CEOkomentar di X, lalu tekan Follow.",
   "misi.ikutiX.langkah2":
     "Kembali ke sini dan tekan “Hubungkan X & verifikasi”.",
   "misi.ikutiX.langkah3":
-    "Izinkan aplikasi ini membaca akunmu sekali saja — lencananya langsung diberikan.",
+    "Izinkan aplikasi ini membaca akunmu sekali saja, supaya kami tahu nama X mana yang harus dicocokkan.",
   "misi.ikutiX.buka": "Buka @{akun} di X",
   "misi.hasil.berhasil": "Centang biru didapat. Selamat!",
   "misi.hasil.sudah":
-    "Masih mengikuti @CEOkomentar — centang birumu tetap berlaku.",
+    "Masih tercatat sebagai pengikut @CEOkomentar — centang birumu tetap berlaku.",
+  "misi.hasil.menunggu":
+    "Akun X-mu terhubung. Pengikutannya dicocokkan pada penyegaran daftar berikutnya, dan lencananya diberikan tanpa perlu kamu tekan lagi.",
   "misi.hasil.belumIkut":
-    "Akun X itu belum mengikuti @CEOkomentar. Ikuti dulu, lalu coba lagi.",
+    "Akun X itu belum tercatat sebagai pengikut @CEOkomentar pada penyegaran terakhir. Ikuti dulu, lalu tunggu penyegaran berikutnya.",
+  "misi.hasil.belumSegar":
+    "Daftar pengikut belum disegarkan sejak lencanamu diberikan, jadi centangmu dibiarkan apa adanya.",
   "misi.hasil.terpakai":
     "Akun X itu sudah dipakai untuk memverifikasi akun lain di sini.",
   "misi.hasil.lain":
     "Akunmu sudah terikat ke akun X yang berbeda dan ikatan itu tidak bisa dipindah.",
   "misi.hasil.belumSiap":
     "Verifikasi X belum diaktifkan di server ini. Hubungi pengelolanya.",
+  "misi.hasil.takTersedia":
+    "X menolak permintaan verifikasi dari server ini. Mengulanginya tidak akan menolong — pengelolanya yang perlu memeriksa akses aplikasinya.",
   "misi.hasil.ditolak": "Verifikasi dibatalkan.",
   "misi.hasil.gagal": "Verifikasi gagal. Coba lagi sebentar lagi.",
   "misi.hasil.terlaluSering":
     "Terlalu banyak percobaan. Tunggu beberapa menit lalu coba lagi.",
   "misi.hasil.dicabut":
-    "Kamu sudah tidak mengikuti @CEOkomentar, jadi centang birunya dilepas.",
+    "Kamu sudah tidak tercatat sebagai pengikut @CEOkomentar, jadi centang birunya dilepas.",
 
   /* ----------------------------------------------------------------- utas */
   "utas.judul": "Komentar",
@@ -517,39 +527,49 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "misi.kosongTeks": "New missions will show up here as they open.",
   "misi.hadiah": "Reward: {lencana}",
   "misi.status.belum": "Not finished",
+  "misi.status.menunggu": "Under review",
   "misi.status.selesai": "Done",
   "misi.bukti": "Verified through the X account @{username}.",
+  "misi.terhubung": "Connected through the X account @{username}.",
   "misi.verifikasi": "Connect X & verify",
   "misi.periksaUlang": "Check again",
   "misi.catatanIzin":
-    "Verification uses read-only access from X. We ask a single question — whether you follow the official account — and revoke the access right after. Nothing can be written or posted on your behalf.",
+    "Verification uses read-only access from X, and we ask a single thing: which X account is signing in. The access is revoked right after. Nothing can be written or posted on your behalf.",
   "misi.ikutiX.judul": "Follow the official account on X",
   "misi.ikutiX.teks":
-    "The blue check goes to accounts that follow @CEOkomentar on X. The follow is checked with X itself, not simply taken on trust.",
+    "The blue check goes to accounts that follow @CEOkomentar on X. Your name is matched against the official account's follower list, not simply taken on trust.",
+  "misi.ikutiX.menunggu":
+    "Your X account is connected and waiting to be matched. As soon as the official follower list is refreshed, the blue check is awarded on its own — nothing left for you to press.",
   "misi.ikutiX.selesai":
     "The blue check is on your name. It stays as long as you keep following @CEOkomentar.",
   "misi.ikutiX.langkah1": "Open @CEOkomentar on X and press Follow.",
   "misi.ikutiX.langkah2": "Come back here and press “Connect X & verify”.",
   "misi.ikutiX.langkah3":
-    "Grant this app read access once — the badge is awarded right away.",
+    "Grant this app read access once, so we know which X name to match.",
   "misi.ikutiX.buka": "Open @{akun} on X",
   "misi.hasil.berhasil": "Blue check earned. Congratulations!",
   "misi.hasil.sudah":
-    "You still follow @CEOkomentar — your blue check stays.",
+    "Still on @CEOkomentar's follower list — your blue check stays.",
+  "misi.hasil.menunggu":
+    "Your X account is connected. The follow is matched at the next list refresh, and the badge is awarded without you pressing anything again.",
   "misi.hasil.belumIkut":
-    "That X account does not follow @CEOkomentar yet. Follow first, then try again.",
+    "That X account was not on @CEOkomentar's follower list at the last refresh. Follow first, then wait for the next one.",
+  "misi.hasil.belumSegar":
+    "The follower list has not been refreshed since your badge was awarded, so your check is left as it is.",
   "misi.hasil.terpakai":
     "That X account has already verified another account here.",
   "misi.hasil.lain":
     "Your account is already bound to a different X account, and that binding cannot be moved.",
   "misi.hasil.belumSiap":
     "X verification is not enabled on this server. Ask whoever runs it.",
+  "misi.hasil.takTersedia":
+    "X refused this server's verification request. Retrying will not help — whoever runs it needs to check the app's API access.",
   "misi.hasil.ditolak": "Verification cancelled.",
   "misi.hasil.gagal": "Verification failed. Try again in a moment.",
   "misi.hasil.terlaluSering":
     "Too many attempts. Wait a few minutes, then try again.",
   "misi.hasil.dicabut":
-    "You no longer follow @CEOkomentar, so the blue check was removed.",
+    "You are no longer on @CEOkomentar's follower list, so the blue check was removed.",
 
   /* ----------------------------------------------------------------- utas */
   "utas.judul": "Comment",

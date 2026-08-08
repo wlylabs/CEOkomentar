@@ -101,13 +101,17 @@ lewat pengalih di navigasi.
 **Misi dan lencana**
 
 - **Misi centang biru**: mengikuti [@CEOkomentar](https://x.com/CEOkomentar) di
-  X. Pengikutannya **diperiksa langsung ke X** lewat OAuth 2.0 — bukan dijanjikan
-  sendiri lewat kotak centang
+  X. Kepemilikan akun X-nya **dibuktikan lewat OAuth 2.0**, lalu namanya
+  dicocokkan dengan daftar pengikut akun resmi — bukan dijanjikan sendiri lewat
+  kotak centang
 - **Tidak ada jalan memberi lencana pada diri sendiri**: tabel misi dan lencana
   tidak punya satu pun kebijakan tulis untuk pengguna, dan fungsi pemberinya
   hanya bisa dipanggil `service_role` dari server
 - **Satu akun X, satu lencana**: ikatannya permanen, jadi satu pengikutan tidak
   bisa dipakai ulang oleh akun-akun baru
+- **Antrean yang mengurus dirinya sendiri**: nama yang belum tercatat menunggu,
+  dan penyegaran daftar berikutnya yang menyelesaikannya tanpa pemakainya perlu
+  kembali
 - **Pemeriksaan ulang** melepas lencana bila akun resminya sudah tidak diikuti
 - **Bisa bertambah**: katalog misi hidup di basis data dan katalog lencananya di
   `lib/lencana.ts`; misi berikutnya tidak memerlukan perubahan skema
@@ -178,8 +182,12 @@ lewat pengalih di navigasi.
    - `20260808110000_penguat-keamanan.sql` — penguncian kolom yang hanya boleh
      ditulis pemicu (penghitung suka, posting ulang, dan pengikut), handle akun
      resmi yang tidak bisa diambil alih, serta rem laju penulisan komentar
+   - `20260808120000_pengikut-resmi.sql` — daftar pengikut akun resmi beserta
+     waktu penyegarannya, pemeriksa misi yang mencocokkan nama ke daftar itu,
+     antrean tinjauan yang dikosongkan setiap penyegaran, dan penutupan
+     `selesaikan_misi_x()` yang lama
 
-   Kesembilannya aman dijalankan ulang. Bila memakai Supabase CLI:
+   Kesepuluhnya aman dijalankan ulang. Bila memakai Supabase CLI:
    `supabase db push`.
 3. Aktifkan **pg_cron** di **Database → Extensions** supaya komentar
    kedaluwarsa benar-benar terhapus. Migrasi mencoba memasangnya sendiri dan
@@ -281,7 +289,8 @@ app/
   layout.tsx        kerangka dokumen, metadata, bahasa awal, penetapan tema
   page.tsx          rute utama: penyiapan, gerbang masuk, atau aplikasi
   komentar/[id]/    tautan tetap satu komentar
-  api/misi/x/       alur izin X: mulai (PKCE) dan kembali (pemeriksa follow)
+  api/misi/x/       alur izin X: mulai (PKCE), kembali (pemeriksa), pengikut
+                    (penyegaran daftar oleh admin)
   manifest.ts       keterangan aplikasi untuk pemasangan (PWA)
   sandi-baru/       halaman penggantian kata sandi dari tautan email
   auth/callback/    penukaran kode tautan email menjadi sesi
@@ -532,15 +541,43 @@ pula percaya pada jawaban peramban. Yang terjadi:
 2. X memulangkannya ke `GET /api/misi/x/kembali`. `state` dicocokkan dengan
    kuki titipan memakai perbandingan waktu tetap sebelum satu pun panggilan
    keluar dilakukan.
-3. Kodenya ditukar menjadi token, lalu tiga pertanyaan diajukan ke X: siapa
-   pemilik token ini, siapa id `@CEOkomentar`, dan apakah yang pertama mengikuti
-   yang kedua (`GET /2/users/:id/following`, ditelusuri per seribu).
+3. Kodenya ditukar menjadi token, lalu **satu** pertanyaan diajukan ke X: siapa
+   pemilik token ini (`GET /2/users/me`).
 4. Tokennya **dicabut** sebelum jawaban meninggalkan server. Tidak ada token X
    yang disimpan di mana pun — yang tersimpan hanya id dan username X-nya.
-5. Bila mengikuti, `selesaikan_misi_x()` dipanggil dengan kunci `service_role`.
-   Fungsi itulah satu-satunya yang bisa menulis ke tabel lencana.
+5. `periksa_misi_x()` dipanggil dengan kunci `service_role`. Fungsi itu yang
+   mengikat akun X-nya, mencocokkan namanya ke tabel `pengikut_resmi`, dan —
+   bila cocok — menulis ke tabel lencana. Ia satu-satunya yang bisa.
 
-Tiga hal yang membuatnya sulit diakali:
+#### Kenapa bukan ditanyakan ke X
+
+Sampai versi sebelumnya langkah 3 mengajukan tiga pertanyaan, yang terakhir
+`GET /2/users/:id/following`. Titik akhir itu **tidak diberikan X kepada
+aplikasi self-serve** — ia tinggal di kontrak enterprise — sehingga jawabannya
+selalu 403, pemeriksaannya selalu berakhir "tidak yakin", dan tidak ada satu
+lencana pun yang pernah diberikan. Sejak Februari 2026 X juga menghapus tier
+gratisnya dan menggantinya dengan pay-per-use.
+
+Yang tahu siapa saja pengikut sebuah akun, tanpa perlu izin siapa pun, adalah
+pemilik akun itu sendiri. Karena itu sumber kebenarannya dipindahkan ke sini:
+satu daftar yang disegarkan pengelola, dan verifikasi menjadi pencocokan nama
+terhadap daftar itu. Yang tidak ikut berubah adalah bagian yang penting —
+kepemilikan akun X tetap dibuktikan lewat OAuth, bukan diketik sendiri.
+
+#### Kata yang dipulangkan pemeriksanya
+
+| Kata | Artinya |
+| --- | --- |
+| `berhasil` | tercatat sebagai pengikut; lencananya baru saja diberikan |
+| `sudah` | tercatat, dan lencananya memang sudah dimiliki |
+| `menunggu` | belum tercatat; masuk antrean penyegaran berikutnya |
+| `belumIkut` | belum tercatat padahal daftarnya sudah disegarkan sesudahnya |
+| `belumSegar` | sudah punya lencana, dan daftarnya belum cukup baru untuk membantahnya |
+| `dicabut` | daftar yang lebih baru tidak memuatnya lagi |
+| `terpakai` / `lain` | ikatan akun X-nya bentrok |
+| `takTersedia` | X menolak permintaannya (401/403) — mengulang tidak menolong |
+
+Empat hal yang membuatnya sulit diakali:
 
 - **Peramban tidak ikut memutuskan.** Tabel `misi_pengguna` dan
   `lencana_pengguna` hanya punya kebijakan `select` untuk pemiliknya; tidak ada
@@ -551,14 +588,48 @@ Tiga hal yang membuatnya sulit diakali:
   secara permanen dengan `x_user_id` sebagai kunci utama dan `user_id` yang
   unik. Mengikuti sekali lalu memberi centang pada sepuluh akun buatan tidak
   bisa dilakukan.
-- **Lencananya bisa dicabut.** Menekan **Periksa ulang** menanyakan hal yang
-  sama ke X. Bila akun resminya sudah tidak diikuti, `batalkan_misi()` melepas
-  lencananya — dan itu hanya berlaku bila akun X yang memeriksa memang akun yang
-  dulu terikat, sehingga tidak ada yang bisa mencabut lencana orang lain.
+- **Daftarnya tidak terbaca peramban.** `pengikut_resmi` tidak punya satu pun
+  kebijakan RLS dan haknya dicabut dari `anon` maupun `authenticated`; yang
+  membacanya cuma fungsi di atas.
+- **Lencananya bisa dicabut.** Menekan **Periksa ulang** mencocokkan ulang. Bila
+  namanya hilang dari daftar yang **lebih baru daripada pemberian lencananya**,
+  `batalkan_misi()` melepasnya — dan itu hanya berlaku bila akun X yang memeriksa
+  memang akun yang dulu terikat, sehingga tidak ada yang bisa mencabut lencana
+  orang lain.
 
-Bila daftar "mengikuti" akun itu terlalu panjang untuk ditelusuri, atau X sedang
-menolak, jawabannya adalah "tidak yakin" — bukan "tidak mengikuti". Yang seperti
-itu tidak pernah mencabut lencana siapa pun.
+Daftar yang lebih tua daripada lencananya tidak tahu apa-apa tentang apa yang
+terjadi sesudahnya, jadi diamnya bukan bantahan: jawabannya `belumSegar` dan
+lencananya dibiarkan. Karena alasan yang sama, penyegaran daftar **tidak pernah
+mencabut lencana secara massal** — satu unggahan yang keliru terlalu mahal untuk
+dibatalkan. Yang dikerjakannya cuma arah sebaliknya: mengosongkan antrean.
+
+### Menyegarkan daftar pengikut
+
+Satu rute, khusus admin, dan seluruh isinya diganti sekali jalan — nama yang
+tidak ikut terkirim berarti sudah tidak mengikuti.
+
+```
+POST /api/misi/x/pengikut
+{ "teks": "@budi\nsiti_a, rahmat99" }        # tempelan mentah, atau
+{ "daftar": ["budi", "siti_a", "rahmat99"] } # larik nama
+```
+
+Awalan `@` dilepas, pemisahnya spasi/koma/baris baru, huruf besar-kecil tidak
+membedakan, dan nama yang bentuknya bukan username X dibuang tanpa membatalkan
+sisanya. Jawabannya `{ "jumlah": 3, "disegarkan_at": "…" }`.
+
+`GET /api/misi/x/pengikut` memulangkan keadaan sekarang: berapa nama yang
+tercatat dan kapan terakhir disegarkan.
+
+Daftar kosong **ditolak** kecuali dikirim bersama `"paksa": true`; tanpa
+penjagaan itu satu unggahan yang gagal di tengah jalan bisa mengosongkan
+tabelnya tanpa ada yang menyadarinya. Rute ini menolak permintaan lintas asal,
+menanyakan keadminan kepada basis data, dan direm di dua belas penyegaran per
+jam per akun.
+
+Setiap penyegaran juga mengosongkan antrean tinjauan: siapa pun yang sudah
+menghubungkan akun X-nya dan namanya baru saja masuk daftar langsung mendapat
+lencananya, tanpa perlu membuka aplikasi lagi.
 
 ### Menyalakannya
 
@@ -573,9 +644,14 @@ APP_URL=https://contoh.app      # tanpa garis miring di akhir
 
 Di **X Developer Portal → Projects & Apps → aplikasimu → User authentication
 settings**, pilih *App permissions: Read*, *Type of App: Web App*, dan isi
-*Callback URI* dengan `<APP_URL>/api/misi/x/kembali`. Titik akhir daftar
-"mengikuti" berada di paket berbayar X; tanpa akses itu pemeriksaannya akan
-selalu menjawab "tidak yakin" dan lencananya tidak diberikan.
+*Callback URI* dengan `<APP_URL>/api/misi/x/kembali`. Cakupan yang diminta
+tinggal `users.read tweet.read` — `follows.read` sudah tidak dipakai lagi,
+karena daftar yang diikuti memang tidak pernah dibaca.
+
+Yang masih diperlukan dari X cuma `GET /2/users/me`, satu panggilan per
+verifikasi. Bila X menolaknya, jawabannya sekarang `takTersedia` — kabar yang
+menyuruh menghubungi pengelola, bukan `gagal` yang menyuruh mencoba lagi
+selamanya.
 
 Tanpa ketiga nilai tersebut, misinya tetap tampil beserta langkah-langkahnya,
 tombol verifikasinya menjawab "belum diaktifkan di server ini", dan tidak ada
@@ -639,7 +715,11 @@ asal yang sama.
 **Di alur X.** PKCE, `state` yang dicocokkan dengan waktu tetap, kuki `HttpOnly`
 berawalan `__Secure-` yang jalurnya dipersempit ke `/api/misi/x` dan berumur
 sepuluh menit, rem laju per akun dan per alamat, serta token yang dicabut
-setelah dipakai.
+setelah dipakai. Cakupan izinnya dipersempit ke `users.read tweet.read` sejak
+daftar yang diikuti tidak lagi dibaca. Rute penyegaran daftar pengikut menolak
+permintaan lintas asal lewat header `Origin`, menanyakan keadminan kepada basis
+data alih-alih kepada peramban, dan menolak daftar kosong yang tidak diminta
+dengan sengaja.
 
 **Yang tidak dilakukan.** Tidak ada skrip pihak ketiga, tidak ada pelacak, dan
 tidak ada permintaan ke luar selain ke Supabase dan — hanya saat verifikasi

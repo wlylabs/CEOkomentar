@@ -73,16 +73,20 @@ const TAB: { kunci: Tab; label: KunciTeks }[] = [
   { kunci: "disukai", label: "tab.disukai" },
 ];
 
-/* Tidak semua hasil verifikasi adalah kegagalan: "belum mengikuti" dan
-   "lencana dicabut" adalah keadaan yang wajar dan bisa diperbaiki sendiri. */
+/* Tidak semua hasil verifikasi adalah kegagalan: "menunggu pencocokan", "belum
+   mengikuti", dan "lencana dicabut" adalah keadaan yang wajar dan bisa
+   diperbaiki sendiri. Yang bernada galat hanya yang benar-benar buntu. */
 const NADA_HASIL: Record<HasilMisi, JenisKabar> = {
   berhasil: "berhasil",
   sudah: "berhasil",
+  menunggu: "info",
   belumIkut: "info",
+  belumSegar: "info",
   dicabut: "info",
   terpakai: "galat",
   lain: "galat",
   belumSiap: "galat",
+  takTersedia: "galat",
   ditolak: "info",
   gagal: "galat",
   terlaluSering: "galat",
