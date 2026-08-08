@@ -3072,11 +3072,41 @@ input::-webkit-strong-password-auto-fill-button {
   border-left: 1px solid var(--garis);
 }
 
+/* Nama zona dan bagian harinya berbagi satu baris di atas angkanya. Bagian
+   hari ikut ke atas, bukan ke samping angkanya: di baris UTC tempat itu sudah
+   dipakai am/pm, dan dua kata yang berdesakan di kanan angka membuat keduanya
+   sama-sama sulit dibaca. */
+.jam-kini-kepala {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+
 .jam-kini-label {
   color: var(--teks-samar);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
+}
+
+.jam-kini-bagian {
+  color: var(--teks-samar);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jam-kini-kepala .jam-kini-bagian::before {
+  content: "· ";
+}
+
+.jam-kini-baris {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
 }
 
 .jam-kini-angka {
@@ -3086,10 +3116,25 @@ input::-webkit-strong-password-auto-fill-button {
   letter-spacing: -0.01em;
 }
 
+/* am/pm ditulis kecil dan huruf kecil semua: yang dicari mata di baris ini
+   angkanya, sedangkan tandanya cuma memastikan angka itu tidak terbaca dua
+   belas jam salah. */
+.jam-kini-tanda {
+  color: var(--teks-samar);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+
 .jam-kini-utc .jam-kini-angka {
   color: var(--teks-samar);
   font-size: 17px;
   font-weight: 600;
+}
+
+.jam-kini-utc .jam-kini-tanda {
+  font-size: 11px;
 }
 
 .jam-kini-tanggal {
@@ -3121,6 +3166,18 @@ input::-webkit-strong-password-auto-fill-button {
   font-size: 12.5px;
   font-weight: 600;
   color: var(--teks);
+}
+
+.jam-kini-ringkas .jam-kini-tanda {
+  font-size: 11.5px;
+  margin-left: -1px;
+}
+
+/* Di baris sebaris ini bagian harinya ikut mengalir bersama kalimatnya, jadi
+   ditulis huruf kecil — bukan kata yang berdiri sendiri seperti di kartu. */
+.jam-kini-ringkas .jam-kini-bagian {
+  font-size: 12.5px;
+  text-transform: lowercase;
 }
 
 .jam-kini-pisah {

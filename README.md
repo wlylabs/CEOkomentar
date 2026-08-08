@@ -80,10 +80,13 @@ lewat pengalih di navigasi.
   berjalan ditandai
 - **Kekuatan tiap hari**: Selasa–Kamis paling kuat, Sabtu dan Minggu paling
   lemah — terutama paginya, titik terendah sepanjang pekan
-- **Jam sungguhan yang berdetak**, WIB dan UTC berdampingan sampai ke detiknya,
-  lengkap dengan tanggal masing-masing zona — WIB karena itu yang dipakai
-  seluruh angka di atasnya, UTC supaya siapa pun yang sedang tidak duduk di
-  zona itu tetap bisa mencocokkannya
+- **Jam sungguhan yang berdetak**, WIB dan UTC berdampingan, masing-masing
+  dengan bagian harinya — dini hari, pagi, siang, sore, malam — dan tanggalnya
+  sendiri. WIB karena itu yang dipakai seluruh angka di atasnya, ditulis 24 jam
+  supaya bisa dicocokkan langsung dengan jendela jam emasnya; UTC sebagai baris
+  rujukan bagi yang sedang tidak duduk di zona itu, ditulis 12 jam ber-am/pm.
+  Detiknya tidak ikut ditulis: yang dijawab baris ini "sekarang jam berapa", dan
+  tidak satu pun angka di bawahnya berubah dalam sedetik
 - Semuanya dihitung dalam **WIB (UTC+7)**, bukan jam perangkat: yang menentukan
   adalah kapan audiensnya membuka linimasa, bukan di zona mana penulisnya duduk
 - Tampil sebagai kartu di panel kanan pada layar lebar, dan sebagai satu baris
@@ -424,7 +427,7 @@ components/
   TautanX.tsx       kartu untuk tautan X yang dilampirkan di komentar
   Utas.tsx          halaman tautan tetap satu komentar
   JamEmas.tsx       jam emas audiens Indonesia: kartu panel kanan dan baris ringkas
-  JamKini.tsx       jam sungguhan WIB dan UTC, berdetak tiap detik
+  JamKini.tsx       jam dinding WIB dan UTC beserta bagian harinya
   Panduan.tsx       halaman panduan: jam emas, rencana harian, algoritma, kebijakan
   DaftarMisi.tsx    kartu misi, penyusun kalimat pengajuan, dan tombol kirimnya
   KelolaLencana.tsx panel lencana milik admin di kartu profil orang lain
@@ -447,7 +450,7 @@ lib/
   algoritmaArsip.ts bacaan atas twitter/the-algorithm 2023: tahap, sumber, bobot
   algoritmaKini.ts  bacaan atas xai-org/x-algorithm 2026: tahap, aksi, rumus, Grok
   avatar.ts         avatar bawaan DiceBear yang dibangkitkan dari handle
-  jam.ts            zona WIB dan UTC, pemecah jam dinding, dan jam aplikasi
+  jam.ts            zona WIB dan UTC, pemecah jam dinding, bagian hari, jam aplikasi
   jamEmas.ts        jendela jam emas WIB dan hitungan potensi jangkauannya
   kebijakan.ts      masa hidup komentar, disamakan dengan basis data
   kreator.ts        program, syarat, dan larangan Creator Studio X

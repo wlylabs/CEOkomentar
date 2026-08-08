@@ -140,18 +140,43 @@ export function jamMenit(menit: number, bahasa: Bahasa) {
   return `${jam}${bahasa === "en" ? ":" : "."}${sisa}`;
 }
 
+/** Angka jamnya, dan tanda am/pm bila zonanya ditulis 12 jam. */
+export type JamDinding = { angka: string; tanda: string | null };
+
 /**
- * "14.32.05" / "14:32:05" — jam dinding lengkap sampai detiknya.
+ * "14.32" / "2:32" + "pm" — jam dinding sebuah zona, tanpa detik.
  *
- * Dipakai jam sungguhan di kartu jam emas, yang berdetak tiap detik; karena itu
- * angkanya selalu dua digit — jam yang panjangnya berubah-ubah akan membuat
- * seluruh baris bergeser tiap kali detiknya melewati sepuluh.
+ * Detiknya tidak ikut ditulis: yang dijawab baris ini adalah "sekarang jam
+ * berapa", dan tidak satu pun angka di kartu jam emas — potensi, sisa jendela,
+ * jarak ke jendela berikutnya — berubah dalam sedetik. Angka yang berputar
+ * terus-terusan hanya menarik mata ke satu-satunya tempat yang tidak
+ * memerlukannya.
+ *
+ * Bentuk 24 jam selalu dua digit supaya barisnya tidak bergeser sepanjang hari.
+ * Bentuk 12 jam justru tidak dipatok: "07.32 am" terbaca seperti jam kereta,
+ * sedangkan yang dicari orang di baris rujukan adalah "7.32 am". Pergeseran
+ * satu digitnya hanya terjadi dua kali sehari, di baris yang bukan pusat
+ * perhatian.
  */
-export function jamPenuh(bagian: BagianWaktu, bahasa: Bahasa) {
+export function jamZona(
+  bagian: BagianWaktu,
+  bahasa: Bahasa,
+  jam12 = false,
+): JamDinding {
   const pemisah = bahasa === "en" ? ":" : ".";
-  return [bagian.jam, bagian.menit, bagian.detik]
-    .map((angka) => String(angka).padStart(2, "0"))
-    .join(pemisah);
+  const menit = String(bagian.menit).padStart(2, "0");
+
+  if (!jam12) {
+    const jam = String(bagian.jam).padStart(2, "0");
+    return { angka: `${jam}${pemisah}${menit}`, tanda: null };
+  }
+
+  /* Tengah malam dan tengah hari jatuh di 12, bukan 0. */
+  const jam = bagian.jam % 12 || 12;
+  return {
+    angka: `${jam}${pemisah}${menit}`,
+    tanda: bagian.jam < 12 ? "am" : "pm",
+  };
 }
 
 /** "8 Agu 2026" / "Aug 8, 2026" — tanggal jam dinding sebuah zona. */

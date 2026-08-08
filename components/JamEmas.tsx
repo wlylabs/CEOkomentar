@@ -144,7 +144,7 @@ export default function JamEmas({
         {/* Jam sungguhannya ikut turun ke sini: di layar sempit baris inilah
             satu-satunya tempat keputusan "kirim sekarang atau nanti" bertemu
             dengan waktu yang dipakai menghitungnya. */}
-        <JamKini varian="ringkas" />
+        <JamKini sekarang={sekarang} varian="ringkas" />
       </div>
     );
   }
@@ -159,7 +159,7 @@ export default function JamEmas({
       {/* Jam sungguhan mendahului seluruh angka di bawahnya: semuanya —
           potensi, sisa jendela, jarak ke jendela berikutnya — dibaca dari
           detik yang sedang berjalan ini. */}
-      <JamKini />
+      <JamKini sekarang={sekarang} />
 
       <div className="jam-kepala">
         <span className="jam-label">{t("jam.potensi")}</span>
