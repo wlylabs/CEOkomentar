@@ -54,7 +54,7 @@ type BarisTanda = {
   created_at: string;
 };
 
-export type JenisNotifikasi = "suka" | "ulang" | "ikut";
+export type JenisNotifikasi = "suka" | "ulang" | "ikut" | "misi";
 
 export type BarisNotifikasi = {
   id: string;
@@ -63,7 +63,7 @@ export type BarisNotifikasi = {
   /** yang melakukan */
   actor_id: string;
   jenis: JenisNotifikasi;
-  /** null untuk kabar 'ikut' */
+  /** komentar yang disukai, diulang, atau diajukan; null untuk kabar 'ikut' */
   comment_id: string | null;
   created_at: string;
   dibaca_at: string | null;

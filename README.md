@@ -90,9 +90,10 @@ lewat pengalih di navigasi.
   berganti "Berhenti mengikuti" saat kursor menyentuhnya
 - Profil orang lain dibuka dengan menekan nama, foto, atau sebutan `@handle` di
   mana pun ia muncul
-- **Notifikasi** untuk suka, posting ulang, dan pengikut baru. Barisnya
-  ditulis pemicu basis data — aplikasi tidak punya izin membuatnya — dan
-  membatalkan suka atau berhenti mengikuti ikut menarik kabarnya kembali
+- **Notifikasi** untuk suka, posting ulang, dan pengikut baru — dan, khusus di
+  daftar admin, untuk pengajuan misi yang baru diposting. Barisnya ditulis
+  pemicu basis data — aplikasi tidak punya izin membuatnya — dan membatalkan
+  suka atau berhenti mengikuti ikut menarik kabarnya kembali
 - Lencana angka di navigasi menyala lewat Realtime dan padam begitu daftarnya
   dibuka
 - **Tren 24 jam** di panel kanan: tagar teramai dihitung langsung dari komentar
@@ -103,10 +104,13 @@ lewat pengalih di navigasi.
 - **Misi centang biru**: mengikuti [@gaptekcat](https://x.com/gaptekcat) di
   X, lalu **memposting pengajuannya di Twitter Mini** — satu kalimat tetap
   beserta tautan profil X yang menekan Follow. Kartu misinya yang menyusun
-  kalimatnya, tinggal disalin atau dikirim langsung ke kotak tulis
+  kalimatnya, dan satu tombol mengirimkannya ke kotak tulis
 - **Yang memutuskan admin, bukan tombol**: pengajuan itu komentar biasa yang
   berdiri di beranda; admin membacanya, mencocokkan tautan profilnya dengan
   daftar pengikut akun resmi, lalu memberi lencananya dari kartu profil pengaju
+- **Pengajuannya mengabari admin** seperti suka dan posting ulang mengabari
+  penulis komentar: begitu komentar bertagar `#TwitterMini` masuk, satu baris
+  muncul di daftar notifikasi tiap admin dan menunjuk langsung ke komentarnya
 - **Tagar `#TwitterMini`** mengumpulkan seluruh pengajuan jadi satu: menekannya
   di kartu mana pun menyaring beranda ke daftar yang perlu diperiksa. Kalimat
   pengajuannya ikut bahasa antarmuka; tagarnya tidak, jadi pengajuan berbahasa
@@ -200,6 +204,10 @@ lewat pengalih di navigasi.
      misinya; dan penutupan `periksa_misi_x()` yang pemanggilnya sudah tidak ada
    - `20260808140000_profil-x.sql` — kolom `x_username` di `profiles`, isian
      profil yang diketik sendiri pemiliknya beserta pembatas bentuk handle X
+   - `20260808150000_kabar-misi.sql` — kabar berjenis `misi`: pemicu yang
+     mengabari tiap admin begitu komentar bertagar `#TwitterMini` diposting,
+     tagar pengajuan sebagai fungsi SQL, dan kunci unik notifikasi yang
+     diperlebar supaya satu perbuatan bisa mengabari lebih dari satu orang
 
    Semuanya aman dijalankan ulang. Bila memakai Supabase CLI:
    `supabase db push`.
@@ -327,7 +335,7 @@ components/
   DaftarMisi.tsx    kartu misi, penyusun kalimat pengajuan, dan tombol kirimnya
   KelolaLencana.tsx panel lencana milik admin di kartu profil orang lain
   Lencana.tsx       lencana yang berjajar di sebelah nama akun
-  DaftarNotifikasi.tsx daftar suka, posting ulang, dan pengikut baru
+  DaftarNotifikasi.tsx daftar suka, posting ulang, pengikut baru, dan pengajuan misi
   LencanaKabar.tsx  titik merah berisi jumlah kabar yang belum dibaca
   Kabar.tsx         kabar sekilas di sudut layar: berhasil, info, dan galat
   TombolTema.tsx    pengalih tema terang/gelap dalam dua bentuk
@@ -566,11 +574,16 @@ tidak pula percaya pada jawaban peramban. Yang terjadi:
    https://x.com/budi
    ```
 
-   **Salin teks** menaruhnya di papan klip; **Tulis di Twitter Mini**
-   menuangkannya langsung ke kotak tulis di beranda, dengan tautan profilnya
-   sudah terpisah sebagai lampiran — persis seperti tempelan tautan biasa.
+   **Tulis di Twitter Mini** menuangkannya langsung ke kotak tulis di beranda,
+   dengan tautan profilnya sudah terpisah sebagai lampiran — persis seperti
+   tempelan tautan biasa. Tidak ada tombol salin: kalimatnya sudah utuh di
+   kotak tulis begitu tombolnya ditekan, jadi papan klip tidak dilewati sama
+   sekali.
 4. Komentar itulah pengajuannya. Ia berdiri di beranda seperti komentar lain,
-   dan admin membacanya di sana.
+   dan **tiap admin mendapat kabarnya di daftar notifikasi** — satu baris
+   "memposting pengajuan misi follow" yang membuka komentarnya bila ditekan.
+   Kabar itu ditulis pemicu `notifikasi_klaim_misi()`, dan ikut hilang bersama
+   komentarnya, entah dihapus atau habis umur 24 jamnya.
 5. Admin membuka profil pengaju di aplikasi, mencocokkan tautan profil X-nya
    dengan daftar pengikut @gaptekcat, lalu menekan **Beri** pada baris centang
    biru di panel lencana.
@@ -712,7 +725,7 @@ SUPABASE_SERVICE_ROLE_KEY=...   # Project Settings → API → service_role
 ```
 
 Tanpa nilai itu misinya tetap tampil beserta langkah-langkahnya, kalimat
-pengajuannya tetap bisa disalin dan diposting, tetapi tombol di panel lencana
+pengajuannya tetap bisa diposting, tetapi tombol di panel lencana
 menjawab "Lencana gagal disimpan" — tidak ada lencana yang bisa berpindah tangan
 lewat jalan lain. Selebihnya aplikasi berjalan seperti biasa.
 
@@ -788,7 +801,8 @@ dulu (lihat bagian [Admin](#admin)).
   bukan dibulatkan — 1.999.999 menjadi `1,9 jt`, bukan `2 jt`.
 - Notifikasi 'ikut' tidak punya komentar yang membawanya pergi, jadi hanya jenis
   itu yang menumpuk; `sapu_notifikasi_lama()` dijadwalkan tiap hari bila pg_cron
-  tersedia.
+  tersedia. Kabar 'misi' menggantung pada komentarnya seperti 'suka' dan
+  'ulang', jadi ia pergi sendiri saat pengajuannya habis umur.
 - Jam emas adalah pola kebiasaan, bukan ramalan: angkanya tetap dari hari ke
   hari (`lib/jamEmas.ts`), tidak dihitung dari data pemakaian aplikasi ini, dan
   selalu memakai WIB berapa pun jam perangkat pembacanya.

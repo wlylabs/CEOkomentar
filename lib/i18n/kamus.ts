@@ -148,7 +148,6 @@ const KAMUS_ID = {
   "misi.klaim.asing":
     "Yang ditunggu tautan profil X, misalnya https://x.com/namamu — bukan tautan postingan dan bukan alamat lain.",
   "misi.klaim.kurang": "(tautan profilmu belum diisi)",
-  "misi.klaim.salin": "Salin teks",
   "misi.klaim.tulis": "Tulis di Twitter Mini",
   "misi.klaim.catatan":
     "Aplikasi ini tidak meminta izin apa pun atas akun X-mu. Yang dibaca admin cuma komentar yang kamu posting sendiri, dan tautan profil di dalamnya yang dicocokkan dengan daftar pengikut @{akun}.",
@@ -177,6 +176,9 @@ const KAMUS_ID = {
   "notif.suka": "menyukai komentarmu",
   "notif.ulang": "memposting ulang komentarmu",
   "notif.ikut": "mulai mengikutimu",
+  /* Hanya pernah muncul di daftar admin: kabar bahwa sebuah pengajuan misi
+     baru saja diposting dan menunggu diputuskan. */
+  "notif.misi": "memposting pengajuan misi follow",
   "notif.belumDibaca": "{jumlah} kabar belum dibaca",
   "notif.kosongJudul": "Belum ada kabar",
   "notif.kosongTeks":
@@ -302,7 +304,6 @@ const KAMUS_ID = {
   "pesan.berhentiMengikuti": "Berhenti mengikuti @{handle}",
   "pesan.profilTakDitemukan": "Tidak ada akun dengan handle @{handle}",
   "pesan.tautanDisalin": "Tautan komentar disalin",
-  "pesan.teksDisalin": "Teks disalin. Tinggal ditempel di kotak tulis.",
   "pesan.papanKlipDitolak": "Peramban menolak akses papan klip",
   "pesan.profilDiperbarui": "Profil diperbarui",
   "pesan.profilGagal": "Profil gagal disimpan",
@@ -561,7 +562,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "misi.klaim.asing":
     "A link to an X profile is expected, like https://x.com/yourname — not a link to a post, and not another address.",
   "misi.klaim.kurang": "(your profile link is still empty)",
-  "misi.klaim.salin": "Copy text",
   "misi.klaim.tulis": "Write it on Twitter Mini",
   "misi.klaim.catatan":
     "This app asks for no access at all to your X account. All an admin reads is the comment you posted yourself, and the profile link inside it that gets matched against @{akun}'s follower list.",
@@ -590,6 +590,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "notif.suka": "liked your comment",
   "notif.ulang": "reposted your comment",
   "notif.ikut": "started following you",
+  "notif.misi": "posted a follow-mission claim",
   "notif.belumDibaca": "{jumlah} unread notifications",
   "notif.kosongJudul": "Nothing here yet",
   "notif.kosongTeks":
@@ -715,7 +716,6 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "pesan.berhentiMengikuti": "Unfollowed @{handle}",
   "pesan.profilTakDitemukan": "No account with the handle @{handle}",
   "pesan.tautanDisalin": "Comment link copied",
-  "pesan.teksDisalin": "Text copied. Just paste it in the composer.",
   "pesan.papanKlipDitolak": "The browser denied clipboard access",
   "pesan.profilDiperbarui": "Profile updated",
   "pesan.profilGagal": "The profile could not be saved",

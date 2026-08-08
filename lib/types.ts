@@ -39,14 +39,15 @@ export type Comment = {
   reposted: boolean;
 };
 
-export type JenisNotifikasi = "suka" | "ulang" | "ikut";
+/** `misi` hanya pernah ditujukan kepada admin: pengajuan misi yang baru diposting. */
+export type JenisNotifikasi = "suka" | "ulang" | "ikut" | "misi";
 
 export type Notifikasi = {
   id: string;
   jenis: JenisNotifikasi;
   /** id pelaku; profilnya ikut dibawa dalam `pengguna` */
   aktorId: string;
-  /** komentar yang disukai atau diulang; null untuk 'ikut' */
+  /** komentar yang disukai, diulang, atau diajukan; null untuk 'ikut' */
   komentarId: string | null;
   /** kutipan isi komentar, secukupnya untuk satu baris daftar */
   kutipan: string | null;

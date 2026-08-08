@@ -1030,12 +1030,7 @@ export default function App({
           aria-label={t("daftar.label", { judul: judulDaftar.toLowerCase() })}
         >
           {tampilan === "misi" ? (
-            <DaftarMisi
-              daftar={misi}
-              memuat={memuatMisi}
-              onSalin={(teks) => salin(teks, "pesan.teksDisalin")}
-              onTulis={tulisKlaim}
-            />
+            <DaftarMisi daftar={misi} memuat={memuatMisi} onTulis={tulisKlaim} />
           ) : tampilan === "notifikasi" ? (
             memuatKabar && notifikasi.length === 0 ? (
               <div className="rangka" aria-hidden="true">
