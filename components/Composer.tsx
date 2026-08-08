@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useEffect,
   useId,
   useRef,
   useState,
@@ -16,6 +17,7 @@ import {
   alamatAsing,
   alamatRingkas,
   cariAlamat,
+  petikTautanX,
   uraiTautanX,
   type TautanX,
 } from "@/lib/tautan";
@@ -23,11 +25,20 @@ import type { User } from "@/lib/types";
 
 const BATAS = 280;
 
+/**
+ * Tulisan yang dituangkan dari luar — sejauh ini dari kartu misi, yang menyiapkan
+ * kalimat klaim beserta tautan profilnya. `nomor` yang membedakan dua tuangan
+ * berisi kalimat yang sama persis; tanpa itu menekan tombolnya dua kali tidak
+ * akan terasa apa-apa setelah tulisannya sempat disunting.
+ */
+export type Draf = { teks: string; nomor: number };
+
 type Props = {
   pengguna: User;
   /** teks bayangan; bila kosong dipakai ajakan bawaan */
   placeholder?: string;
   labelTombol?: string;
+  draf?: Draf | null;
   onKirim: (teks: string) => void;
 };
 
@@ -35,6 +46,7 @@ export default function Composer({
   pengguna,
   placeholder,
   labelTombol,
+  draf,
   onKirim,
 }: Props) {
   const { t, tk } = useBahasa();
@@ -69,6 +81,28 @@ export default function Composer({
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
   }, []);
+
+  /* Tuangan dari luar menimpa isi kotak, bukan menambahinya: yang mengirimnya
+     adalah tombol yang menjanjikan satu kalimat utuh. Tautan X di dalamnya
+     dipisah menjadi lampiran supaya kartu pratinjaunya berdiri seperti biasa. */
+  const nomorDraf = useRef(0);
+
+  useEffect(() => {
+    if (!draf || draf.nomor === nomorDraf.current) return;
+    nomorDraf.current = draf.nomor;
+
+    const { teks: isi, tautan: lampiran } = petikTautanX(draf.teks);
+    setTeks(isi);
+    setTautan(lampiran);
+    setGalat(null);
+    setKotakTerbuka(false);
+    setIsiKotak("");
+
+    requestAnimationFrame(() => {
+      areaRef.current?.setSelectionRange(isi.length, isi.length);
+      sesuaikanTinggi();
+    });
+  }, [draf, sesuaikanTinggi]);
 
   function ubah(e: ChangeEvent<HTMLTextAreaElement>) {
     setTeks(e.target.value);

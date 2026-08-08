@@ -110,8 +110,10 @@ const KAMUS_ID = {
   "aksi.lainnya": "Tindakan lain",
   "aksi.tutupMenu": "Tutup menu",
   "lencana.biru": "Akun terverifikasi — sudah mengikuti akun resmi di X",
+  "lencana.biruNama": "Centang biru",
   "lencana.emas":
     "Akun resmi — admin yang dapat menghapus komentar siapa pun",
+  "lencana.emasNama": "Centang emas",
 
   /* ----------------------------------------------------------------- misi */
   "misi.sub": "Selesaikan misinya, dapatkan lencananya.",
@@ -123,47 +125,42 @@ const KAMUS_ID = {
   "misi.status.menunggu": "Sedang ditinjau",
   "misi.status.selesai": "Selesai",
   "misi.bukti": "Terverifikasi lewat akun X @{username}.",
-  "misi.terhubung": "Terhubung lewat akun X @{username}.",
-  "misi.verifikasi": "Hubungkan X & verifikasi",
-  "misi.periksaUlang": "Periksa ulang",
-  "misi.catatanIzin":
-    "Verifikasi memakai izin baca dari X, dan yang kami tanyakan cuma satu: akun X mana yang sedang masuk. Izinnya langsung dicabut sesudahnya. Tidak ada yang bisa kami tulis atau kirim atas namamu.",
+  "misi.buktiAdmin": "Diberikan admin setelah pengajuanmu diperiksa.",
   "misi.ikutiX.judul": "Ikuti akun resmi di X",
   "misi.ikutiX.teks":
-    "Centang biru diberikan kepada akun yang mengikuti @CEOkomentar di X. Namamu dicocokkan dengan daftar pengikut akun resmi, bukan sekadar dipercaya.",
+    "Centang biru diberikan kepada akun yang mengikuti @CEOkomentar di X. Ikuti akunnya, lalu posting pengajuanmu di sini — admin yang mencocokkannya dengan daftar pengikut akun resmi.",
   "misi.ikutiX.menunggu":
-    "Akun X-mu sudah terhubung dan sedang menunggu pencocokan. Begitu daftar pengikut akun resmi disegarkan, centang birunya diberikan sendiri — kamu tidak perlu menekan apa-apa lagi.",
+    "Pengajuanmu sudah tercatat dan sedang ditinjau. Kalau namamu ada di daftar pengikut @CEOkomentar, centang birunya dipasang admin — kamu tidak perlu menekan apa-apa lagi.",
   "misi.ikutiX.selesai":
     "Centang biru sudah menempel di namamu. Selama kamu masih mengikuti @CEOkomentar, lencananya tetap ada.",
   "misi.ikutiX.langkah1": "Buka profil @CEOkomentar di X, lalu tekan Follow.",
   "misi.ikutiX.langkah2":
-    "Kembali ke sini dan tekan “Hubungkan X & verifikasi”.",
+    "Tempel tautan profil X-mu di kotak bawah ini — profil yang barusan menekan Follow, karena nama itulah yang akan dicari di daftar pengikut.",
   "misi.ikutiX.langkah3":
-    "Izinkan aplikasi ini membaca akunmu sekali saja, supaya kami tahu nama X mana yang harus dicocokkan.",
+    "Posting kalimatnya di Twitter Mini apa adanya, tagar #{tagar} sekalian — tagar itulah yang membuat pengajuanmu terkumpul dan terbaca admin. Komentar itu pengajuanmu; admin mencocokkan namamu, lalu memasang centangnya.",
   "misi.ikutiX.buka": "Buka @{akun} di X",
-  "misi.hasil.berhasil": "Centang biru didapat. Selamat!",
-  "misi.hasil.sudah":
-    "Masih tercatat sebagai pengikut @CEOkomentar — centang birumu tetap berlaku.",
-  "misi.hasil.menunggu":
-    "Akun X-mu terhubung. Pengikutannya dicocokkan pada penyegaran daftar berikutnya, dan lencananya diberikan tanpa perlu kamu tekan lagi.",
-  "misi.hasil.belumIkut":
-    "Akun X itu belum tercatat sebagai pengikut @CEOkomentar pada penyegaran terakhir. Ikuti dulu, lalu tunggu penyegaran berikutnya.",
-  "misi.hasil.belumSegar":
-    "Daftar pengikut belum disegarkan sejak lencanamu diberikan, jadi centangmu dibiarkan apa adanya.",
-  "misi.hasil.terpakai":
-    "Akun X itu sudah dipakai untuk memverifikasi akun lain di sini.",
-  "misi.hasil.lain":
-    "Akunmu sudah terikat ke akun X yang berbeda dan ikatan itu tidak bisa dipindah.",
-  "misi.hasil.belumSiap":
-    "Verifikasi X belum diaktifkan di server ini. Hubungi pengelolanya.",
-  "misi.hasil.takTersedia":
-    "X menolak permintaan verifikasi dari server ini. Mengulanginya tidak akan menolong — pengelolanya yang perlu memeriksa akses aplikasinya.",
-  "misi.hasil.ditolak": "Verifikasi dibatalkan.",
-  "misi.hasil.gagal": "Verifikasi gagal. Coba lagi sebentar lagi.",
-  "misi.hasil.terlaluSering":
-    "Terlalu banyak percobaan. Tunggu beberapa menit lalu coba lagi.",
-  "misi.hasil.dicabut":
-    "Kamu sudah tidak tercatat sebagai pengikut @CEOkomentar, jadi centang birunya dilepas.",
+  "misi.klaim.label": "Tautan profil X-mu",
+  "misi.klaim.bayangan": "https://x.com/namamu",
+  "misi.klaim.asing":
+    "Yang ditunggu tautan profil X, misalnya https://x.com/namamu — bukan tautan postingan dan bukan alamat lain.",
+  "misi.klaim.kurang": "(tautan profilmu belum diisi)",
+  "misi.klaim.salin": "Salin teks",
+  "misi.klaim.tulis": "Tulis di Twitter Mini",
+  "misi.klaim.catatan":
+    "Aplikasi ini tidak meminta izin apa pun atas akun X-mu. Yang dibaca admin cuma komentar yang kamu posting sendiri, dan tautan profil di dalamnya yang dicocokkan dengan daftar pengikut @CEOkomentar.",
+
+  /* --------------------------------------------------------------- kelola */
+  "kelola.label": "Lencana akun ini",
+  "kelola.judul": "Lencana",
+  "kelola.sub":
+    "Kamu admin, jadi lencana @{handle} bisa kamu atur dari sini. Cocokkan dulu pengajuan #{tagar} miliknya dengan daftar pengikut akun resmi.",
+  "kelola.beri": "Beri",
+  "kelola.cabut": "Cabut",
+  "kelola.ada": "Dimiliki",
+  "kelola.tiada": "Tidak dimiliki",
+  "kelola.peran": "Mengikuti peran admin; hanya bisa diubah dari basis data.",
+  "kelola.diberikan": "{lencana} diberikan kepada @{handle}",
+  "kelola.dicabut": "{lencana} dicabut dari @{handle}",
 
   /* ----------------------------------------------------------------- utas */
   "utas.judul": "Komentar",
@@ -296,6 +293,7 @@ const KAMUS_ID = {
   "pesan.berhentiMengikuti": "Berhenti mengikuti @{handle}",
   "pesan.profilTakDitemukan": "Tidak ada akun dengan handle @{handle}",
   "pesan.tautanDisalin": "Tautan komentar disalin",
+  "pesan.teksDisalin": "Teks disalin. Tinggal ditempel di kotak tulis.",
   "pesan.papanKlipDitolak": "Peramban menolak akses papan klip",
   "pesan.profilDiperbarui": "Profil diperbarui",
   "pesan.profilGagal": "Profil gagal disimpan",
@@ -314,6 +312,7 @@ const KAMUS_ID = {
   "galat.ikut": "Perubahan pengikut gagal disimpan.",
   "galat.muatNotifikasi": "Notifikasi gagal dimuat.",
   "galat.muatMisi": "Daftar misi gagal dimuat.",
+  "galat.lencana": "Lencana gagal disimpan.",
   "galat.hapusKomentar": "Komentar gagal dihapus.",
 
   /* -------------------------------------------------------- dialog keluar */
@@ -518,7 +517,9 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "aksi.lainnya": "More actions",
   "aksi.tutupMenu": "Close menu",
   "lencana.biru": "Verified account — follows the official account on X",
+  "lencana.biruNama": "Blue check",
   "lencana.emas": "Official account — admin, can delete anyone's comment",
+  "lencana.emasNama": "Gold check",
 
   /* ----------------------------------------------------------------- misi */
   "misi.sub": "Finish the mission, earn the badge.",
@@ -530,46 +531,42 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "misi.status.menunggu": "Under review",
   "misi.status.selesai": "Done",
   "misi.bukti": "Verified through the X account @{username}.",
-  "misi.terhubung": "Connected through the X account @{username}.",
-  "misi.verifikasi": "Connect X & verify",
-  "misi.periksaUlang": "Check again",
-  "misi.catatanIzin":
-    "Verification uses read-only access from X, and we ask a single thing: which X account is signing in. The access is revoked right after. Nothing can be written or posted on your behalf.",
+  "misi.buktiAdmin": "Awarded by an admin after your claim was checked.",
   "misi.ikutiX.judul": "Follow the official account on X",
   "misi.ikutiX.teks":
-    "The blue check goes to accounts that follow @CEOkomentar on X. Your name is matched against the official account's follower list, not simply taken on trust.",
+    "The blue check goes to accounts that follow @CEOkomentar on X. Follow it, then post your claim here — an admin matches it against the official account's follower list.",
   "misi.ikutiX.menunggu":
-    "Your X account is connected and waiting to be matched. As soon as the official follower list is refreshed, the blue check is awarded on its own — nothing left for you to press.",
+    "Your claim is recorded and under review. If your name is on @CEOkomentar's follower list, an admin puts the blue check on it — nothing left for you to press.",
   "misi.ikutiX.selesai":
     "The blue check is on your name. It stays as long as you keep following @CEOkomentar.",
   "misi.ikutiX.langkah1": "Open @CEOkomentar on X and press Follow.",
-  "misi.ikutiX.langkah2": "Come back here and press “Connect X & verify”.",
+  "misi.ikutiX.langkah2":
+    "Paste the link to your X profile in the box below — the profile that just pressed Follow, since that is the name looked up in the follower list.",
   "misi.ikutiX.langkah3":
-    "Grant this app read access once, so we know which X name to match.",
+    "Post the sentence on Twitter Mini as it is, #{tagar} included — that tag is what gathers claims where an admin can read them. That comment is your claim; an admin matches your name and puts the check on it.",
   "misi.ikutiX.buka": "Open @{akun} on X",
-  "misi.hasil.berhasil": "Blue check earned. Congratulations!",
-  "misi.hasil.sudah":
-    "Still on @CEOkomentar's follower list — your blue check stays.",
-  "misi.hasil.menunggu":
-    "Your X account is connected. The follow is matched at the next list refresh, and the badge is awarded without you pressing anything again.",
-  "misi.hasil.belumIkut":
-    "That X account was not on @CEOkomentar's follower list at the last refresh. Follow first, then wait for the next one.",
-  "misi.hasil.belumSegar":
-    "The follower list has not been refreshed since your badge was awarded, so your check is left as it is.",
-  "misi.hasil.terpakai":
-    "That X account has already verified another account here.",
-  "misi.hasil.lain":
-    "Your account is already bound to a different X account, and that binding cannot be moved.",
-  "misi.hasil.belumSiap":
-    "X verification is not enabled on this server. Ask whoever runs it.",
-  "misi.hasil.takTersedia":
-    "X refused this server's verification request. Retrying will not help — whoever runs it needs to check the app's API access.",
-  "misi.hasil.ditolak": "Verification cancelled.",
-  "misi.hasil.gagal": "Verification failed. Try again in a moment.",
-  "misi.hasil.terlaluSering":
-    "Too many attempts. Wait a few minutes, then try again.",
-  "misi.hasil.dicabut":
-    "You are no longer on @CEOkomentar's follower list, so the blue check was removed.",
+  "misi.klaim.label": "Link to your X profile",
+  "misi.klaim.bayangan": "https://x.com/yourname",
+  "misi.klaim.asing":
+    "A link to an X profile is expected, like https://x.com/yourname — not a link to a post, and not another address.",
+  "misi.klaim.kurang": "(your profile link is still empty)",
+  "misi.klaim.salin": "Copy text",
+  "misi.klaim.tulis": "Write it on Twitter Mini",
+  "misi.klaim.catatan":
+    "This app asks for no access at all to your X account. All an admin reads is the comment you posted yourself, and the profile link inside it that gets matched against @CEOkomentar's follower list.",
+
+  /* --------------------------------------------------------------- kelola */
+  "kelola.label": "Badges on this account",
+  "kelola.judul": "Badges",
+  "kelola.sub":
+    "You are an admin, so @{handle}'s badges are yours to set here. Match their #{tagar} claim against the official follower list first.",
+  "kelola.beri": "Award",
+  "kelola.cabut": "Revoke",
+  "kelola.ada": "Held",
+  "kelola.tiada": "Not held",
+  "kelola.peran": "Follows the admin role; only the database can change it.",
+  "kelola.diberikan": "{lencana} awarded to @{handle}",
+  "kelola.dicabut": "{lencana} revoked from @{handle}",
 
   /* ----------------------------------------------------------------- utas */
   "utas.judul": "Comment",
@@ -702,6 +699,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "pesan.berhentiMengikuti": "Unfollowed @{handle}",
   "pesan.profilTakDitemukan": "No account with the handle @{handle}",
   "pesan.tautanDisalin": "Comment link copied",
+  "pesan.teksDisalin": "Text copied. Just paste it in the composer.",
   "pesan.papanKlipDitolak": "The browser denied clipboard access",
   "pesan.profilDiperbarui": "Profile updated",
   "pesan.profilGagal": "The profile could not be saved",
@@ -720,6 +718,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "galat.ikut": "The follow could not be saved.",
   "galat.muatNotifikasi": "Notifications could not be loaded.",
   "galat.muatMisi": "The mission list could not be loaded.",
+  "galat.lencana": "The badge could not be saved.",
   "galat.hapusKomentar": "The comment could not be deleted.",
 
   /* -------------------------------------------------------- dialog keluar */

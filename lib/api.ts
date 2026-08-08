@@ -534,6 +534,42 @@ export async function ambilMisi(
 }
 
 /* ============================================================
+   Lencana (admin)
+   ============================================================ */
+
+/**
+ * Memberi atau mencabut satu lencana milik orang lain.
+ *
+ * Satu-satunya pemanggilan di berkas ini yang tidak lewat Supabase, dan memang
+ * tidak boleh: menulis ke tabel lencana butuh kunci `service_role`, jadi yang
+ * dihubungi adalah Route Handler di `/api/admin/lencana` — di sanalah keadminan
+ * pemanggilnya ditanyakan kepada basis data.
+ *
+ * Mengembalikan daftar lencana sasaran setelah perubahannya.
+ */
+export async function aturLencana(
+  penggunaId: string,
+  lencana: KodeLencana,
+  beri: boolean,
+): Promise<KodeLencana[]> {
+  let jawaban: Response;
+  try {
+    jawaban = await fetch("/api/admin/lencana", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ pengguna: penggunaId, lencana, beri }),
+    });
+  } catch {
+    throw galatKamus("galat.koneksi");
+  }
+
+  if (!jawaban.ok) throw galatKamus("galat.lencana");
+
+  const isi = (await jawaban.json()) as { lencana?: unknown };
+  return bacaLencana(isi.lencana);
+}
+
+/* ============================================================
    Tren
    ============================================================ */
 

@@ -32,7 +32,7 @@ export type BarisMisiPengguna = {
   user_id: string;
   misi: string;
   status: string;
-  bukti: { x_username?: string } | null;
+  bukti: { x_username?: string; oleh?: string } | null;
   dibuat_at: string;
   selesai_at: string | null;
 };
@@ -186,9 +186,10 @@ export type Database = {
       };
       /* Tiga fungsi berikut hanya bisa dipanggil `service_role`; klien peramban
          yang mencobanya akan ditolak PostgREST. */
-      periksa_misi_x: {
-        Args: { pengguna: string; x_id: string; x_username: string };
-        Returns: string;
+      atur_lencana_admin: {
+        Args: { sasaran: string; kode_lencana: string; beri: boolean };
+        /** daftar lencana sasaran setelah perubahannya */
+        Returns: string[];
       };
       ganti_pengikut_resmi: {
         Args: { daftar: string[]; paksa?: boolean };

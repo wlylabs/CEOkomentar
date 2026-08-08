@@ -101,18 +101,19 @@ lewat pengalih di navigasi.
 **Misi dan lencana**
 
 - **Misi centang biru**: mengikuti [@CEOkomentar](https://x.com/CEOkomentar) di
-  X. Kepemilikan akun X-nya **dibuktikan lewat OAuth 2.0**, lalu namanya
-  dicocokkan dengan daftar pengikut akun resmi — bukan dijanjikan sendiri lewat
-  kotak centang
+  X, lalu **memposting pengajuannya di Twitter Mini** — satu kalimat tetap
+  beserta tautan profil X yang menekan Follow. Kartu misinya yang menyusun
+  kalimatnya, tinggal disalin atau dikirim langsung ke kotak tulis
+- **Yang memutuskan admin, bukan tombol**: pengajuan itu komentar biasa yang
+  berdiri di beranda; admin membacanya, mencocokkan tautan profilnya dengan
+  daftar pengikut akun resmi, lalu memberi lencananya dari kartu profil pengaju
+- **Tagar `#SudahFollow`** mengumpulkan seluruh pengajuan jadi satu: menekannya
+  di kartu mana pun menyaring beranda ke daftar yang perlu diperiksa
 - **Tidak ada jalan memberi lencana pada diri sendiri**: tabel misi dan lencana
   tidak punya satu pun kebijakan tulis untuk pengguna, dan fungsi pemberinya
   hanya bisa dipanggil `service_role` dari server
-- **Satu akun X, satu lencana**: ikatannya permanen, jadi satu pengikutan tidak
-  bisa dipakai ulang oleh akun-akun baru
-- **Antrean yang mengurus dirinya sendiri**: nama yang belum tercatat menunggu,
-  dan penyegaran daftar berikutnya yang menyelesaikannya tanpa pemakainya perlu
-  kembali
-- **Pemeriksaan ulang** melepas lencana bila akun resminya sudah tidak diikuti
+- **Panel lencana admin**: satu baris per lencana di katalog, dengan tombol beri
+  dan cabut. Centang emas tidak ikut — ia mengikuti peran admin, bukan pemberian
 - **Bisa bertambah**: katalog misi hidup di basis data dan katalog lencananya di
   `lib/lencana.ts`; misi berikutnya tidak memerlukan perubahan skema
 
@@ -186,8 +187,11 @@ lewat pengalih di navigasi.
      waktu penyegarannya, pemeriksa misi yang mencocokkan nama ke daftar itu,
      antrean tinjauan yang dikosongkan setiap penyegaran, dan penutupan
      `selesaikan_misi_x()` yang lama
+   - `20260808130000_lencana-admin.sql` — `atur_lencana_admin()` yang memberi
+     dan mencabut lencana atas keputusan admin, sekaligus menyesuaikan kemajuan
+     misinya; dan penutupan `periksa_misi_x()` yang pemanggilnya sudah tidak ada
 
-   Kesepuluhnya aman dijalankan ulang. Bila memakai Supabase CLI:
+   Kesebelasnya aman dijalankan ulang. Bila memakai Supabase CLI:
    `supabase db push`.
 3. Aktifkan **pg_cron** di **Database → Extensions** supaya komentar
    kedaluwarsa benar-benar terhapus. Migrasi mencoba memasangnya sendiri dan
@@ -212,8 +216,8 @@ lewat pengalih di navigasi.
 Selama kedua nilai di `.env.local` kosong, aplikasi menampilkan layar penyiapan
 alih-alih halaman kosong.
 
-Untuk menyalakan misi centang biru, ada tiga nilai tambahan — semuanya opsional
-dan dijelaskan di bagian [Misi dan lencana](#misi-dan-lencana).
+Agar admin bisa memberi dan mencabut lencana, ada satu nilai tambahan —
+opsional, dan dijelaskan di bagian [Misi dan lencana](#misi-dan-lencana).
 
 ## Menerbitkan ke Vercel
 
@@ -237,12 +241,12 @@ dan dijelaskan di bagian [Misi dan lencana](#misi-dan-lencana).
    Keduanya berawalan `NEXT_PUBLIC_` karena memang dipakai di peramban. Itu
    aman: kunci anon memang untuk publik, dan yang menjaga data adalah RLS.
 
-   Untuk menyalakan misi centang biru, tambahkan pula `SUPABASE_SERVICE_ROLE_KEY`,
-   `X_CLIENT_ID`, `X_CLIENT_SECRET`, dan `APP_URL` (lihat bagian
-   [Misi dan lencana](#misi-dan-lencana)). Keempatnya **tanpa** awalan
+   Agar admin bisa memberi dan mencabut lencana, tambahkan pula
+   `SUPABASE_SERVICE_ROLE_KEY` (lihat bagian
+   [Misi dan lencana](#misi-dan-lencana)). Nilai itu **tanpa** awalan
    `NEXT_PUBLIC_` dan tidak boleh diberi awalan itu: `service_role` melewati
    seluruh kebijakan RLS, dan hanya Route Handler di server yang memakainya.
-   Bila misinya tidak dipakai, keempatnya boleh dikosongkan dan sisa aplikasi
+   Bila lencananya tidak dipakai, nilai itu boleh dikosongkan dan sisa aplikasi
    tetap berjalan.
 3. **Daftarkan URL Vercel di Supabase.** Buka **Authentication → URL
    Configuration**, lalu isi:
@@ -289,8 +293,8 @@ app/
   layout.tsx        kerangka dokumen, metadata, bahasa awal, penetapan tema
   page.tsx          rute utama: penyiapan, gerbang masuk, atau aplikasi
   komentar/[id]/    tautan tetap satu komentar
-  api/misi/x/       alur izin X: mulai (PKCE), kembali (pemeriksa), pengikut
-                    (penyegaran daftar oleh admin)
+  api/misi/x/       pengikut: penyegaran daftar pengikut akun resmi oleh admin
+  api/admin/        lencana: pemberian dan pencabutan lencana oleh admin
   manifest.ts       keterangan aplikasi untuk pemasangan (PWA)
   sandi-baru/       halaman penggantian kata sandi dari tautan email
   auth/callback/    penukaran kode tautan email menjadi sesi
@@ -310,7 +314,8 @@ components/
   TautanX.tsx       kartu untuk tautan X yang dilampirkan di komentar
   Utas.tsx          halaman tautan tetap satu komentar
   JamEmas.tsx       jam emas audiens Indonesia: kartu panel kanan dan baris ringkas
-  DaftarMisi.tsx    kartu misi beserta lencana hadiah dan tombol verifikasinya
+  DaftarMisi.tsx    kartu misi, penyusun kalimat pengajuan, dan tombol kirimnya
+  KelolaLencana.tsx panel lencana milik admin di kartu profil orang lain
   Lencana.tsx       lencana yang berjajar di sebelah nama akun
   DaftarNotifikasi.tsx daftar suka, posting ulang, dan pengikut baru
   LencanaKabar.tsx  titik merah berisi jumlah kabar yang belum dibaca
@@ -331,13 +336,12 @@ lib/
   jamEmas.ts        jendela jam emas WIB dan hitungan potensi jangkauannya
   kebijakan.ts      masa hidup komentar, disamakan dengan basis data
   lencana.ts        katalog lencana: kode, urutan tampil, dan keterangannya
-  misi.ts           katalog misi: kalimat, langkah, dan kata hasil verifikasi
+  misi.ts           katalog misi: kalimat, langkah, dan penyusun teks pengajuan
   tautan.ts         pengenalan dan perapian tautan X; penolak alamat lain
   tema.ts           tema terang/gelap: skrip pra-lukis, peralihan, warna bilah
   i18n/             daftar bahasa, kamus ID/EN, konteks React, dan teks berformat
   keamanan/         header keamanan beserta CSP, dan rem laju Route Handler
   supabase/         klien peramban, klien server, klien layanan, tipe, kredensial
-  x/                OAuth 2.0 PKCE ke X dan pemeriksaan "apakah mengikuti"
   image.ts          pemangkasan dan pengecilan gambar di sisi peramban
   time.ts           format waktu dan angka mengikuti bahasa yang dipakai
   types.ts          tipe bersama
@@ -525,88 +529,135 @@ mengubahnya.
 
 ## Misi dan lencana
 
-Lencana tidak diberikan karena diminta, melainkan karena syaratnya diperiksa.
-Misi pertama — dan sejauh ini satu-satunya — adalah **mengikuti @CEOkomentar di
-X**, dengan hadiah **centang biru**.
+Lencana tidak diberikan karena diminta, melainkan karena syaratnya diperiksa —
+oleh seorang manusia. Misi pertama, dan sejauh ini satu-satunya, adalah
+**mengikuti @CEOkomentar di X**, dengan hadiah **centang biru**.
 
-### Bagaimana pengikutannya dipastikan
+### Bagaimana pengajuannya berjalan
 
-Aplikasi tidak bertanya "apakah kamu sudah follow?" kepada pemakainya, dan tidak
-pula percaya pada jawaban peramban. Yang terjadi:
+Aplikasi tidak bertanya "apakah kamu sudah follow?" lewat kotak centang, dan
+tidak pula percaya pada jawaban peramban. Yang terjadi:
 
-1. Pemakai menekan **Hubungkan X & verifikasi**. `GET /api/misi/x/mulai`
-   menyusun `state` dan `code_verifier` acak, menitipkannya di kuki `HttpOnly`
-   `SameSite=Lax` berumur sepuluh menit, lalu mengantarnya ke halaman izin X
-   (OAuth 2.0 Authorization Code + PKCE, cakupan hanya baca).
-2. X memulangkannya ke `GET /api/misi/x/kembali`. `state` dicocokkan dengan
-   kuki titipan memakai perbandingan waktu tetap sebelum satu pun panggilan
-   keluar dilakukan.
-3. Kodenya ditukar menjadi token, lalu **satu** pertanyaan diajukan ke X: siapa
-   pemilik token ini (`GET /2/users/me`).
-4. Tokennya **dicabut** sebelum jawaban meninggalkan server. Tidak ada token X
-   yang disimpan di mana pun — yang tersimpan hanya id dan username X-nya.
-5. `periksa_misi_x()` dipanggil dengan kunci `service_role`. Fungsi itu yang
-   mengikat akun X-nya, mencocokkan namanya ke tabel `pengikut_resmi`, dan —
-   bila cocok — menulis ke tabel lencana. Ia satu-satunya yang bisa.
+1. Pemakai membuka **Misi**, menekan tombol yang mengantarnya ke profil
+   @CEOkomentar di X, lalu menekan Follow di sana.
+2. Ia menempelkan **tautan profil X-nya sendiri** di kotak pada kartu misi —
+   profil yang barusan menekan Follow. Bentuk apa pun diterima:
+   `https://x.com/budi`, `x.com/budi`, `@budi`, atau `budi`; yang menunjuk
+   sebuah postingan dan yang bukan alamat X ditolak sebelum tombolnya menyala.
+3. Kartu misinya menyusun kalimat pengajuan:
 
-#### Kenapa bukan ditanyakan ke X
+   ```
+   Sudah follow akun @CEOkomentar #SudahFollow
+   https://x.com/budi
+   ```
 
-Sampai versi sebelumnya langkah 3 mengajukan tiga pertanyaan, yang terakhir
-`GET /2/users/:id/following`. Titik akhir itu **tidak diberikan X kepada
-aplikasi self-serve** — ia tinggal di kontrak enterprise — sehingga jawabannya
-selalu 403, pemeriksaannya selalu berakhir "tidak yakin", dan tidak ada satu
-lencana pun yang pernah diberikan. Sejak Februari 2026 X juga menghapus tier
-gratisnya dan menggantinya dengan pay-per-use.
+   **Salin teks** menaruhnya di papan klip; **Tulis di Twitter Mini**
+   menuangkannya langsung ke kotak tulis di beranda, dengan tautan profilnya
+   sudah terpisah sebagai lampiran — persis seperti tempelan tautan biasa.
+4. Komentar itulah pengajuannya. Ia berdiri di beranda seperti komentar lain,
+   dan admin membacanya di sana.
+5. Admin membuka profil pengaju di aplikasi, mencocokkan tautan profil X-nya
+   dengan daftar pengikut @CEOkomentar, lalu menekan **Beri** pada baris centang
+   biru di panel lencana.
 
-Yang tahu siapa saja pengikut sebuah akun, tanpa perlu izin siapa pun, adalah
-pemilik akun itu sendiri. Karena itu sumber kebenarannya dipindahkan ke sini:
-satu daftar yang disegarkan pengelola, dan verifikasi menjadi pencocokan nama
-terhadap daftar itu. Yang tidak ikut berubah adalah bagian yang penting —
-kepemilikan akun X tetap dibuktikan lewat OAuth, bukan diketik sendiri.
+Tagar **#SudahFollow** ikut di kalimatnya bukan sebagai hiasan. Aplikasi ini
+tidak punya kotak cari — yang menyaring beranda hanyalah tagar yang ditekan —
+jadi tanpa satu tagar bersama, admin harus menggulir seluruh beranda mencari
+pengajuan di antara komentar biasa. Dengan tagar itu, menekannya sekali (di
+kartu mana pun, atau di papan tren yang menghitungnya) menyisakan tepat daftar
+pengajuan yang belum diputuskan. Bunyinya ditulis sekali di `lib/misi.ts`,
+sebagai `TAGAR_KLAIM`.
 
-#### Kata yang dipulangkan pemeriksanya
+Kalimat klaimnya sengaja **tidak ikut berganti mengikuti bahasa antarmuka**. Ia
+bukan teks antarmuka melainkan isi komentar yang akan dicari admin di beranda;
+kalau bunyinya berbeda-beda, yang memeriksa harus hafal satu bentuk kalimat per
+bahasa. Bunyinya ditulis sekali di `lib/misi.ts`, sebagai `KLAIM`.
 
-| Kata | Artinya |
-| --- | --- |
-| `berhasil` | tercatat sebagai pengikut; lencananya baru saja diberikan |
-| `sudah` | tercatat, dan lencananya memang sudah dimiliki |
-| `menunggu` | belum tercatat; masuk antrean penyegaran berikutnya |
-| `belumIkut` | belum tercatat padahal daftarnya sudah disegarkan sesudahnya |
-| `belumSegar` | sudah punya lencana, dan daftarnya belum cukup baru untuk membantahnya |
-| `dicabut` | daftar yang lebih baru tidak memuatnya lagi |
-| `terpakai` / `lain` | ikatan akun X-nya bentrok |
-| `takTersedia` | X menolak permintaannya (401/403) — mengulang tidak menolong |
+#### Kenapa tidak diperiksa sendiri oleh aplikasi
 
-Empat hal yang membuatnya sulit diakali:
+Sampai versi sebelumnya ada tombol **Hubungkan X & verifikasi** yang mengantar
+pemakai ke alur izin X (OAuth 2.0 + PKCE), menanyakan siapa pemilik tokennya,
+lalu mencocokkan namanya ke daftar pengikut yang diunggah pengelola.
+
+Yang menjadi masalah bukan bagian OAuth-nya, melainkan apa yang bisa ditanyakan
+sesudahnya. `GET /2/users/:id/following` **tidak diberikan X kepada aplikasi
+self-serve** — ia tinggal di kontrak enterprise — sehingga pengikutannya tidak
+pernah bisa ditanyakan langsung, dan pencocokannya tetap bergantung pada daftar
+yang diunggah manusia. Sejak Februari 2026 X juga menghapus tier gratisnya.
+Yang tersisa dari alur itu hanyalah harga yang tetap dibayar pemakainya: satu
+halaman izin pihak ketiga, satu aplikasi X yang harus didaftarkan pengelola, dan
+tiga kredensial yang harus diisi — untuk sebuah keputusan yang ujungnya tetap
+diambil manusia.
+
+Karena itu bagian yang tidak menghasilkan apa-apa dihapus seluruhnya, dan yang
+tersisa dibuat jujur: pemakai mengajukan, admin memutuskan. Rute
+`/api/misi/x/mulai`, `/api/misi/x/kembali`, seluruh isi `lib/x/`, serta fungsi
+`periksa_misi_x()` di basis data ikut dihapus — pintu yang tidak dipakai lagi
+ditutup, apalagi pintu yang bisa menulis lencana.
+
+### Panel lencana admin
+
+Ada di kartu profil, dan **hanya di profil orang lain**: lencana sendiri tidak
+diberikan sendiri, sekalipun oleh admin. Satu baris per lencana di katalog,
+masing-masing dengan tombol **Beri** atau **Cabut**.
+
+```
+POST /api/admin/lencana
+{ "pengguna": "<uuid>", "lencana": "biru", "beri": true }
+→ { "lencana": ["biru"] }
+```
+
+Jawabannya adalah daftar lencana sasaran **setelah** perubahannya, jadi kartu
+profil tidak perlu menebak hasilnya sendiri — dan nama pengaju yang sedang
+berdiri di beranda ikut berganti centang tanpa memuat ulang.
+
+Rutenya menolak permintaan lintas asal, menanyakan keadminan kepada basis data
+lewat `apakah_admin()` — bukan kepada apa pun yang dikirim peramban — menjawab
+404 untuk siapa pun yang bukan admin, dan direm di 120 perubahan per jam per
+akun. Penulisannya sendiri tetap lewat `service_role`.
+
+**Centang emas tidak bisa diberikan dari sini.** Ia cerminan peran: pemicu
+`profiles_lencana_admin` memasangnya saat `is_admin` menyala dan melepasnya saat
+padam. Memberikannya satu per satu berarti menaruh tanda "admin yang dapat
+menghapus komentar siapa pun" pada akun yang tidak bisa melakukannya — dan
+pemicu yang sama akan mencabutnya lagi pada perubahan `is_admin` berikutnya.
+Barisnya tetap ditampilkan sebagai keadaan yang terkunci beserta alasannya, dan
+yang mengangkat admin tetap SQL Editor (lihat bagian [Admin](#admin)).
+
+#### Apa yang dikerjakan `atur_lencana_admin()`
+
+Selain menulis ke `lencana_pengguna`, ia menyesuaikan kemajuan misinya:
+
+- **Beri** — bila lencananya kebetulan hadiah sebuah misi yang aktif, yang
+  dipanggil adalah `selesaikan_misi()` dengan bukti `{"oleh": "admin"}`, jadi
+  kartu misi pengaju berubah menjadi "Selesai" beserta kalimat "Diberikan admin
+  setelah pengajuanmu diperiksa". Lencana yang bukan hadiah misi diberikan
+  langsung lewat `beri_lencana()`.
+- **Cabut** — `batalkan_misi()` melepas kemajuan misinya, lalu barisnya dihapus
+  dari `lencana_pengguna` sekalian untuk lencana yang dulu diberikan langsung.
+
+Tanpa penyesuaian itu kartu misi akan berkata "belum selesai" tepat di sebelah
+lencana yang sudah menempel di nama pemiliknya.
+
+Tiga hal yang membuatnya sulit diakali:
 
 - **Peramban tidak ikut memutuskan.** Tabel `misi_pengguna` dan
   `lencana_pengguna` hanya punya kebijakan `select` untuk pemiliknya; tidak ada
   `insert`, `update`, maupun `delete` untuk peran `authenticated`. Kolom
   `profiles.lencana` dan `profiles.verified` dikembalikan ke nilai lamanya oleh
   pemicu untuk setiap `update` yang datang dari sesi pengguna.
-- **Satu akun X hanya sekali dipakai.** Tabel `akun_x` menyimpan ikatannya
-  secara permanen dengan `x_user_id` sebagai kunci utama dan `user_id` yang
-  unik. Mengikuti sekali lalu memberi centang pada sepuluh akun buatan tidak
-  bisa dilakukan.
-- **Daftarnya tidak terbaca peramban.** `pengikut_resmi` tidak punya satu pun
-  kebijakan RLS dan haknya dicabut dari `anon` maupun `authenticated`; yang
-  membacanya cuma fungsi di atas.
-- **Lencananya bisa dicabut.** Menekan **Periksa ulang** mencocokkan ulang. Bila
-  namanya hilang dari daftar yang **lebih baru daripada pemberian lencananya**,
-  `batalkan_misi()` melepasnya — dan itu hanya berlaku bila akun X yang memeriksa
-  memang akun yang dulu terikat, sehingga tidak ada yang bisa mencabut lencana
-  orang lain.
-
-Daftar yang lebih tua daripada lencananya tidak tahu apa-apa tentang apa yang
-terjadi sesudahnya, jadi diamnya bukan bantahan: jawabannya `belumSegar` dan
-lencananya dibiarkan. Karena alasan yang sama, penyegaran daftar **tidak pernah
-mencabut lencana secara massal** — satu unggahan yang keliru terlalu mahal untuk
-dibatalkan. Yang dikerjakannya cuma arah sebaliknya: mengosongkan antrean.
+- **Keadminan tidak pernah datang dari peramban.** Rutenya menanyakannya kepada
+  basis data memakai sesi kuki yang sedang berjalan, dan `is_admin` sendiri tidak
+  bisa dinyalakan dari aplikasi.
+- **Pengajuannya publik.** Komentar klaim berdiri di beranda, bisa dilihat siapa
+  saja, dan memuat tautan profil yang bisa dicocokkan siapa saja. Lencana yang
+  diberikan tanpa pengajuan yang cocok akan terlihat.
 
 ### Menyegarkan daftar pengikut
 
 Satu rute, khusus admin, dan seluruh isinya diganti sekali jalan — nama yang
-tidak ikut terkirim berarti sudah tidak mengikuti.
+tidak ikut terkirim berarti sudah tidak mengikuti. Daftar ini kini menjadi
+catatan rujukan admin saat memeriksa pengajuan, bukan lagi pemutus otomatis.
 
 ```
 POST /api/misi/x/pengikut
@@ -627,55 +678,31 @@ tabelnya tanpa ada yang menyadarinya. Rute ini menolak permintaan lintas asal,
 menanyakan keadminan kepada basis data, dan direm di dua belas penyegaran per
 jam per akun.
 
-Setiap penyegaran juga mengosongkan antrean tinjauan: siapa pun yang sudah
-menghubungkan akun X-nya dan namanya baru saja masuk daftar langsung mendapat
-lencananya, tanpa perlu membuka aplikasi lagi.
+Setiap penyegaran juga mengosongkan antrean tinjauan yang tersisa dari alur
+lama: akun yang dulu sempat menghubungkan akun X-nya dan namanya baru saja masuk
+daftar tetap mendapat lencananya. Antrean itu tidak bertambah lagi — yang baru
+mengajukan lewat komentar, bukan lewat ikatan akun X.
 
 ### Menyalakannya
 
-Tiga nilai di `.env.local` (lihat `.env.example`):
+Satu nilai di `.env.local` (lihat `.env.example`):
 
 ```
 SUPABASE_SERVICE_ROLE_KEY=...   # Project Settings → API → service_role
-X_CLIENT_ID=...                 # X Developer Portal → aplikasimu
-X_CLIENT_SECRET=...             # kosongkan bila aplikasinya public client
-APP_URL=https://contoh.app      # tanpa garis miring di akhir
 ```
 
-Di **X Developer Portal → Projects & Apps → aplikasimu → User authentication
-settings**, pilih *App permissions: Read*, *Type of App: Web App*, dan isi
-*Callback URI* dengan `<APP_URL>/api/misi/x/kembali`. Cakupan yang diminta
-tinggal `users.read tweet.read` — `follows.read` sudah tidak dipakai lagi,
-karena daftar yang diikuti memang tidak pernah dibaca.
+Tanpa nilai itu misinya tetap tampil beserta langkah-langkahnya, kalimat
+pengajuannya tetap bisa disalin dan diposting, tetapi tombol di panel lencana
+menjawab "Lencana gagal disimpan" — tidak ada lencana yang bisa berpindah tangan
+lewat jalan lain. Selebihnya aplikasi berjalan seperti biasa.
 
-Yang masih diperlukan dari X cuma `GET /2/users/me`, satu panggilan per
-verifikasi. Bila X menolaknya, jawabannya sekarang `takTersedia` — kabar yang
-menyuruh menghubungi pengelola, bukan `gagal` yang menyuruh mencoba lagi
-selamanya.
+Kuncinya sengaja tanpa awalan `NEXT_PUBLIC_` — ia melewati seluruh kebijakan RLS
+dan tidak boleh pernah sampai ke peramban. `lib/supabase/admin.ts` menolak
+dijalankan di sana.
 
-Tanpa ketiga nilai tersebut, misinya tetap tampil beserta langkah-langkahnya,
-tombol verifikasinya menjawab "belum diaktifkan di server ini", dan tidak ada
-lencana yang bisa diberikan lewat jalan lain. Selebihnya aplikasi berjalan
-seperti biasa.
-
-Kalimat itu sengaja tidak menyebut nilai mana yang kurang — peramban bukan
-tempatnya. Yang menyebutkannya adalah log server, satu baris setiap kali
-tombolnya ditekan:
-
-```
-[misi/x] verifikasi ditolak: belum diisi — X_CLIENT_ID, SUPABASE_SERVICE_ROLE_KEY
-```
-
-`X_CLIENT_SECRET` tidak pernah muncul di sana: aplikasi X bertipe *public
-client* memang tidak punya rahasia, jadi kosongnya bukan kekurangan. `APP_URL`
-juga tidak — tanpa nilai itu alamat pulangnya disusun dari permintaan yang
-masuk. Bila keduanya kosong dan alurnya tetap berhenti di halaman izin X,
-periksa *Callback URI* di X Developer Portal: ia harus sama persis dengan
-`<APP_URL>/api/misi/x/kembali`.
-
-`SUPABASE_SERVICE_ROLE_KEY` sengaja tanpa awalan `NEXT_PUBLIC_` — kunci itu
-melewati seluruh kebijakan RLS dan tidak boleh pernah sampai ke peramban.
-`lib/supabase/admin.ts` menolak dijalankan di sana.
+Tidak ada lagi yang perlu didaftarkan di X Developer Portal. `X_CLIENT_ID`,
+`X_CLIENT_SECRET`, dan `APP_URL` tidak dipakai sama sekali dan boleh dihapus
+dari environment variable mana pun.
 
 ### Menambah misi baru
 
@@ -684,9 +711,11 @@ Tiga langkah, dan tidak ada perubahan skema:
 1. `insert into public.misi (kode, lencana, urutan) values ('kode-misi', 'kode-lencana', 2);`
 2. Tambahkan lencananya di `lib/lencana.ts` (bila baru) dan misinya di
    `KATALOG` pada `lib/misi.ts`, beserta kalimatnya di `lib/i18n/kamus.ts`.
-3. Tulis pemeriksanya di server, lalu panggil `selesaikan_misi()` dengan kunci
-   `service_role`. Sebuah misi tidak pernah boleh ditandai selesai dari
-   peramban.
+3. Tentukan cara memutuskannya di server: pemeriksa yang memanggil
+   `selesaikan_misi()` dengan kunci `service_role`, atau — seperti misi pertama
+   — keputusan admin lewat `atur_lencana_admin()`. Sebuah misi tidak pernah
+   boleh ditandai selesai dari peramban.
+
 
 ## Keamanan
 
@@ -712,21 +741,20 @@ berjalan sekalipun berhasil disisipkan. Bersamanya ikut `frame-ancestors 'none'`
 memakai aturan tanpa nonce karena ia berkas statis; skripnya berkas terpisah dari
 asal yang sama.
 
-**Di alur X.** PKCE, `state` yang dicocokkan dengan waktu tetap, kuki `HttpOnly`
-berawalan `__Secure-` yang jalurnya dipersempit ke `/api/misi/x` dan berumur
-sepuluh menit, rem laju per akun dan per alamat, serta token yang dicabut
-setelah dipakai. Cakupan izinnya dipersempit ke `users.read tweet.read` sejak
-daftar yang diikuti tidak lagi dibaca. Rute penyegaran daftar pengikut menolak
-permintaan lintas asal lewat header `Origin`, menanyakan keadminan kepada basis
-data alih-alih kepada peramban, dan menolak daftar kosong yang tidak diminta
-dengan sengaja.
+**Di rute admin.** Keduanya — pemberian lencana dan penyegaran daftar pengikut —
+menolak permintaan lintas asal lewat header `Origin`, menanyakan keadminan
+kepada basis data alih-alih kepada peramban, menjawab 404 untuk siapa pun yang
+bukan admin, dan direm per akun maupun per alamat. Badan permintaannya dibatasi
+ukurannya dan diperiksa bentuknya sebelum satu pun nilai diteruskan ke basis
+data. Yang menulis tetap fungsi `SECURITY DEFINER` milik `service_role`, bukan
+kueri lepas.
 
 **Yang tidak dilakukan.** Tidak ada skrip pihak ketiga, tidak ada pelacak, dan
-tidak ada permintaan ke luar selain ke Supabase dan — hanya saat verifikasi
-berjalan — ke X. Kartu tautan X digambar dari alamatnya sendiri tanpa memuat
-apa pun dari server X. Service worker sengaja tidak menyimpan HTML halaman
-maupun jawaban Supabase, supaya tidak ada komentar atau profil yang tertinggal
-di perangkat setelah pemakainya keluar.
+tidak ada permintaan ke luar selain ke Supabase — sejak alur izin X dihapus,
+aplikasi ini tidak pernah menghubungi server X sama sekali. Kartu tautan X
+digambar dari alamatnya sendiri tanpa memuat apa pun dari sana. Service worker
+sengaja tidak menyimpan HTML halaman maupun jawaban Supabase, supaya tidak ada
+komentar atau profil yang tertinggal di perangkat setelah pemakainya keluar.
 
 **Yang perlu diingat.** Rem laju Route Handler hidup di memori proses, jadi
 hitungannya per-instans; lapis yang tidak bisa dilewati ada di basis data.
