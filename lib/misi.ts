@@ -24,8 +24,8 @@ import { tautanProfilX } from "./tautan";
  * profilnya, kalimat pengajuan yang disalin pemakai, dan setiap kalimat di
  * kamus yang menyebutnya lewat isian `{akun}`. Menggantinya cukup satu baris.
  *
- * Ini bukan handle admin di aplikasi ini — yang itu ditetapkan
- * `public.handle_admin()` di basis data dan kebetulan pernah sama.
+ * Ini bukan handle admin di aplikasi ini, walau namanya sekarang sama: yang itu
+ * ditetapkan `public.handle_admin()` di basis data dan berganti sendiri-sendiri.
  */
 export const AKUN_X = "gaptekcat";
 

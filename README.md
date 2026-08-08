@@ -513,19 +513,26 @@ Siapa yang admin ditentukan `public.handle_admin()` di
 ```sql
 create or replace function public.handle_admin()
 returns text[] language sql immutable parallel safe as $$
-  select array['CEOkomentar']::text[];
+  select array['gaptekcat']::text[];
 $$;
 ```
 
 Pemicu `profiles_tandai_admin` menyalakan `is_admin` saat profil dengan handle
-itu dibuat, jadi **@CEOkomentar tetap menjadi admin walau akunnya baru
+itu dibuat, jadi **@gaptekcat tetap menjadi admin walau akunnya baru
 didaftarkan setelah migrasi dijalankan**. Pemicunya sengaja hanya berjalan pada
 `INSERT`: kalau ikut berjalan saat handle diubah, siapa pun yang kelak mengambil
 alih handle yang ditinggalkan akan mewarisi haknya juga.
 
 Karena handle yang dipakai sebagai penanda, **daftarkan handle itu lebih dulu**.
 Handle bersifat unik dan siapa pun bisa mengambilnya; yang lebih dulu memakai
-`@CEOkomentar` yang akan diangkat.
+`@gaptekcat` yang akan diangkat.
+
+Akun resmi ini sebelumnya bernama `@CEOkomentar`. Karena pemicu pengangkatan
+hanya berjalan pada `INSERT`, mengganti daftar di atas tidak menyentuh profil
+yang sudah terdaftar — perpindahannya dikerjakan
+`supabase/migrations/20260808160000_handle-admin-baru.sql`, yang mengganti
+handle baris profilnya sekaligus. Basis data yang belum punya profil ber-handle
+lama tidak terpengaruh berkas itu.
 
 Menambah admin: tambahkan handle ke fungsi di atas lalu jalankan ulang berkas
 migrasinya. Untuk satu akun yang sudah ada:
@@ -553,8 +560,9 @@ oleh seorang manusia. Misi pertama, dan sejauh ini satu-satunya, adalah
 
 Akun X yang harus diikuti ditulis sekali di `lib/misi.ts` sebagai `AKUN_X`;
 seluruh kalimat di kamus menyebutnya lewat isian `{akun}`, jadi menggantinya
-cukup satu baris. Ia **bukan** handle admin di aplikasi ini — yang itu
-ditetapkan `public.handle_admin()` di basis data dan berdiri sendiri.
+cukup satu baris. Ia **bukan** handle admin di aplikasi ini walau namanya
+sekarang sama — yang itu ditetapkan `public.handle_admin()` di basis data dan
+berdiri sendiri.
 
 ### Bagaimana pengajuannya berjalan
 

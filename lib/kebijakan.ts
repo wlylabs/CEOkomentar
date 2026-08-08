@@ -19,7 +19,7 @@ export function ambangKedaluwarsa(sekarang: number = Date.now()) {
  * Jumlah penduduk Indonesia hasil proyeksi pertengahan 2025 dari Badan Pusat
  * Statistik: 284.438.782 jiwa.
  *
- * Akun resmi @CEOkomentar memakai angka ini sebagai jumlah pengikutnya — setiap
+ * Akun resmi @gaptekcat memakai angka ini sebagai jumlah pengikutnya — setiap
  * orang Indonesia dianggap mengikutinya. Basis data yang menyimpan nilainya
  * (lihat `supabase/migrations/20260807180000_pengikut-admin.sql`); angka di sini
  * dipakai antarmuka sebagai nilai terendah supaya tampilannya sudah benar walau

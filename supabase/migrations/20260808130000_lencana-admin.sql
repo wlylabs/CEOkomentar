@@ -5,7 +5,7 @@
 -- Alur "Hubungkan X & verifikasi" dihapus dari aplikasi. Yang menggantikannya
 -- bukan pemeriksa lain, melainkan seorang manusia: pemakai memposting kalimat
 -- klaim beserta tautan profil X-nya di Twitter Mini, admin membacanya sambil
--- melihat daftar pengikut @CEOkomentar, lalu memberi lencananya sendiri.
+-- melihat daftar pengikut @gaptekcat, lalu memberi lencananya sendiri.
 --
 -- Aturan pokoknya tidak berubah sedikit pun: TIDAK ADA jalan dari peramban
 -- untuk menulis ke tabel lencana. Yang berubah hanya siapa yang memutuskan.
