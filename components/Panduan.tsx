@@ -42,6 +42,7 @@ import {
   TANGGAL_KINI,
 } from "@/lib/algoritmaKini";
 import { isyaratJamEmas, tanggalWIB } from "@/lib/jamEmas";
+import { useAgregatJamEmas } from "@/lib/jamEmasKonteks";
 import {
   DIPERIKSA,
   LARANGAN,
@@ -85,7 +86,9 @@ type Props = {
 export default function Panduan({ sekarang, akunX, onProfil }: Props) {
   const { bahasa, t } = useBahasa();
 
-  const isyarat = isyaratJamEmas(sekarang);
+  const agregat = useAgregatJamEmas();
+
+  const isyarat = isyaratJamEmas(sekarang, agregat);
   const diJamEmas = isyarat.jendela !== null;
 
   return (

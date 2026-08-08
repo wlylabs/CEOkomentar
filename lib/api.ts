@@ -8,6 +8,7 @@ import type {
   BarisProfil,
 } from "./supabase/database.types";
 import type { Gambar, JenisMedia } from "./image";
+import type { BinAgregat } from "./jamEmas";
 import type { JejakKomentar } from "./jangkauan";
 import { PENDUDUK_INDONESIA, ambangKedaluwarsa } from "./kebijakan";
 import { bacaLencana, type KodeLencana } from "./lencana";
@@ -590,6 +591,36 @@ export async function ambilTren(
     tagar: baris.tagar,
     komentar: Number(baris.komentar),
     penulis: Number(baris.penulis),
+  }));
+}
+
+/**
+ * Agregat jam emas: hasil akhir seluruh komentar yang pernah kedaluwarsa,
+ * dijumlahkan per hari dan jam WIB.
+ *
+ * Paling banyak 168 baris dan tidak pernah lebih, jadi diambil sekaligus tanpa
+ * halaman. Dibaca di server sebelum halaman dirender supaya HTML pertama sudah
+ * membawa angka yang benar dan hidrasi tidak bertabrakan.
+ *
+ * Kegagalannya tidak dilempar. Kartu jam emas punya pola bawaan yang selalu
+ * bisa dipakai, dan menggagalkan seluruh halaman hanya karena tabel pelengkap
+ * ini tidak terbaca — migrasinya belum jalan, misalnya — jelas tidak sebanding.
+ */
+export async function ambilAgregatJamEmas(
+  sb: KlienSupabase,
+): Promise<BinAgregat[]> {
+  const { data, error } = await sb
+    .from("jam_emas_agregat")
+    .select("hari, jam, komentar, suka, ulang");
+
+  if (error) return [];
+
+  return (data ?? []).map((baris) => ({
+    hari: Number(baris.hari),
+    jam: Number(baris.jam),
+    komentar: Number(baris.komentar),
+    suka: Number(baris.suka),
+    ulang: Number(baris.ulang),
   }));
 }
 

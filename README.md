@@ -76,6 +76,10 @@ lewat pengalih di navigasi.
 - **Potensi viral 0–100** untuk saat ini juga, lengkap dengan tingkatnya
   (Puncak, Tinggi, Cukup bagus, Sedang, Sepi) dan satu kalimat saran: kirim
   sekarang, atau tunggu jendela berikutnya
+- **Dikoreksi kenyataan**: angka di atas dugaan awal, dan tiap komentar yang
+  habis umur menyumbang hasil akhirnya ke agregat per jam WIB. Makin banyak yang
+  ditulis pada suatu jam, makin jauh skornya bergeser dari dugaan ke hasil
+  ukur — kaki kartunya menyebutkan berapa komentar yang menjadi dasarnya
 - **Kurva 24 jam** hari ini, satu batang tiap jam, dengan jam yang sedang
   berjalan ditandai
 - **Kekuatan tiap hari**: Selasa–Kamis paling kuat, Sabtu dan Minggu paling
@@ -303,6 +307,11 @@ dengan alasan keduanya masih ada tertulis di tempatnya.
      mengabari tiap admin begitu komentar bertagar `#TwitterMini` diposting,
      tagar pengajuan sebagai fungsi SQL, dan kunci unik notifikasi yang
      diperlebar supaya satu perbuatan bisa mengabari lebih dari satu orang
+   - `20260808160000_handle-admin-baru.sql` — pengangkatan admin mengikuti
+     handle yang baru
+   - `20260808170000_jam-emas-agregat.sql` — tabel `jam_emas_agregat` beserta
+     kebijakan bacanya, dan penyapu kedaluwarsa yang menggulung hasil akhir tiap
+     komentar ke sana sebelum menghapusnya
 
    Semuanya aman dijalankan ulang. Bila memakai Supabase CLI:
    `supabase db push`.
@@ -451,7 +460,9 @@ lib/
   algoritmaKini.ts  bacaan atas xai-org/x-algorithm 2026: tahap, aksi, rumus, Grok
   avatar.ts         avatar bawaan DiceBear yang dibangkitkan dari handle
   jam.ts            zona WIB dan UTC, pemecah jam dinding, bagian hari, jam aplikasi
-  jamEmas.ts        jendela jam emas WIB dan hitungan potensi jangkauannya
+  jamEmas.ts        jendela jam emas WIB, hitungan potensinya, dan campurannya
+                    dengan agregat terukur
+  jamEmasKonteks.tsx agregat jam emas sehalaman, dibaca di server sekali saja
   kebijakan.ts      masa hidup komentar, disamakan dengan basis data
   kreator.ts        program, syarat, dan larangan Creator Studio X
   lencana.ts        katalog lencana: kode, urutan tampil, dan keterangannya
@@ -913,9 +924,22 @@ dulu (lihat bagian [Admin](#admin)).
   itu yang menumpuk; `sapu_notifikasi_lama()` dijadwalkan tiap hari bila pg_cron
   tersedia. Kabar 'misi' menggantung pada komentarnya seperti 'suka' dan
   'ulang', jadi ia pergi sendiri saat pengajuannya habis umur.
-- Jam emas adalah pola kebiasaan, bukan ramalan: angkanya tetap dari hari ke
-  hari (`lib/jamEmas.ts`), tidak dihitung dari data pemakaian aplikasi ini, dan
-  selalu memakai WIB berapa pun jam perangkat pembacanya.
+- Jam emas berangkat dari pola kebiasaan, bukan ramalan (`lib/jamEmas.ts`), lalu
+  dikoreksi hasil komentar yang benar-benar ditulis di aplikasi ini. Karena
+  komentar hanya hidup 24 jam, tidak ada riwayat yang bisa dikueri belakangan:
+  penyapu kedaluwarsa yang menggulung hasil akhir tiap komentar ke
+  `jam_emas_agregat` tepat sebelum menghapusnya. Bobot data sebuah potongan jam
+  naik seiring sampelnya — di bawah tiga puluh komentar polanya yang lebih
+  berbicara — jadi kartunya benar sejak hari pertama dan makin benar seiring
+  waktu. Kaki kartu menyebutkan yang mana yang sedang berlaku.
+- Yang ikut terukur hanya suka dan posting ulang. Tayangan sengaja tidak
+  direkam: angka itu dibangkitkan dari benih id di `lib/jangkauan.ts`, jadi
+  mencatatnya sama saja dengan mengukur pengacaknya sendiri.
+- Jendela jam emasnya sendiri — pagi, siang, sore–malam — tetap keterangan yang
+  ditulis tangan; yang bergerak mengikuti data adalah skornya. Keduanya bisa
+  berbeda pendapat, dan kaki kartunya yang menengahi.
+- Jam emas selalu memakai WIB berapa pun jam perangkat pembacanya, termasuk saat
+  menentukan potongan jam mana yang dicatat basis data.
 - Yang membuat WIB dan UTC-nya benar tetap jam perangkat itu sendiri: keduanya
   digeser dari epoch yang sama (`lib/jam.ts`), jadi zona waktu yang salah di
   ponsel tidak berpengaruh sama sekali — tetapi jam sistem yang meleset ikut
