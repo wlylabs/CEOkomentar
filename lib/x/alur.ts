@@ -1,5 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { HasilMisi } from "@/lib/misi";
+import { layananSiap } from "@/lib/supabase/admin";
+import { supabaseSiap } from "@/lib/supabase/env";
+import { xSiap } from "@/lib/x/oauth";
 
 /**
  * Bagian bersama dari dua sisi alur verifikasi X: nama kuki, alamat pulang, dan
@@ -80,6 +83,38 @@ export function pulang(
   alamat.searchParams.set("misi", "ikuti-x");
   alamat.searchParams.set("hasil", hasil);
   return NextResponse.redirect(alamat);
+}
+
+/**
+ * Nama variabel lingkungan yang masih kosong, dalam urutan pengisiannya.
+ *
+ * Misi ini berdiri di atas tiga kredensial yang berbeda asalnya, dan bila salah
+ * satunya belum diisi hasilnya sama saja: `belumSiap`. Yang tidak sama adalah
+ * cara memperbaikinya.
+ */
+function yangBelumDiisi(): string[] {
+  const kurang: string[] = [];
+  if (!supabaseSiap) kurang.push("NEXT_PUBLIC_SUPABASE_URL/_ANON_KEY");
+  if (!xSiap) kurang.push("X_CLIENT_ID");
+  if (!layananSiap) kurang.push("SUPABASE_SERVICE_ROLE_KEY");
+  return kurang;
+}
+
+/**
+ * Menolak alurnya karena servernya belum dikonfigurasi, sambil menyebut apa
+ * yang kurang — ke log server, bukan ke peramban.
+ *
+ * Kalimat yang dilihat pemakai sengaja tetap satu dan tanpa nama variabel:
+ * bagian mana dari konfigurasi yang bolong bukan kabar yang pantas diumumkan
+ * kepada siapa pun yang kebetulan menekan tombolnya. Log server tempatnya —
+ * yang membaca di sana adalah orang yang memang bisa mengisinya, dan tanpa
+ * baris ini ia hanya punya "belum diaktifkan" untuk ditebak satu per satu.
+ */
+export function laporBelumSiap(): HasilMisi {
+  console.warn(
+    `[misi/x] verifikasi ditolak: belum diisi — ${yangBelumDiisi().join(", ")}`,
+  );
+  return "belumSiap";
 }
 
 /** Membuang kuki alur begitu ia tidak diperlukan lagi. */
