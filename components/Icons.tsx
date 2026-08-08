@@ -45,13 +45,92 @@ export function IkonProfil({ aktif, ...p }: IkonProps & { aktif?: boolean }) {
   );
 }
 
-export function IkonUlang(p: IkonProps) {
+/**
+ * Ikon posting ulang.
+ *
+ * Tiga bentuk untuk satu arti, tinggal ganti `varian` di satu tempat:
+ *
+ * - `kait` — dua panah berkait membentuk gelang persegi, panah kiri menunjuk ke
+ *   atas dan panah kanan ke bawah. Bentuk yang dipakai X sendiri, jadi paling
+ *   cepat dikenali sebagai posting ulang. Ini bawaannya.
+ * - `gulung` — dua panah mendatar bertumpuk, seperti tanda ulang di pemutar
+ *   musik. Lebih lebar dan lebih tenang, tetapi lebih dekat ke arti "ulangi"
+ *   ketimbang "sebarkan lagi".
+ * - `putar` — dua busur melingkar. Paling lembut, hanya saja gampang terbaca
+ *   sebagai "muat ulang".
+ */
+export type VarianUlang = "kait" | "gulung" | "putar";
+
+export function IkonUlang({
+  varian = "kait",
+  ...p
+}: IkonProps & { varian?: VarianUlang }) {
+  if (varian === "gulung") {
+    return (
+      <Dasar {...p}>
+        <path d="M4.8 10.2V9a3 3 0 0 1 3-3h9.3" />
+        <path d="m14.8 3.3 3.3 2.7-3.3 2.7" />
+        <path d="M19.2 13.8V15a3 3 0 0 1-3 3H6.9" />
+        <path d="m9.2 20.7-3.3-2.7 3.3-2.7" />
+      </Dasar>
+    );
+  }
+
+  if (varian === "putar") {
+    return (
+      <Dasar {...p}>
+        <path d="M20.2 12.6a8.2 8.2 0 0 1-13.9 5.2" />
+        <path d="M3.8 11.4a8.2 8.2 0 0 1 13.9-5.2" />
+        <path d="M17.7 2.6v3.8h-3.8" />
+        <path d="M6.3 21.4v-3.8h3.8" />
+      </Dasar>
+    );
+  }
+
   return (
     <Dasar {...p}>
-      <path d="M4.6 9.3V8a2.6 2.6 0 0 1 2.6-2.6h9.1" />
-      <path d="m14.1 2.9 2.6 2.5-2.6 2.6" />
-      <path d="M19.4 14.7V16a2.6 2.6 0 0 1-2.6 2.6H7.7" />
-      <path d="m9.9 21.1-2.6-2.5 2.6-2.6" />
+      <path d="M5.6 5.2v9.9a2.9 2.9 0 0 0 2.9 2.9h6.3" />
+      <path d="m2.6 8.2 3-3 3 3" />
+      <path d="M18.4 18.8V8.9A2.9 2.9 0 0 0 15.5 6H9.2" />
+      <path d="m21.4 15.8-3 3-3-3" />
+    </Dasar>
+  );
+}
+
+/** Lambang X, digambar padat seperti aslinya, bukan garis. */
+export function IkonX({ size = 22, ...sisa }: IkonProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      aria-hidden="true"
+      focusable="false"
+      {...sisa}
+    >
+      <path
+        fill="currentColor"
+        d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+      />
+    </svg>
+  );
+}
+
+export function IkonTautan(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <path d="M10.3 13.7a3.6 3.6 0 0 0 5.1 0l3-3a3.6 3.6 0 1 0-5.1-5.1L11.6 7.3" />
+      <path d="M13.7 10.3a3.6 3.6 0 0 0-5.1 0l-3 3a3.6 3.6 0 1 0 5.1 5.1l1.7-1.7" />
+    </Dasar>
+  );
+}
+
+export function IkonBuka(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <path d="M10.4 5.4H5.9a1.9 1.9 0 0 0-1.9 1.9v10.8a1.9 1.9 0 0 0 1.9 1.9h10.8a1.9 1.9 0 0 0 1.9-1.9v-4.5" />
+      <path d="M14.2 4.2h5.6v5.6" />
+      <path d="M19.8 4.2 11 13" />
     </Dasar>
   );
 }
