@@ -1,6 +1,12 @@
 /**
  * Percakapan dengan X (dulu Twitter): OAuth 2.0 dengan PKCE, lalu satu
- * pertanyaan — benarkah akun ini mengikuti @CEOkomentar.
+ * pertanyaan — siapa pemilik token ini.
+ *
+ * Dulu ada pertanyaan kedua, "apakah akun ini mengikuti @CEOkomentar", lewat
+ * `GET /2/users/:id/following`. Titik akhir itu tidak lagi diberikan X kepada
+ * aplikasi self-serve, jadi pertanyaannya tidak pernah terjawab dan misinya
+ * tidak pernah selesai. Yang menjawabnya sekarang adalah daftar pengikut resmi
+ * di basis data; berkas ini tinggal membuktikan siapa yang sedang masuk.
  *
  * Yang dipegang aplikasi setelah alurnya selesai hanyalah id dan username X.
  * Token aksesnya dicabut kembali sebelum jawaban dikirim ke peramban, dan tidak
@@ -17,25 +23,16 @@ const CABUT = "https://api.x.com/2/oauth2/revoke";
 const API = "https://api.x.com/2";
 
 /**
- * `users.read` untuk mengenali akun yang masuk, `tweet.read` karena X
- * mensyaratkannya bersama users.read, dan `follows.read` untuk membaca daftar
- * yang diikutinya. Tidak ada `offline.access`: kami tidak meminta izin yang
- * masih berlaku setelah pemeriksaan ini selesai.
+ * `users.read` untuk mengenali akun yang masuk dan `tweet.read` karena X
+ * mensyaratkannya bersama users.read. `follows.read` sudah tidak diminta lagi:
+ * daftar yang diikuti tidak pernah dibaca, jadi izinnya tidak pantas diminta.
+ * Tidak ada pula `offline.access` — kami tidak meminta izin yang masih berlaku
+ * setelah pemeriksaan ini selesai.
  */
-const CAKUPAN = "users.read tweet.read follows.read";
+const CAKUPAN = "users.read tweet.read";
 
 /** Jawaban X dinanti secukupnya; lebih lama dari ini pemakai sudah menyerah. */
 const TENGGANG = 8_000;
-
-/**
- * Batas halaman daftar "mengikuti" yang ditelusuri.
- *
- * X tidak punya titik akhir "apakah A mengikuti B", jadi jawabannya dicari di
- * dalam daftar yang dipulangkan seribu-seribu. Lima belas halaman berarti akun
- * yang mengikuti sampai 15.000 akun lain masih terperiksa dengan benar; di atas
- * itu pemeriksaannya menyerah dan berkata "tidak yakin" alih-alih "tidak".
- */
-const MAKS_HALAMAN = 15;
 
 export const X_CLIENT_ID = process.env.X_CLIENT_ID ?? "";
 const X_CLIENT_SECRET = process.env.X_CLIENT_SECRET ?? "";
@@ -167,17 +164,45 @@ export async function cabutToken(token: string): Promise<void> {
    Pertanyaan ke API
    ============================================================ */
 
-async function ambil<T>(jalur: string, token: string): Promise<T | null> {
+/**
+ * Kenapa sebuah pertanyaan ke X tidak terjawab.
+ *
+ * Ketiganya pernah menjadi satu `null` yang sama, dan pemakainya selalu
+ * membaca kalimat yang sama pula: "coba lagi sebentar lagi". Untuk `rem` dan
+ * `putus` kalimat itu benar; untuk `akses` ia menyuruh orang mengulang sesuatu
+ * yang tidak akan pernah berhasil, karena yang kurang bukan waktunya melainkan
+ * hak aplikasi ini atas titik akhirnya.
+ */
+export type SebabGagalX = "akses" | "rem" | "putus";
+
+export type JawabX<T> =
+  | { ok: true; nilai: T }
+  | { ok: false; sebab: SebabGagalX };
+
+function bacaSebab(status: number): SebabGagalX {
+  if (status === 401 || status === 403) return "akses";
+  if (status === 429) return "rem";
+  return "putus";
+}
+
+async function ambil<T>(jalur: string, token: string): Promise<JawabX<T>> {
   try {
     const jawaban = await fetch(`${API}${jalur}`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
       signal: AbortSignal.timeout(TENGGANG),
     });
-    if (!jawaban.ok) return null;
-    return (await jawaban.json()) as T;
+
+    if (!jawaban.ok) {
+      /* Ke log server, bukan ke peramban: yang membacanya adalah orang yang
+         bisa berbuat sesuatu tentang paket API-nya. */
+      console.warn(`[misi/x] ${jalur} dijawab ${jawaban.status}`);
+      return { ok: false, sebab: bacaSebab(jawaban.status) };
+    }
+
+    return { ok: true, nilai: (await jawaban.json()) as T };
   } catch {
-    return null;
+    return { ok: false, sebab: "putus" };
   }
 }
 
@@ -185,63 +210,14 @@ export type AkunX = { id: string; username: string };
 
 type JawabanPengguna = { data?: { id?: string; username?: string } };
 
-export async function akunSaya(token: string): Promise<AkunX | null> {
+/** Siapa pemilik token ini — satu-satunya hal yang masih ditanyakan ke X. */
+export async function akunSaya(token: string): Promise<JawabX<AkunX>> {
   const isi = await ambil<JawabanPengguna>("/users/me", token);
-  const id = isi?.data?.id;
-  const username = isi?.data?.username;
-  return id && username ? { id, username } : null;
-}
+  if (!isi.ok) return isi;
 
-export async function akunLewatUsername(
-  token: string,
-  username: string,
-): Promise<AkunX | null> {
-  /* Username sudah dibatasi bentuknya oleh katalog misi, tetapi jalur URL tetap
-     dirakit lewat encodeURIComponent supaya tidak ada bentuk lain yang lolos. */
-  const isi = await ambil<JawabanPengguna>(
-    `/users/by/username/${encodeURIComponent(username)}`,
-    token,
-  );
-  const id = isi?.data?.id;
-  const nama = isi?.data?.username;
-  return id && nama ? { id, username: nama } : null;
-}
+  const id = isi.nilai.data?.id;
+  const username = isi.nilai.data?.username;
+  if (!id || !username) return { ok: false, sebab: "putus" };
 
-type JawabanMengikuti = {
-  data?: { id?: string }[];
-  meta?: { next_token?: string };
-};
-
-/**
- * Apakah `idSaya` mengikuti `idTarget`.
- *
- * `null` berarti pertanyaannya tidak terjawab — X menolak, jaringannya putus,
- * atau daftarnya terlalu panjang untuk ditelusuri. Bedanya dengan `false`
- * penting: yang satu berarti "belum mengikuti", yang lain berarti "kami tidak
- * tahu", dan hanya yang pertama pantas dikatakan kepada pemakai.
- */
-export async function apakahMengikutiX(
-  token: string,
-  idSaya: string,
-  idTarget: string,
-): Promise<boolean | null> {
-  let penanda: string | undefined;
-
-  for (let halaman = 0; halaman < MAKS_HALAMAN; halaman += 1) {
-    const kueri = new URLSearchParams({ max_results: "1000" });
-    if (penanda) kueri.set("pagination_token", penanda);
-
-    const isi = await ambil<JawabanMengikuti>(
-      `/users/${encodeURIComponent(idSaya)}/following?${kueri}`,
-      token,
-    );
-    if (!isi) return null;
-
-    if ((isi.data ?? []).some((akun) => akun.id === idTarget)) return true;
-
-    penanda = isi.meta?.next_token;
-    if (!penanda) return false;
-  }
-
-  return null;
+  return { ok: true, nilai: { id, username } };
 }
