@@ -2,7 +2,6 @@
 
 import { useId, useState } from "react";
 import {
-  IkonBagikan,
   IkonCentang,
   IkonJam,
   IkonTerverifikasi,
@@ -24,8 +23,6 @@ import { bacaProfilX, tautanProfilX } from "@/lib/tautan";
 type Props = {
   daftar: Misi[];
   memuat: boolean;
-  /** menyalin kalimat klaim ke papan klip */
-  onSalin: (teks: string) => void;
   /** membawa kalimat klaim ke kotak tulis di beranda */
   onTulis: (teks: string) => void;
 };
@@ -37,12 +34,7 @@ type Props = {
  * membedakan misi satu dengan lainnya hanya kalimat di katalog dan cara
  * pengajuannya. Misi berikutnya cukup menambah barisnya di lib/misi.ts.
  */
-export default function DaftarMisi({
-  daftar,
-  memuat,
-  onSalin,
-  onTulis,
-}: Props) {
+export default function DaftarMisi({ daftar, memuat, onTulis }: Props) {
   const { t } = useBahasa();
 
   if (memuat) {
@@ -147,9 +139,7 @@ export default function DaftarMisi({
                   ))}
                 </ol>
 
-                {misi.kode === "ikuti-x" && (
-                  <KlaimIkutiX onSalin={onSalin} onTulis={onTulis} />
-                )}
+                {misi.kode === "ikuti-x" && <KlaimIkutiX onTulis={onTulis} />}
               </>
             )}
           </article>
@@ -161,7 +151,12 @@ export default function DaftarMisi({
 
 /**
  * Pengajuan misi "ikuti-x": satu kotak untuk tautan profil X, satu pratinjau
- * kalimat yang akan diposting, dan dua jalan mengirimkannya.
+ * kalimat yang akan diposting, dan satu tombol yang mengirimkannya.
+ *
+ * Tidak ada tombol salin di sini. Kalimatnya sudah berdiri utuh di kotak tulis
+ * begitu tombolnya ditekan, jadi menyalinnya lebih dulu tidak menambah apa pun
+ * — dan papan klip adalah langkah yang bisa gagal sendiri (izin ditolak, tempel
+ * ke tempat yang salah) untuk sesuatu yang tidak perlu melewatinya.
  *
  * Tidak ada tombol yang menjanjikan verifikasi di sini, karena tidak ada yang
  * bisa memverifikasinya secara otomatis: X tidak lagi memberi aplikasi
@@ -170,13 +165,7 @@ export default function DaftarMisi({
  * ditutup satu tagar tetap, dengan tautan profil yang bisa dicocokkan ke daftar
  * pengikut akun resmi (`AKUN_X` di lib/misi.ts).
  */
-function KlaimIkutiX({
-  onSalin,
-  onTulis,
-}: {
-  onSalin: (teks: string) => void;
-  onTulis: (teks: string) => void;
-}) {
+function KlaimIkutiX({ onTulis }: { onTulis: (teks: string) => void }) {
   const { t } = useBahasa();
   const [isian, setIsian] = useState("");
   const idKotak = useId();
@@ -237,16 +226,6 @@ function KlaimIkutiX({
           <IkonX size={16} />
           <span>{t("misi.ikutiX.buka", { akun: AKUN_X })}</span>
         </a>
-
-        <button
-          type="button"
-          className="tombol tombol-garis"
-          onClick={() => onSalin(teks)}
-          disabled={!handle}
-        >
-          <IkonBagikan size={15} />
-          <span>{t("misi.klaim.salin")}</span>
-        </button>
 
         <button
           type="button"

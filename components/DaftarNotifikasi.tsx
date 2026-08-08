@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Avatar from "./Avatar";
 import Lencana from "./Lencana";
-import { IkonProfil } from "./Icons";
+import { IkonMisi, IkonProfil } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import type { KunciTeks } from "@/lib/i18n/kamus";
 import { waktuLengkap, waktuRelatif } from "@/lib/time";
@@ -13,16 +13,19 @@ const KALIMAT: Record<JenisNotifikasi, KunciTeks> = {
   suka: "notif.suka",
   ulang: "notif.ulang",
   ikut: "notif.ikut",
+  misi: "notif.misi",
 };
 
 /**
  * Kabar suka dan posting ulang sengaja tanpa ikon: kalimatnya sudah menyebut
  * apa yang terjadi, dan hati merah berjajar di sepanjang daftar lebih ramai
- * daripada memberi tahu. Yang tersisa hanya pengikut baru — satu-satunya kabar
- * yang tidak menunjuk ke sebuah komentar.
+ * daripada memberi tahu. Yang berikon hanya dua yang jarang: pengikut baru —
+ * satu-satunya kabar yang tidak menunjuk ke sebuah komentar — dan pengajuan
+ * misi, yang datang ke daftar admin dan menunggu diputuskan.
  */
 function ikonKabar(jenis: JenisNotifikasi) {
   if (jenis === "ikut") return <IkonProfil size={19} aktif />;
+  if (jenis === "misi") return <IkonMisi size={19} aktif />;
   return null;
 }
 
