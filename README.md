@@ -80,10 +80,15 @@ lewat pengalih di navigasi.
   berjalan ditandai
 - **Kekuatan tiap hari**: Selasa–Kamis paling kuat, Sabtu dan Minggu paling
   lemah — terutama paginya, titik terendah sepanjang pekan
+- **Jam sungguhan yang berdetak**, WIB dan UTC berdampingan sampai ke detiknya,
+  lengkap dengan tanggal masing-masing zona — WIB karena itu yang dipakai
+  seluruh angka di atasnya, UTC supaya siapa pun yang sedang tidak duduk di
+  zona itu tetap bisa mencocokkannya
 - Semuanya dihitung dalam **WIB (UTC+7)**, bukan jam perangkat: yang menentukan
   adalah kapan audiensnya membuka linimasa, bukan di zona mana penulisnya duduk
 - Tampil sebagai kartu di panel kanan pada layar lebar, dan sebagai satu baris
-  ringkas tepat di atas kotak tulis di ponsel
+  ringkas tepat di atas kotak tulis di ponsel — jam WIB dan UTC-nya ikut turun
+  ke baris ringkas itu
 
 **Panduan**
 
@@ -100,10 +105,18 @@ angka bobot. [twitter/the-algorithm](https://github.com/twitter/the-algorithm)
 itu. Halaman ini menaruh yang berjalan lebih dulu dan yang lama sesudahnya,
 dengan alasan keduanya masih ada tertulis di tempatnya.
 
-- **Kartu jam emas penuh** — bukan baris ringkas — beserta satu tombol yang
-  membawa langsung ke kotak tulis, dan yang berbunyi berbeda saat jendelanya
-  memang sedang berlangsung. Di layar lebar kartu yang sama dilepas dari panel
-  kanan selama halaman ini terbuka, supaya tidak ada dua salinan bersebelahan
+- **Kartu jam emas penuh** — bukan baris ringkas — dengan jam WIB dan UTC yang
+  berdetak di kepalanya. Di layar lebar kartu yang sama dilepas dari panel kanan
+  selama halaman ini terbuka, supaya tidak ada dua salinan bersebelahan
+- **Tombol yang menyeberang ke X**, bukan ke kotak tulis aplikasi ini: panduan
+  ini tentang akun X sungguhan, jadi ajakan menulisnya bermuara di sana, dan
+  bunyinya berbeda saat jendela jam emasnya memang sedang berlangsung. Tombolnya
+  **terkunci selama bidang "Akun X" di sunting profil masih kosong** — tanpa itu
+  aplikasi tidak tahu akun mana yang sedang dikembangkan — dan keadaan
+  terkuncinya membukakan jalan ke halaman profil tempat mengisinya. Begitu
+  terisi, tombolnya terbuka dan satu baris di bawahnya menyebut akunnya sekaligus
+  menautkan ke profil X-nya. Menulis di aplikasi ini tetap satu sentuhan jauhnya
+  lewat tombol melayang dan navigasi bawah
 - **Rencana hari ini**: enam langkah yang sama tiap hari, masing-masing dengan
   angka atau aturan yang mendasarinya, dengan bilah kemajuan di atasnya.
   Centangnya kosong lagi tiap tengah malam WIB — yang dilatih kebiasaannya,
@@ -411,6 +424,7 @@ components/
   TautanX.tsx       kartu untuk tautan X yang dilampirkan di komentar
   Utas.tsx          halaman tautan tetap satu komentar
   JamEmas.tsx       jam emas audiens Indonesia: kartu panel kanan dan baris ringkas
+  JamKini.tsx       jam sungguhan WIB dan UTC, berdetak tiap detik
   Panduan.tsx       halaman panduan: jam emas, rencana harian, algoritma, kebijakan
   DaftarMisi.tsx    kartu misi, penyusun kalimat pengajuan, dan tombol kirimnya
   KelolaLencana.tsx panel lencana milik admin di kartu profil orang lain
@@ -433,6 +447,7 @@ lib/
   algoritmaArsip.ts bacaan atas twitter/the-algorithm 2023: tahap, sumber, bobot
   algoritmaKini.ts  bacaan atas xai-org/x-algorithm 2026: tahap, aksi, rumus, Grok
   avatar.ts         avatar bawaan DiceBear yang dibangkitkan dari handle
+  jam.ts            zona WIB dan UTC, pemecah jam dinding, dan jam aplikasi
   jamEmas.ts        jendela jam emas WIB dan hitungan potensi jangkauannya
   kebijakan.ts      masa hidup komentar, disamakan dengan basis data
   kreator.ts        program, syarat, dan larangan Creator Studio X
@@ -898,6 +913,10 @@ dulu (lihat bagian [Admin](#admin)).
 - Jam emas adalah pola kebiasaan, bukan ramalan: angkanya tetap dari hari ke
   hari (`lib/jamEmas.ts`), tidak dihitung dari data pemakaian aplikasi ini, dan
   selalu memakai WIB berapa pun jam perangkat pembacanya.
+- Yang membuat WIB dan UTC-nya benar tetap jam perangkat itu sendiri: keduanya
+  digeser dari epoch yang sama (`lib/jam.ts`), jadi zona waktu yang salah di
+  ponsel tidak berpengaruh sama sekali — tetapi jam sistem yang meleset ikut
+  menggeser dua-duanya. Tidak ada server waktu yang ditanyai.
 - Avatar bawaan memakai gaya *Adventurer Neutral* karya Lisa Wischofsky
   (CC BY 4.0) lewat DiceBear. Keterangannya ada di kaki panel kanan aplikasi.
 - Gambar tidak pernah dikirim mentah-mentah: pemangkasan dan pengecilan memakai

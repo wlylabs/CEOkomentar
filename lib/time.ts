@@ -1,5 +1,6 @@
 import { LOKAL, type Bahasa } from "./i18n/bahasa";
 import { teks } from "./i18n/kamus";
+import type { BagianWaktu } from "./jam";
 
 const MENIT = 60 * 1000;
 const JAM = 60 * MENIT;
@@ -137,6 +138,28 @@ export function jamMenit(menit: number, bahasa: Bahasa) {
   const jam = String(Math.floor(utuh / 60)).padStart(2, "0");
   const sisa = String(utuh % 60).padStart(2, "0");
   return `${jam}${bahasa === "en" ? ":" : "."}${sisa}`;
+}
+
+/**
+ * "14.32.05" / "14:32:05" — jam dinding lengkap sampai detiknya.
+ *
+ * Dipakai jam sungguhan di kartu jam emas, yang berdetak tiap detik; karena itu
+ * angkanya selalu dua digit — jam yang panjangnya berubah-ubah akan membuat
+ * seluruh baris bergeser tiap kali detiknya melewati sepuluh.
+ */
+export function jamPenuh(bagian: BagianWaktu, bahasa: Bahasa) {
+  const pemisah = bahasa === "en" ? ":" : ".";
+  return [bagian.jam, bagian.menit, bagian.detik]
+    .map((angka) => String(angka).padStart(2, "0"))
+    .join(pemisah);
+}
+
+/** "8 Agu 2026" / "Aug 8, 2026" — tanggal jam dinding sebuah zona. */
+export function tanggalZona(bagian: BagianWaktu, bahasa: Bahasa) {
+  const bulan = BULAN[bahasa][bagian.bulan];
+  return bahasa === "en"
+    ? `${bulan} ${bagian.tanggal}, ${bagian.tahun}`
+    : `${bagian.tanggal} ${bulan} ${bagian.tahun}`;
 }
 
 /** "3j 20m" / "3h 20m"; di bawah satu jam cukup menitnya saja. */

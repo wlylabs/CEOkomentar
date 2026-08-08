@@ -224,7 +224,9 @@ const KAMUS_ID = {
   "jam.kurvaJam": "Pukul {waktu} · potensi {skor} dari 100",
   "jam.hariLabel": "Kekuatan tiap hari dalam sepekan",
   "jam.hariIniLabel": "hari ini",
-  "jam.zona": "Waktu WIB (UTC+7), mengikuti kebiasaan audiens X Indonesia.",
+  "jam.kiniLabel": "Jam sekarang di WIB dan UTC",
+  "jam.zona":
+    "Seluruh angka memakai WIB (UTC+7), mengikuti kebiasaan audiens X Indonesia — bukan zona waktu perangkat ini.",
   "hari.0": "Min",
   "hari.1": "Sen",
   "hari.2": "Sel",
@@ -239,8 +241,13 @@ const KAMUS_ID = {
   "panduan.kapan": "Kapan menulis hari ini",
   "panduan.kapanSub":
     "Jam yang sama menentukan dua-duanya: berapa orang yang melihat, dan berapa yang sempat membalas selagi kamu masih di layar.",
-  "panduan.tulisSekarang": "Jam emas sedang berlangsung — tulis sekarang",
-  "panduan.tulisTetap": "Tulis komentar sekarang",
+  "panduan.tulisXKini": "Jam emas sedang berlangsung — tulis di X sekarang",
+  "panduan.tulisX": "Tulis di X sekarang",
+  "panduan.tulisXSebagai": "Akun X yang sedang dikembangkan:",
+  "panduan.tulisKunci": "Terkunci — akun X belum diisi",
+  "panduan.tulisKunciTeks":
+    "Isi bidang “Akun X” lewat Sunting profil, lalu tombol ini terbuka dan menyeberang ke X.",
+  "panduan.tulisKunciAksi": "Buka profil",
 
   "panduan.rencana": "Rencana hari ini",
   "panduan.rencanaSub":
@@ -975,7 +982,9 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "jam.kurvaJam": "{waktu} · potential {skor} out of 100",
   "jam.hariLabel": "How strong each day of the week is",
   "jam.hariIniLabel": "today",
-  "jam.zona": "Jakarta time (UTC+7), following Indonesian X audience habits.",
+  "jam.kiniLabel": "The time right now in Jakarta and UTC",
+  "jam.zona":
+    "Every number here runs on Jakarta time (UTC+7), following Indonesian X audience habits — not this device's time zone.",
   "hari.0": "Sun",
   "hari.1": "Mon",
   "hari.2": "Tue",
@@ -990,8 +999,13 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "panduan.kapan": "When to post today",
   "panduan.kapanSub":
     "The same hour decides both things: how many people see it, and how many can reply while you are still on the screen.",
-  "panduan.tulisSekarang": "Golden hours are running — post now",
-  "panduan.tulisTetap": "Write a comment now",
+  "panduan.tulisXKini": "Golden hours are running — post on X now",
+  "panduan.tulisX": "Post on X now",
+  "panduan.tulisXSebagai": "The X account you are growing:",
+  "panduan.tulisKunci": "Locked — no X account yet",
+  "panduan.tulisKunciTeks":
+    "Fill in the “X account” field under Edit profile and this button unlocks, taking you straight to X.",
+  "panduan.tulisKunciAksi": "Open profile",
 
   "panduan.rencana": "Today's plan",
   "panduan.rencanaSub":

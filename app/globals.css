@@ -3049,6 +3049,84 @@ input::-webkit-strong-password-auto-fill-button {
   --nada: var(--garis-kuat);
 }
 
+/* Jam sungguhan: dua zona berdampingan, WIB lebih dulu dan lebih besar karena
+   itulah zona yang dipakai seluruh angka di kartunya. Angkanya tabular supaya
+   detik yang berganti tiap detik tidak menggeser apa pun di sebelahnya. */
+.jam-kini {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--garis);
+}
+
+.jam-kini-zona {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.jam-kini-utc {
+  padding-left: 12px;
+  border-left: 1px solid var(--garis);
+}
+
+.jam-kini-label {
+  color: var(--teks-samar);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.jam-kini-angka {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.jam-kini-utc .jam-kini-angka {
+  color: var(--teks-samar);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.jam-kini-tanggal {
+  color: var(--teks-samar);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Bentuk sebarisnya, dipakai baris ringkas di layar sempit. */
+.jam-kini-ringkas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 5px;
+  color: var(--teks-samar);
+  font-size: 12.5px;
+}
+
+.jam-kini-ringkas .jam-kini-pasang {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.jam-kini-ringkas .jam-kini-angka {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--teks);
+}
+
+.jam-kini-pisah {
+  padding-right: 4px;
+}
+
 .jam-kepala {
   display: flex;
   align-items: baseline;
@@ -3241,13 +3319,16 @@ input::-webkit-strong-password-auto-fill-button {
 /* Baris ringkas untuk layar sempit, tempat panel kanan tidak pernah muncul.
    Duduk tepat di atas kotak tulis di beranda. */
 .jam-ringkas {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   padding: 9px 16px;
   border-bottom: 1px solid var(--garis);
   font-size: 13.5px;
   color: var(--teks-samar);
+}
+
+.jam-ringkas-baris {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 @media (min-width: 880px) {
@@ -3387,6 +3468,36 @@ input::-webkit-strong-password-auto-fill-button {
 
 .pan-blok .tombol-lebar {
   gap: 8px;
+}
+
+/* Ajakan menulis di X, terbuka maupun terkunci. Keduanya memakai susunan yang
+   sama — tombol selebar kolom, satu kalimat keterangan di bawahnya — supaya
+   yang berubah saat akun X akhirnya diisi hanya isinya, bukan bentuknya. */
+.pan-kunci {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+
+.pan-kunci > .tombol-lebar {
+  justify-self: stretch;
+  text-decoration: none;
+  color: inherit;
+}
+
+.pan-kunci-teks {
+  color: var(--teks-samar);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+/* Di dalam kalimat, bukan di ujung baris daftar: dorongan `margin-left: auto`
+   yang dipakai tautan di kepala baris tidak berlaku di sini, dan ukurannya
+   ikut kalimat yang memuatnya. */
+.pan-kunci-teks .pan-tautan {
+  margin-left: 0;
+  font-size: inherit;
+  vertical-align: bottom;
 }
 
 /* ---------------------------------------------------------- empat tahap */

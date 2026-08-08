@@ -274,6 +274,15 @@ export function IkonJam(p: IkonProps) {
   );
 }
 
+export function IkonGembok(p: IkonProps) {
+  return (
+    <Dasar {...p}>
+      <rect x="4.6" y="10.4" width="14.8" height="10" rx="2.3" />
+      <path d="M8.2 10.4V7.6a3.8 3.8 0 0 1 7.6 0v2.8" />
+    </Dasar>
+  );
+}
+
 export function IkonTamu(p: IkonProps) {
   return (
     <Dasar {...p}>
