@@ -159,10 +159,9 @@ export default function App({
   const [kabar, setKabar] = useState<IsiKabar | null>(null);
 
   /* Jam aplikasi. Berdetak tiap menit penuh — umur komentar, jangkauan yang
-     merangkak, dan jam emas semuanya dihitung darinya — dan menyamakan diri
-     lagi begitu tab kembali terlihat, karena peramban membekukan pewaktu di
-     tab tersembunyi. Jam dinding yang sampai detiknya berdetak sendiri di
-     dalam JamKini. */
+     merangkak, jam emas, dan jam dinding WIB/UTC semuanya dihitung darinya —
+     dan menyamakan diri lagi begitu tab kembali terlihat, karena peramban
+     membekukan pewaktu di tab tersembunyi. */
   const sekarang = useDetak(MENIT);
 
   /* Profil yang sedang dibuka. Sama dengan akun sendiri sampai ada nama atau

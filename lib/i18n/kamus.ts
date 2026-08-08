@@ -225,6 +225,13 @@ const KAMUS_ID = {
   "jam.hariLabel": "Kekuatan tiap hari dalam sepekan",
   "jam.hariIniLabel": "hari ini",
   "jam.kiniLabel": "Jam sekarang di WIB dan UTC",
+  /* Bagian hari tiap zona jam dinding; lepas dari jendela jam emas di atas,
+     meski beberapa namanya bertemu. */
+  "jam.bagian.dini": "Dini hari",
+  "jam.bagian.pagi": "Pagi",
+  "jam.bagian.siang": "Siang",
+  "jam.bagian.sore": "Sore",
+  "jam.bagian.malam": "Malam",
   "jam.zona":
     "Seluruh angka memakai WIB (UTC+7), mengikuti kebiasaan audiens X Indonesia — bukan zona waktu perangkat ini.",
   "hari.0": "Min",
@@ -983,6 +990,11 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "jam.hariLabel": "How strong each day of the week is",
   "jam.hariIniLabel": "today",
   "jam.kiniLabel": "The time right now in Jakarta and UTC",
+  "jam.bagian.dini": "Late night",
+  "jam.bagian.pagi": "Morning",
+  "jam.bagian.siang": "Midday",
+  "jam.bagian.sore": "Afternoon",
+  "jam.bagian.malam": "Evening",
   "jam.zona":
     "Every number here runs on Jakarta time (UTC+7), following Indonesian X audience habits — not this device's time zone.",
   "hari.0": "Sun",

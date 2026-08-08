@@ -30,11 +30,22 @@ export type Zona = {
   label: string;
   /** pergeseran dari UTC dalam milidetik */
   offset: number;
+  /** ditulis 12 jam ber-am/pm, bukan 24 jam */
+  jam12: boolean;
 };
 
+/*
+ * WIB ditulis 24 jam, UTC 12 jam ber-am/pm — bukan karena selera, melainkan
+ * karena keduanya menjawab pertanyaan yang berbeda. Angka WIB harus bisa
+ * dicocokkan langsung dengan seluruh jam emas di bawahnya, yang semuanya
+ * ditulis 24 jam ("19.00–21.30"); satu format yang sama membuat pembacanya
+ * tidak perlu menghitung apa pun. UTC tidak dicocokkan dengan apa pun di
+ * halaman ini — ia baris rujukan bagi yang sedang tidak duduk di WIB — dan
+ * am/pm-nya sekaligus membedakannya sekali lihat dari baris di sebelahnya.
+ */
 export const ZONA: readonly Zona[] = [
-  { kunci: "wib", label: "WIB", offset: OFFSET_WIB_MS },
-  { kunci: "utc", label: "UTC", offset: 0 },
+  { kunci: "wib", label: "WIB", offset: OFFSET_WIB_MS, jam12: false },
+  { kunci: "utc", label: "UTC", offset: 0, jam12: true },
 ];
 
 export type BagianWaktu = {
@@ -66,6 +77,30 @@ export function bagianZona(sekarang: number, offset: number): BagianWaktu {
     menit: t.getUTCMinutes(),
     detik: t.getUTCSeconds(),
   };
+}
+
+export type KunciBagianHari = "dini" | "pagi" | "siang" | "sore" | "malam";
+
+/**
+ * Bagian hari yang sedang berjalan di sebuah zona: dini hari, pagi, siang,
+ * sore, atau malam.
+ *
+ * Batasnya mengikuti kebiasaan berbahasa Indonesia, bukan pembagian dua belas
+ * jam am/pm: siang menutup tengah hari sampai pukul tiga, sore berhenti di
+ * ambang magrib, malam berjalan sampai tengah malam. Gunanya menjawab "pukul
+ * 21.30 itu kapan" tanpa membuat pembacanya menerjemahkan angka lebih dulu —
+ * terutama di baris UTC, yang angkanya bukan jam yang sedang dijalaninya.
+ *
+ * Sengaja lepas dari jendela jam emas di `lib/jamEmas.ts`, meski beberapa
+ * namanya bertemu: yang ini bagian hari mana pun zonanya, yang itu tiga
+ * potongan jam WIB tempat linimasa Indonesia paling ramai.
+ */
+export function bagianHari(jam: number): KunciBagianHari {
+  if (jam < 4) return "dini";
+  if (jam < 11) return "pagi";
+  if (jam < 15) return "siang";
+  if (jam < 18) return "sore";
+  return "malam";
 }
 
 /**
