@@ -128,12 +128,12 @@ const KAMUS_ID = {
   "misi.buktiAdmin": "Diberikan admin setelah pengajuanmu diperiksa.",
   "misi.ikutiX.judul": "Ikuti akun resmi di X",
   "misi.ikutiX.teks":
-    "Centang biru diberikan kepada akun yang mengikuti @CEOkomentar di X. Ikuti akunnya, lalu posting pengajuanmu di sini — admin yang mencocokkannya dengan daftar pengikut akun resmi.",
+    "Centang biru diberikan kepada akun yang mengikuti @{akun} di X. Ikuti akunnya, lalu posting pengajuanmu di sini — admin yang mencocokkannya dengan daftar pengikut akun resmi.",
   "misi.ikutiX.menunggu":
-    "Pengajuanmu sudah tercatat dan sedang ditinjau. Kalau namamu ada di daftar pengikut @CEOkomentar, centang birunya dipasang admin — kamu tidak perlu menekan apa-apa lagi.",
+    "Pengajuanmu sudah tercatat dan sedang ditinjau. Kalau namamu ada di daftar pengikut @{akun}, centang birunya dipasang admin — kamu tidak perlu menekan apa-apa lagi.",
   "misi.ikutiX.selesai":
-    "Centang biru sudah menempel di namamu. Selama kamu masih mengikuti @CEOkomentar, lencananya tetap ada.",
-  "misi.ikutiX.langkah1": "Buka profil @CEOkomentar di X, lalu tekan Follow.",
+    "Centang biru sudah menempel di namamu. Selama kamu masih mengikuti @{akun}, lencananya tetap ada.",
+  "misi.ikutiX.langkah1": "Buka profil @{akun} di X, lalu tekan Follow.",
   "misi.ikutiX.langkah2":
     "Tempel tautan profil X-mu di kotak bawah ini — profil yang barusan menekan Follow, karena nama itulah yang akan dicari di daftar pengikut.",
   "misi.ikutiX.langkah3":
@@ -147,7 +147,7 @@ const KAMUS_ID = {
   "misi.klaim.salin": "Salin teks",
   "misi.klaim.tulis": "Tulis di Twitter Mini",
   "misi.klaim.catatan":
-    "Aplikasi ini tidak meminta izin apa pun atas akun X-mu. Yang dibaca admin cuma komentar yang kamu posting sendiri, dan tautan profil di dalamnya yang dicocokkan dengan daftar pengikut @CEOkomentar.",
+    "Aplikasi ini tidak meminta izin apa pun atas akun X-mu. Yang dibaca admin cuma komentar yang kamu posting sendiri, dan tautan profil di dalamnya yang dicocokkan dengan daftar pengikut @{akun}.",
 
   /* --------------------------------------------------------------- kelola */
   "kelola.label": "Lencana akun ini",
@@ -534,12 +534,12 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "misi.buktiAdmin": "Awarded by an admin after your claim was checked.",
   "misi.ikutiX.judul": "Follow the official account on X",
   "misi.ikutiX.teks":
-    "The blue check goes to accounts that follow @CEOkomentar on X. Follow it, then post your claim here — an admin matches it against the official account's follower list.",
+    "The blue check goes to accounts that follow @{akun} on X. Follow it, then post your claim here — an admin matches it against the official account's follower list.",
   "misi.ikutiX.menunggu":
-    "Your claim is recorded and under review. If your name is on @CEOkomentar's follower list, an admin puts the blue check on it — nothing left for you to press.",
+    "Your claim is recorded and under review. If your name is on @{akun}'s follower list, an admin puts the blue check on it — nothing left for you to press.",
   "misi.ikutiX.selesai":
-    "The blue check is on your name. It stays as long as you keep following @CEOkomentar.",
-  "misi.ikutiX.langkah1": "Open @CEOkomentar on X and press Follow.",
+    "The blue check is on your name. It stays as long as you keep following @{akun}.",
+  "misi.ikutiX.langkah1": "Open @{akun} on X and press Follow.",
   "misi.ikutiX.langkah2":
     "Paste the link to your X profile in the box below — the profile that just pressed Follow, since that is the name looked up in the follower list.",
   "misi.ikutiX.langkah3":
@@ -553,7 +553,7 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "misi.klaim.salin": "Copy text",
   "misi.klaim.tulis": "Write it on Twitter Mini",
   "misi.klaim.catatan":
-    "This app asks for no access at all to your X account. All an admin reads is the comment you posted yourself, and the profile link inside it that gets matched against @CEOkomentar's follower list.",
+    "This app asks for no access at all to your X account. All an admin reads is the comment you posted yourself, and the profile link inside it that gets matched against @{akun}'s follower list.",
 
   /* --------------------------------------------------------------- kelola */
   "kelola.label": "Badges on this account",

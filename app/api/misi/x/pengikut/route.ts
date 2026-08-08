@@ -5,7 +5,7 @@ import { klienServer } from "@/lib/supabase/server";
 import { supabaseSiap } from "@/lib/supabase/env";
 
 /**
- * Penyegaran daftar pengikut @CEOkomentar.
+ * Penyegaran daftar pengikut akun resmi di X (`AKUN_X` di lib/misi.ts).
  *
  * Di sinilah misi "ikuti-x" mendapat jawabannya. X tidak lagi memberi aplikasi
  * self-serve akses ke daftar "mengikuti" siapa pun, jadi yang tahu siapa saja

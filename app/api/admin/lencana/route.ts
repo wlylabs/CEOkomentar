@@ -11,7 +11,8 @@ import { supabaseSiap } from "@/lib/supabase/env";
  * Sejak alur "Hubungkan X & verifikasi" dihapus, inilah satu-satunya jalan
  * sebuah lencana berpindah tangan. Yang memutuskan seorang manusia: pemakai
  * memposting klaimnya beserta tautan profil X di beranda, admin mencocokkannya
- * dengan daftar pengikut @CEOkomentar, lalu menekan tombolnya di kartu profil.
+ * dengan daftar pengikut akun resmi di X, lalu menekan tombolnya di kartu
+ * profil pengaju.
  *
  * Keadminan ditanyakan kepada basis data, bukan kepada apa pun yang dikirim
  * peramban, dan penulisannya tetap lewat fungsi `service_role` yang sama.

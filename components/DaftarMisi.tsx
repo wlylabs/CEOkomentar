@@ -127,6 +127,7 @@ export default function DaftarMisi({
                   : ditinjau
                     ? (kata.menunggu ?? kata.teks)
                     : kata.teks,
+                { akun: AKUN_X },
               )}
             </p>
 
@@ -168,8 +169,8 @@ export default function DaftarMisi({
  * bisa memverifikasinya secara otomatis: X tidak lagi memberi aplikasi
  * self-serve akses ke daftar "mengikuti" siapa pun. Yang memutuskan adalah
  * admin, dan komentar inilah pengajuannya — kalimat tetap yang gampang dicari
- * di beranda, dengan tautan profil yang bisa dicocokkan ke daftar pengikut
- * @CEOkomentar.
+ * di beranda, dengan tautan profil yang bisa dicocokkan ke daftar pengikut akun
+ * resmi (`AKUN_X` di lib/misi.ts).
  */
 function KlaimIkutiX({
   onSalin,
@@ -250,7 +251,9 @@ function KlaimIkutiX({
         </button>
       </div>
 
-      <p className="misi-catatan">{t("misi.klaim.catatan")}</p>
+      <p className="misi-catatan">
+        {t("misi.klaim.catatan", { akun: AKUN_X })}
+      </p>
     </div>
   );
 }

@@ -17,8 +17,17 @@ import { uraiTautanX } from "./tautan";
  *      Misi tidak pernah boleh ditandai selesai dari peramban.
  */
 
-/** Akun resmi yang harus diikuti untuk mendapatkan centang biru. */
-export const AKUN_X = "CEOkomentar";
+/**
+ * Akun X yang harus diikuti untuk mendapatkan centang biru.
+ *
+ * Ditulis sekali di sini dan dipakai seluruh antarmuka: tombol yang membuka
+ * profilnya, kalimat pengajuan yang disalin pemakai, dan setiap kalimat di
+ * kamus yang menyebutnya lewat isian `{akun}`. Menggantinya cukup satu baris.
+ *
+ * Ini bukan handle admin di aplikasi ini — yang itu ditetapkan
+ * `public.handle_admin()` di basis data dan kebetulan pernah sama.
+ */
+export const AKUN_X = "gaptekcat";
 
 export const PROFIL_X = `https://x.com/${AKUN_X}`;
 

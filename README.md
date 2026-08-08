@@ -100,7 +100,7 @@ lewat pengalih di navigasi.
 
 **Misi dan lencana**
 
-- **Misi centang biru**: mengikuti [@CEOkomentar](https://x.com/CEOkomentar) di
+- **Misi centang biru**: mengikuti [@gaptekcat](https://x.com/gaptekcat) di
   X, lalu **memposting pengajuannya di Twitter Mini** — satu kalimat tetap
   beserta tautan profil X yang menekan Follow. Kartu misinya yang menyusun
   kalimatnya, tinggal disalin atau dikirim langsung ke kotak tulis
@@ -531,7 +531,12 @@ mengubahnya.
 
 Lencana tidak diberikan karena diminta, melainkan karena syaratnya diperiksa —
 oleh seorang manusia. Misi pertama, dan sejauh ini satu-satunya, adalah
-**mengikuti @CEOkomentar di X**, dengan hadiah **centang biru**.
+**mengikuti @gaptekcat di X**, dengan hadiah **centang biru**.
+
+Akun X yang harus diikuti ditulis sekali di `lib/misi.ts` sebagai `AKUN_X`;
+seluruh kalimat di kamus menyebutnya lewat isian `{akun}`, jadi menggantinya
+cukup satu baris. Ia **bukan** handle admin di aplikasi ini — yang itu
+ditetapkan `public.handle_admin()` di basis data dan berdiri sendiri.
 
 ### Bagaimana pengajuannya berjalan
 
@@ -539,7 +544,7 @@ Aplikasi tidak bertanya "apakah kamu sudah follow?" lewat kotak centang, dan
 tidak pula percaya pada jawaban peramban. Yang terjadi:
 
 1. Pemakai membuka **Misi**, menekan tombol yang mengantarnya ke profil
-   @CEOkomentar di X, lalu menekan Follow di sana.
+   @gaptekcat di X, lalu menekan Follow di sana.
 2. Ia menempelkan **tautan profil X-nya sendiri** di kotak pada kartu misi —
    profil yang barusan menekan Follow. Bentuk apa pun diterima:
    `https://x.com/budi`, `x.com/budi`, `@budi`, atau `budi`; yang menunjuk
@@ -547,7 +552,7 @@ tidak pula percaya pada jawaban peramban. Yang terjadi:
 3. Kartu misinya menyusun kalimat pengajuan:
 
    ```
-   Sudah follow akun @CEOkomentar #SudahFollow
+   Sudah follow akun @gaptekcat #SudahFollow
    https://x.com/budi
    ```
 
@@ -557,7 +562,7 @@ tidak pula percaya pada jawaban peramban. Yang terjadi:
 4. Komentar itulah pengajuannya. Ia berdiri di beranda seperti komentar lain,
    dan admin membacanya di sana.
 5. Admin membuka profil pengaju di aplikasi, mencocokkan tautan profil X-nya
-   dengan daftar pengikut @CEOkomentar, lalu menekan **Beri** pada baris centang
+   dengan daftar pengikut @gaptekcat, lalu menekan **Beri** pada baris centang
    biru di panel lencana.
 
 Tagar **#SudahFollow** ikut di kalimatnya bukan sebagai hiasan. Aplikasi ini
