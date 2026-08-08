@@ -162,3 +162,13 @@ export function bacaProfilX(masukan: string): string | null {
 export function tautanProfilX(handle: string): string {
   return `https://x.com/${handle}`;
 }
+
+/**
+ * Kotak tulis X yang sebenarnya.
+ *
+ * Panduan ini tentang menumbuhkan akun X sungguhan, jadi tombol "tulis
+ * sekarang" di sana menyeberang ke sana — bukan ke kotak tulis aplikasi ini.
+ * Alamatnya tidak membawa teks apa pun: yang ditulis pemakai adalah miliknya
+ * sendiri, dan X akan meminta masuk sendiri bila belum.
+ */
+export const TULIS_DI_X = "https://x.com/compose/post";

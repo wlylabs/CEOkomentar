@@ -1,5 +1,6 @@
 "use client";
 
+import JamKini from "./JamKini";
 import { IkonJam } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import type { KunciTeks } from "@/lib/i18n/kamus";
@@ -122,21 +123,28 @@ export default function JamEmas({
 
     return (
       <div className={`jam-ringkas jam-nada-${tingkat}`}>
-        <span className="jam-titik" aria-hidden="true" />
-        <span className="jam-ringkas-teks" suppressHydrationWarning>
-          <strong>{t(TINGKAT[tingkat])}</strong>
-          <span className="jam-ringkas-pisah" aria-hidden="true">
-            ·
+        <div className="jam-ringkas-baris">
+          <span className="jam-titik" aria-hidden="true" />
+          <span className="jam-ringkas-teks" suppressHydrationWarning>
+            <strong>{t(TINGKAT[tingkat])}</strong>
+            <span className="jam-ringkas-pisah" aria-hidden="true">
+              ·
+            </span>
+            {ringkas}
           </span>
-          {ringkas}
-        </span>
-        <span
-          className="jam-ringkas-skor"
-          title={t("jam.potensi")}
-          suppressHydrationWarning
-        >
-          {skor}
-        </span>
+          <span
+            className="jam-ringkas-skor"
+            title={t("jam.potensi")}
+            suppressHydrationWarning
+          >
+            {skor}
+          </span>
+        </div>
+
+        {/* Jam sungguhannya ikut turun ke sini: di layar sempit baris inilah
+            satu-satunya tempat keputusan "kirim sekarang atau nanti" bertemu
+            dengan waktu yang dipakai menghitungnya. */}
+        <JamKini varian="ringkas" />
       </div>
     );
   }
@@ -147,6 +155,11 @@ export default function JamEmas({
         <IkonJam size={16} />
         {t("jam.judul")}
       </h2>
+
+      {/* Jam sungguhan mendahului seluruh angka di bawahnya: semuanya —
+          potensi, sisa jendela, jarak ke jendela berikutnya — dibaca dari
+          detik yang sedang berjalan ini. */}
+      <JamKini />
 
       <div className="jam-kepala">
         <span className="jam-label">{t("jam.potensi")}</span>

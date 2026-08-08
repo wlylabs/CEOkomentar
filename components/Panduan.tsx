@@ -5,10 +5,10 @@ import JamEmas from "./JamEmas";
 import {
   IkonBuka,
   IkonCentang,
+  IkonGembok,
   IkonInfo,
   IkonJam,
   IkonPeringatan,
-  IkonTulis,
   IkonX,
 } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
@@ -56,13 +56,16 @@ import {
   simpanRencana,
   type KodeLangkah,
 } from "@/lib/rencana";
+import { TULIS_DI_X, tautanProfilX } from "@/lib/tautan";
 import { angkaDesimal, angkaPenuh, bulanTahun } from "@/lib/time";
 
 type Props = {
   /** epoch ms dari jam aplikasi; kartu jam emas dan rencana ikut berdetak */
   sekarang: number;
-  /** membuka kotak tulis di beranda */
-  onTulis: () => void;
+  /** handle X pemilik akun tanpa @; null berarti belum diisi di sunting profil */
+  akunX: string | null;
+  /** membuka halaman profil, tempat akun X diisi */
+  onProfil: () => void;
 };
 
 /**
@@ -79,7 +82,7 @@ type Props = {
  * seluruhnya (kebijakan monetisasi). Yang membaca dari atas mendapat pekerjaan
  * di menit pertama; yang ingin memeriksa dasarnya tinggal menggulir.
  */
-export default function Panduan({ sekarang, onTulis }: Props) {
+export default function Panduan({ sekarang, akunX, onProfil }: Props) {
   const { bahasa, t } = useBahasa();
 
   const isyarat = isyaratJamEmas(sekarang);
@@ -99,16 +102,7 @@ export default function Panduan({ sekarang, onTulis }: Props) {
 
         <JamEmas sekarang={sekarang} />
 
-        <button
-          type="button"
-          className={`tombol tombol-lebar${diJamEmas ? " tombol-utama" : " tombol-garis"}`}
-          onClick={onTulis}
-        >
-          <IkonTulis size={17} />
-          <span>
-            {t(diJamEmas ? "panduan.tulisSekarang" : "panduan.tulisTetap")}
-          </span>
-        </button>
+        <TombolTulis akunX={akunX} diJamEmas={diJamEmas} onProfil={onProfil} />
       </section>
 
       {/* ----------------------------------------------------------------
@@ -483,6 +477,86 @@ export default function Panduan({ sekarang, onTulis }: Props) {
         </ul>
         <p className="pan-catatan">{t("panduan.rujukanCatatan")}</p>
       </section>
+    </div>
+  );
+}
+
+/**
+ * Tombol yang menyeberang ke X.
+ *
+ * Seluruh panduan ini tentang akun X sungguhan, jadi ajakan menulisnya pun
+ * bermuara di sana, bukan di kotak tulis aplikasi ini — yang itu tetap ada satu
+ * sentuhan jauhnya lewat tombol melayang dan navigasi bawah.
+ *
+ * Kuncinya bukan pagar keamanan melainkan urutan kerja: tanpa akun X yang
+ * tertulis di profil, aplikasi tidak tahu akun mana yang sedang dikembangkan,
+ * dan tombol yang tetap terbuka hanya akan melemparkan pemakai ke halaman X
+ * yang tidak ada hubungannya dengan panduan yang baru saja dibacanya. Karena
+ * itu keadaan terkuncinya tidak berhenti pada "tidak bisa": ia menyebutkan apa
+ * yang kurang sekaligus membukakan jalan ke tempat mengisinya.
+ */
+function TombolTulis({
+  akunX,
+  diJamEmas,
+  onProfil,
+}: {
+  akunX: string | null;
+  diJamEmas: boolean;
+  onProfil: () => void;
+}) {
+  const { t } = useBahasa();
+
+  if (!akunX) {
+    return (
+      <div className="pan-kunci">
+        <button
+          type="button"
+          className="tombol tombol-lebar tombol-garis"
+          title={t("panduan.tulisKunciTeks")}
+          disabled
+        >
+          <IkonGembok size={17} />
+          <span>{t("panduan.tulisKunci")}</span>
+        </button>
+        <p className="pan-kunci-teks">{t("panduan.tulisKunciTeks")}</p>
+        <button
+          type="button"
+          className="tombol tombol-kecil tombol-garis"
+          onClick={onProfil}
+        >
+          {t("panduan.tulisKunciAksi")}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pan-kunci">
+      <a
+        className={`tombol tombol-lebar${diJamEmas ? " tombol-utama" : " tombol-garis"}`}
+        href={TULIS_DI_X}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <IkonX size={15} />
+        <span>{t(diJamEmas ? "panduan.tulisXKini" : "panduan.tulisX")}</span>
+        <IkonBuka size={14} />
+      </a>
+
+      {/* Akun mana yang sedang dikembangkan, sekaligus jalan memeriksanya:
+          menekan namanya membuka profil X-nya sendiri, bukan kotak tulis. */}
+      <p className="pan-kunci-teks">
+        {t("panduan.tulisXSebagai")}{" "}
+        <a
+          className="pan-tautan"
+          href={tautanProfilX(akunX)}
+          target="_blank"
+          rel="noopener noreferrer nofollow"
+        >
+          @{akunX}
+          <IkonBuka size={13} />
+        </a>
+      </p>
     </div>
   );
 }

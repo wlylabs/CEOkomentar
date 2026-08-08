@@ -19,7 +19,8 @@
  * — tidak perlu tabel musim panas.
  */
 
-const OFFSET_WIB_MS = 7 * 60 * 60 * 1000;
+/** Pergeseran WIB dari UTC. Dipakai juga jam dinding di `lib/jam.ts`. */
+export const OFFSET_WIB_MS = 7 * 60 * 60 * 1000;
 
 const SEHARI = 24 * 60;
 

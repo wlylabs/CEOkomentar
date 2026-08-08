@@ -48,6 +48,7 @@ import {
   setUlang,
   tandaiNotifikasiDibaca,
 } from "@/lib/api";
+import { MENIT, useDetak } from "@/lib/jam";
 import { jangkauanTerkumpul, type JejakKomentar } from "@/lib/jangkauan";
 import { MASA_KOMENTAR_JAM, MASA_KOMENTAR_MS } from "@/lib/kebijakan";
 import type { KodeLencana } from "@/lib/lencana";
@@ -156,7 +157,13 @@ export default function App({
   const [kueri, setKueri] = useState("");
   const [kueriTertunda, setKueriTertunda] = useState("");
   const [kabar, setKabar] = useState<IsiKabar | null>(null);
-  const [sekarang, setSekarang] = useState(() => Date.now());
+
+  /* Jam aplikasi. Berdetak tiap menit penuh — umur komentar, jangkauan yang
+     merangkak, dan jam emas semuanya dihitung darinya — dan menyamakan diri
+     lagi begitu tab kembali terlihat, karena peramban membekukan pewaktu di
+     tab tersembunyi. Jam dinding yang sampai detiknya berdetak sendiri di
+     dalam JamKini. */
+  const sekarang = useDetak(MENIT);
 
   /* Profil yang sedang dibuka. Sama dengan akun sendiri sampai ada nama atau
      foto orang lain yang ditekan. */
@@ -220,11 +227,6 @@ export default function App({
 
     media.addEventListener("change", ikutSistem);
     return () => media.removeEventListener("change", ikutSistem);
-  }, []);
-
-  useEffect(() => {
-    const id = window.setInterval(() => setSekarang(Date.now()), 60_000);
-    return () => window.clearInterval(id);
   }, []);
 
   /* Nomor urut kabar. Dua kali menekan tombol yang sama harus terasa sebagai
@@ -1048,7 +1050,11 @@ export default function App({
           aria-label={t("daftar.label", { judul: judulDaftar.toLowerCase() })}
         >
           {tampilan === "panduan" ? (
-            <Panduan sekarang={sekarang} onTulis={mulaiMenulis} />
+            <Panduan
+              sekarang={sekarang}
+              akunX={akun.xUsername}
+              onProfil={() => gantiTampilan("profil")}
+            />
           ) : tampilan === "misi" ? (
             <DaftarMisi daftar={misi} memuat={memuatMisi} onTulis={tulisKlaim} />
           ) : tampilan === "notifikasi" ? (
@@ -1175,9 +1181,10 @@ export default function App({
 
       {/* Di profil tombol melayang ini menutupi kartu profil dan angkanya,
           sedangkan jalan menulis sudah tersedia lewat navigasi bawah. Panduan
-          pun tidak memerlukannya: kartu jam emasnya sudah menutup dengan tombol
-          selebar kolom yang mengerjakan hal yang sama persis. */}
-      {layarSekunder && tampilan !== "panduan" && (
+          memakainya lagi sejak tombol selebar kolom di sana menyeberang ke X:
+          menulis di aplikasi ini tetap harus bisa dari halaman yang menjelaskan
+          kapan waktunya. */}
+      {layarSekunder && (
         <button
           type="button"
           className="apung"
