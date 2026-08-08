@@ -130,3 +130,35 @@ export function petikTautanX(teks: string): { teks: string; tautan: TautanX | nu
 export function alamatRingkas(url: string): string {
   return url.replace(/^https?:\/\//i, "").replace(/^www\./i, "");
 }
+
+/**
+ * Membaca isian "tautan profil X" dengan lapang dada.
+ *
+ * Yang diterima: tautan penuh (`https://x.com/budi`), tautan tanpa protokol
+ * (`x.com/budi`), nama berawalan @, dan nama polos. Yang ditolak: tautan ke
+ * sebuah postingan, alamat di luar X, dan nama yang bentuknya tidak mungkin
+ * menjadi handle X. Mengembalikan handle-nya saja, tanpa @.
+ *
+ * Dipakai dua kotak yang menanyakan hal yang sama: pengajuan misi centang biru
+ * dan bidang "Akun X" di sunting profil. Keduanya harus berlapang dada dengan
+ * cara yang persis sama, jadi aturannya tinggal di sini, bersama pembacaan
+ * tautan X yang lain.
+ */
+export function bacaProfilX(masukan: string): string | null {
+  const bersih = masukan.trim();
+  if (!bersih) return null;
+
+  if (POLA_HANDLE.test(bersih.replace(/^@/, ""))) {
+    return bersih.replace(/^@/, "");
+  }
+
+  /* Tautan yang menunjuk sebuah postingan punya `status`; yang dibutuhkan di
+     sini profilnya, karena itu yang bisa dicocokkan ke daftar pengikut. */
+  const tautan = uraiTautanX(bersih);
+  if (!tautan || tautan.status || !tautan.handle) return null;
+  return tautan.handle;
+}
+
+export function tautanProfilX(handle: string): string {
+  return `https://x.com/${handle}`;
+}

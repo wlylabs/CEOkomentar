@@ -1,6 +1,6 @@
 import type { KunciTeks } from "./i18n/kamus";
 import type { KodeLencana } from "./lencana";
-import { uraiTautanX } from "./tautan";
+import { tautanProfilX } from "./tautan";
 
 /**
  * Katalog misi.
@@ -91,54 +91,22 @@ export function misiDikenal(kode: string): kode is KodeMisi {
  * yang ditekan. Tanpa satu tagar bersama, admin harus menggulir seluruh beranda
  * mencari pengajuan di antara komentar biasa; dengan tagar ini, menekannya
  * sekali (di kartu mana pun atau di papan tren) menyisakan tepat pengajuannya.
- */
-export const TAGAR_KLAIM = "SudahFollow";
-
-/**
- * Kalimat klaim, satu bunyi untuk semua bahasa.
  *
- * Kalimat ini tidak tinggal di kamus dengan sengaja. Ia bukan teks antarmuka
- * melainkan isi komentar yang akan dibaca admin di beranda: kalau bunyinya ikut
- * berganti mengikuti bahasa pemakainya, yang memeriksa harus hafal dua bentuk
- * kalimat — dan yang ketiga saat bahasa berikutnya ditambahkan.
+ * Ia sekaligus satu-satunya bagian pengajuan yang tidak ikut berganti bahasa:
+ * kalimatnya diterjemahkan (`misi.klaim.kalimat` di kamus), tagarnya tidak.
+ * Itulah sebabnya pengajuan berbahasa Indonesia dan berbahasa Inggris tetap
+ * berkumpul di satu tagar yang sama.
  */
-export const KLAIM = `Sudah follow akun @${AKUN_X} #${TAGAR_KLAIM}`;
-
-/** Handle X: huruf, angka, dan garis bawah, paling panjang 15. */
-const POLA_HANDLE = /^[A-Za-z0-9_]{1,15}$/;
-
-/**
- * Membaca isian "tautan profil X" dengan lapang dada.
- *
- * Yang diterima: tautan penuh (`https://x.com/budi`), tautan tanpa protokol
- * (`x.com/budi`), nama berawalan @, dan nama polos. Yang ditolak: tautan ke
- * sebuah postingan, alamat di luar X, dan nama yang bentuknya tidak mungkin
- * menjadi handle X. Mengembalikan handle-nya saja, tanpa @.
- */
-export function bacaProfilX(masukan: string): string | null {
-  const bersih = masukan.trim();
-  if (!bersih) return null;
-
-  if (POLA_HANDLE.test(bersih.replace(/^@/, ""))) {
-    return bersih.replace(/^@/, "");
-  }
-
-  const tautan = uraiTautanX(bersih);
-  /* Tautan yang menunjuk sebuah postingan punya `status`; yang dibutuhkan di
-     sini profilnya, karena itu yang bisa dicocokkan ke daftar pengikut. */
-  if (!tautan || tautan.status || !tautan.handle) return null;
-  return tautan.handle;
-}
-
-export function tautanProfilX(handle: string): string {
-  return `https://x.com/${handle}`;
-}
+export const TAGAR_KLAIM = "TwitterMini";
 
 /**
  * Isi komentar yang diposting pemakai sebagai pengajuan misi: kalimat klaim di
  * baris pertama, tautan profilnya di baris terakhir — persis bentuk yang
  * dilampirkan komposer sebagai kartu pratinjau.
+ *
+ * Kalimatnya datang dari kamus, jadi ia dikirimkan ke sini sudah jadi: berkas
+ * ini tidak tahu bahasa apa pun, dan tidak perlu tahu.
  */
-export function teksKlaim(handle: string): string {
-  return `${KLAIM}\n${tautanProfilX(handle)}`;
+export function teksKlaim(kalimat: string, handle: string): string {
+  return `${kalimat}\n${tautanProfilX(handle)}`;
 }

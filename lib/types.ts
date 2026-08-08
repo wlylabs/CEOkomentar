@@ -10,6 +10,11 @@ export type User = {
   banner: string | null;
   bio: string;
   location: string;
+  /**
+   * Handle X pemiliknya tanpa @, diisi sendiri lewat sunting profil; null
+   * berarti tidak diisi. Bukan tanda terverifikasi — yang itu `verified`.
+   */
+  xUsername: string | null;
   /** waktu pendaftaran dalam ISO 8601 */
   joinedAt: string;
   following: number;

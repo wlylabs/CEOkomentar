@@ -107,24 +107,32 @@ lewat pengalih di navigasi.
 - **Yang memutuskan admin, bukan tombol**: pengajuan itu komentar biasa yang
   berdiri di beranda; admin membacanya, mencocokkan tautan profilnya dengan
   daftar pengikut akun resmi, lalu memberi lencananya dari kartu profil pengaju
-- **Tagar `#SudahFollow`** mengumpulkan seluruh pengajuan jadi satu: menekannya
-  di kartu mana pun menyaring beranda ke daftar yang perlu diperiksa
+- **Tagar `#TwitterMini`** mengumpulkan seluruh pengajuan jadi satu: menekannya
+  di kartu mana pun menyaring beranda ke daftar yang perlu diperiksa. Kalimat
+  pengajuannya ikut bahasa antarmuka; tagarnya tidak, jadi pengajuan berbahasa
+  apa pun tetap berkumpul di satu tempat
 - **Tidak ada jalan memberi lencana pada diri sendiri**: tabel misi dan lencana
   tidak punya satu pun kebijakan tulis untuk pengguna, dan fungsi pemberinya
   hanya bisa dipanggil `service_role` dari server
-- **Panel lencana admin**: satu baris per lencana di katalog, dengan tombol beri
-  dan cabut. Centang emas tidak ikut — ia mengikuti peran admin, bukan pemberian
+- **Panel lencana admin**: satu baris per lencana yang bisa diberikan — hari ini
+  tepat centang biru — dengan tombol beri dan cabut. Centang emas tidak ikut
+  ditampilkan sama sekali: ia mengikuti peran admin, bukan pemberian
 - **Bisa bertambah**: katalog misi hidup di basis data dan katalog lencananya di
   `lib/lencana.ts`; misi berikutnya tidak memerlukan perubahan skema
 
 **Profil**
 
 - Sampul, avatar, bio, lokasi, tanggal bergabung, jumlah mengikuti dan pengikut
+- **Akun X pemiliknya**, diisi sendiri lewat sunting profil dan tampil di baris
+  yang sama dengan lokasi: lambang X, nama akunnya, dan menekannya membuka
+  profil itu di x.com. Ia sengaja tidak digambar seperti tautan — warnanya sama
+  dengan teks meta di sebelahnya, tanpa garis bawah dan tanpa biru; garis
+  bawahnya baru muncul saat kursor menyentuhnya
 - Foto profil dan sampul bisa diganti atau dihapus: gambar dipangkas di peramban
   (persegi untuk avatar, 3:1 untuk sampul), dikecilkan, diubah ke WebP, lalu
   diunggah ke Supabase Storage. Berkas lama dibuang setelah baris profil
   tersimpan
-- Penyuntingan nama, bio, dan lokasi langsung di halaman
+- Penyuntingan nama, bio, lokasi, dan akun X langsung di halaman
 - Tab **Komentar** dan **Disukai** yang menyaring feed lewat kueri terpisah,
   bukan penyaringan di sisi peramban
 - **Avatar bawaan DiceBear** bergaya *adventurer-neutral*, dibangkitkan dari
@@ -157,7 +165,7 @@ lewat pengalih di navigasi.
 ## Menyiapkan Supabase
 
 1. Buat proyek di [supabase.com](https://supabase.com).
-2. Buka **SQL Editor**, lalu jalankan kesembilan berkas di
+2. Buka **SQL Editor**, lalu jalankan seluruh berkas di
    `supabase/migrations/` secara berurutan:
 
    - `20260807090000_awal.sql` — tabel, pemicu penghitung, kebijakan RLS, dua
@@ -190,8 +198,10 @@ lewat pengalih di navigasi.
    - `20260808130000_lencana-admin.sql` — `atur_lencana_admin()` yang memberi
      dan mencabut lencana atas keputusan admin, sekaligus menyesuaikan kemajuan
      misinya; dan penutupan `periksa_misi_x()` yang pemanggilnya sudah tidak ada
+   - `20260808140000_profil-x.sql` — kolom `x_username` di `profiles`, isian
+     profil yang diketik sendiri pemiliknya beserta pembatas bentuk handle X
 
-   Kesebelasnya aman dijalankan ulang. Bila memakai Supabase CLI:
+   Semuanya aman dijalankan ulang. Bila memakai Supabase CLI:
    `supabase db push`.
 3. Aktifkan **pg_cron** di **Database → Extensions** supaya komentar
    kedaluwarsa benar-benar terhapus. Migrasi mencoba memasangnya sendiri dan
@@ -552,7 +562,7 @@ tidak pula percaya pada jawaban peramban. Yang terjadi:
 3. Kartu misinya menyusun kalimat pengajuan:
 
    ```
-   Sudah follow akun @gaptekcat #SudahFollow
+   Sudah follow akun @gaptekcat #TwitterMini
    https://x.com/budi
    ```
 
@@ -565,7 +575,7 @@ tidak pula percaya pada jawaban peramban. Yang terjadi:
    dengan daftar pengikut @gaptekcat, lalu menekan **Beri** pada baris centang
    biru di panel lencana.
 
-Tagar **#SudahFollow** ikut di kalimatnya bukan sebagai hiasan. Aplikasi ini
+Tagar **#TwitterMini** ikut di kalimatnya bukan sebagai hiasan. Aplikasi ini
 tidak punya kotak cari — yang menyaring beranda hanyalah tagar yang ditekan —
 jadi tanpa satu tagar bersama, admin harus menggulir seluruh beranda mencari
 pengajuan di antara komentar biasa. Dengan tagar itu, menekannya sekali (di
@@ -573,10 +583,12 @@ kartu mana pun, atau di papan tren yang menghitungnya) menyisakan tepat daftar
 pengajuan yang belum diputuskan. Bunyinya ditulis sekali di `lib/misi.ts`,
 sebagai `TAGAR_KLAIM`.
 
-Kalimat klaimnya sengaja **tidak ikut berganti mengikuti bahasa antarmuka**. Ia
-bukan teks antarmuka melainkan isi komentar yang akan dicari admin di beranda;
-kalau bunyinya berbeda-beda, yang memeriksa harus hafal satu bentuk kalimat per
-bahasa. Bunyinya ditulis sekali di `lib/misi.ts`, sebagai `KLAIM`.
+Kalimat klaimnya **ikut bahasa antarmuka**, seperti teks lain di aplikasi ini:
+yang memposting membaca kalimatnya dalam bahasanya sendiri, dan kalimat itu
+tinggal di kamus sebagai `misi.klaim.kalimat`. Yang tetap sama di semua bahasa
+hanya tagarnya — dan justru tagar itulah yang dipakai admin untuk menyaring,
+jadi pengajuan berbahasa Indonesia dan berbahasa Inggris tetap berkumpul di satu
+daftar yang sama.
 
 #### Kenapa tidak diperiksa sendiri oleh aplikasi
 
@@ -626,8 +638,11 @@ akun. Penulisannya sendiri tetap lewat `service_role`.
 padam. Memberikannya satu per satu berarti menaruh tanda "admin yang dapat
 menghapus komentar siapa pun" pada akun yang tidak bisa melakukannya — dan
 pemicu yang sama akan mencabutnya lagi pada perubahan `is_admin` berikutnya.
-Barisnya tetap ditampilkan sebagai keadaan yang terkunci beserta alasannya, dan
-yang mengangkat admin tetap SQL Editor (lihat bagian [Admin](#admin)).
+Karena itu barisnya tidak ditampilkan sama sekali di panel lencana: yang tampil
+hanya `DIATUR` di `lib/lencana.ts` — lencana yang benar-benar berpindah tangan
+lewat tombol — dan yang mengangkat admin tetap SQL Editor (lihat bagian
+[Admin](#admin)). Rutenya tetap menolak centang emas dengan 409 kalau ada yang
+memanggilnya langsung.
 
 #### Apa yang dikerjakan `atur_lencana_admin()`
 

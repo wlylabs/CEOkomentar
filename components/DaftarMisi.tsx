@@ -14,14 +14,12 @@ import { judulLencana } from "@/lib/lencana";
 import {
   AKUN_X,
   KATALOG,
-  KLAIM,
   PROFIL_X,
   TAGAR_KLAIM,
-  bacaProfilX,
-  tautanProfilX,
   teksKlaim,
   type Misi,
 } from "@/lib/misi";
+import { bacaProfilX, tautanProfilX } from "@/lib/tautan";
 
 type Props = {
   daftar: Misi[];
@@ -168,9 +166,9 @@ export default function DaftarMisi({
  * Tidak ada tombol yang menjanjikan verifikasi di sini, karena tidak ada yang
  * bisa memverifikasinya secara otomatis: X tidak lagi memberi aplikasi
  * self-serve akses ke daftar "mengikuti" siapa pun. Yang memutuskan adalah
- * admin, dan komentar inilah pengajuannya — kalimat tetap yang gampang dicari
- * di beranda, dengan tautan profil yang bisa dicocokkan ke daftar pengikut akun
- * resmi (`AKUN_X` di lib/misi.ts).
+ * admin, dan komentar inilah pengajuannya — kalimat berbahasa pemakainya yang
+ * ditutup satu tagar tetap, dengan tautan profil yang bisa dicocokkan ke daftar
+ * pengikut akun resmi (`AKUN_X` di lib/misi.ts).
  */
 function KlaimIkutiX({
   onSalin,
@@ -185,39 +183,49 @@ function KlaimIkutiX({
 
   const handle = bacaProfilX(isian);
   const kosong = isian.trim().length === 0;
+  /* Kalimatnya ikut bahasa antarmuka; yang tetap sama di semua bahasa hanya
+     tagarnya, dan tagar itulah yang mengumpulkan pengajuan buat admin. */
+  const kalimat = t("misi.klaim.kalimat", { akun: AKUN_X, tagar: TAGAR_KLAIM });
   /* Kalimatnya tetap diperlihatkan sebelum tautannya diisi; yang belum ada
      ditandai sebagai isian, bukan disembunyikan. */
-  const teks = handle ? teksKlaim(handle) : KLAIM;
+  const teks = handle ? teksKlaim(kalimat, handle) : kalimat;
 
   return (
     <div className="klaim">
-      <label className="klaim-label" htmlFor={idKotak}>
-        {t("misi.klaim.label")}
-      </label>
-      <input
-        id={idKotak}
-        className="klaim-isian"
-        type="text"
-        inputMode="url"
-        autoComplete="off"
-        spellCheck={false}
-        placeholder={t("misi.klaim.bayangan")}
-        value={isian}
-        onChange={(e) => setIsian(e.target.value)}
-      />
+      <div className="klaim-kotak">
+        <label className="klaim-label" htmlFor={idKotak}>
+          {t("misi.klaim.label")}
+        </label>
+        <input
+          id={idKotak}
+          className="klaim-isian"
+          type="text"
+          inputMode="url"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder={t("misi.klaim.bayangan")}
+          value={isian}
+          onChange={(e) => setIsian(e.target.value)}
+        />
 
-      {!kosong && !handle && (
-        <p className="klaim-galat" role="alert">
-          {t("misi.klaim.asing")}
+        {!kosong && !handle && (
+          <p className="klaim-galat" role="alert">
+            {t("misi.klaim.asing")}
+          </p>
+        )}
+      </div>
+
+      <div className="klaim-pratinjau">
+        <span className="klaim-tajuk">{t("misi.klaim.pratinjau")}</span>
+        <p className="klaim-isi">
+          <span>{kalimat}</span>
+          <span
+            className={handle ? "klaim-tautan" : "klaim-tautan klaim-kurang"}
+          >
+            {handle ? tautanProfilX(handle) : t("misi.klaim.kurang")}
+          </span>
         </p>
-      )}
-
-      <p className="klaim-pratinjau">
-        <span>{KLAIM}</span>
-        <span className={handle ? "klaim-tautan" : "klaim-tautan klaim-kurang"}>
-          {handle ? tautanProfilX(handle) : t("misi.klaim.kurang")}
-        </span>
-      </p>
+      </div>
 
       <div className="misi-aksi">
         <a
