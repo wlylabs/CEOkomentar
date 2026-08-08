@@ -1084,6 +1084,7 @@ input::-webkit-strong-password-auto-fill-button {
    keduanya disamakan dengan lingkaran sorot supaya garis tengahnya berimpit,
    dan jarak ke angka dihitung dari tepi lingkaran, bukan dari tepi ikon. */
 .aksi {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 1px;
@@ -1093,6 +1094,28 @@ input::-webkit-strong-password-auto-fill-button {
   transition: color 0.15s ease;
 }
 
+/* Lingkaran sorotnya 34px, dua piksel di bawah sasaran sentuh yang nyaman.
+   Melebarkannya akan menggeser seluruh baris, jadi yang dilebarkan hanya
+   daerah tekannya — ke atas dan ke bawah saja, supaya tombol yang bersebelahan
+   tidak saling menindih. */
+.aksi-hijau::after,
+.aksi-merah::after {
+  content: "";
+  position: absolute;
+  inset: -5px 0;
+}
+
+/* Cincin fokus mengikuti lingkaran ikonnya, bukan kotak tombol beserta angka
+   dan jarak kanannya — kalau tidak, cincinnya berubah panjang mengikuti
+   berapa digit yang sedang tertulis. */
+.aksi:focus-visible {
+  outline: none;
+}
+
+.aksi:focus-visible .aksi-ikon {
+  outline: 2px solid var(--aksen);
+  outline-offset: 2px;
+}
 
 .aksi-ikon {
   display: grid;
@@ -1122,9 +1145,12 @@ input::-webkit-strong-password-auto-fill-button {
 }
 
 /* Tayangan hanya keterangan — tidak ada yang bisa ditekan di sana, jadi tidak
-   ada pula sorotan kursor yang menjanjikan sebaliknya. */
+   ada pula sorotan kursor yang menjanjikan sebaliknya. Sedikit jarak tambahan
+   memisahkannya dari dua tombol di kirinya: matanya membaca dua tombol lalu
+   satu angka, bukan tiga benda sejenis yang salah satunya diam-diam mati. */
 .aksi-tayang {
   cursor: default;
+  margin-left: 4px;
 }
 
 
