@@ -69,6 +69,19 @@ const KAMUS_ID = {
   "komposer.petunjuk":
     "Tekan <kbd>Ctrl</kbd> + <kbd>Enter</kbd> untuk mengirim",
   "komposer.sisa": "{sisa} karakter tersisa",
+  "komposer.tautan": "Tautan X",
+  "komposer.tautanLabel": "Tempel tautan X",
+  "komposer.tautanBayangan": "https://x.com/i/status/2085707618681864284",
+  "komposer.tautanLampir": "Lampirkan",
+  "komposer.tautanBuang": "Buang tautan",
+  "komposer.tautanAsing":
+    "Hanya tautan X (Twitter) yang bisa ditempel, misalnya https://x.com/i/status/2085707618681864284",
+
+  /* ---------------------------------------------------------------- tautan */
+  "tautan.posting": "Postingan di X",
+  "tautan.postingMilik": "Postingan @{handle} di X",
+  "tautan.profil": "Profil @{handle} di X",
+  "tautan.buka": "Buka di X",
 
   /* -------------------------------------------------------------- daftar */
   "daftar.label": "Daftar {judul}",
@@ -416,6 +429,19 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "komposer.kirim": "Post",
   "komposer.petunjuk": "Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to post",
   "komposer.sisa": "{sisa} characters left",
+  "komposer.tautan": "X link",
+  "komposer.tautanLabel": "Paste an X link",
+  "komposer.tautanBayangan": "https://x.com/i/status/2085707618681864284",
+  "komposer.tautanLampir": "Attach",
+  "komposer.tautanBuang": "Remove link",
+  "komposer.tautanAsing":
+    "Only X (Twitter) links can be pasted, for example https://x.com/i/status/2085707618681864284",
+
+  /* ---------------------------------------------------------------- tautan */
+  "tautan.posting": "Post on X",
+  "tautan.postingMilik": "@{handle}'s post on X",
+  "tautan.profil": "@{handle} on X",
+  "tautan.buka": "Open on X",
 
   /* -------------------------------------------------------------- daftar */
   "daftar.label": "{judul} list",

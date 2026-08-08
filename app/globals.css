@@ -706,6 +706,12 @@ input::-webkit-strong-password-auto-fill-button {
   height: 44px;
 }
 
+.tombol-kecil {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 13.5px;
+}
+
 .tombol:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -755,6 +761,116 @@ input::-webkit-strong-password-auto-fill-button {
   gap: 12px;
   padding-top: 10px;
   border-top: 1px solid var(--garis);
+}
+
+.komposer-alat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Satu-satunya lampiran yang dikenal komentar, jadi tombolnya menyebut apa
+   yang dilampirkan alih-alih menyembunyikannya di balik ikon rantai. */
+.komposer-tautan {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px 0 10px;
+  border-radius: 999px;
+  color: var(--aksen);
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+}
+
+.komposer-tautan:hover,
+.komposer-tautan-aktif {
+  background: var(--aksen-lembut);
+}
+
+.komposer-kotak {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.komposer-kotak-isian {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--garis-kuat);
+  border-radius: 10px;
+  background: transparent;
+  outline: 0;
+  font-size: 14px;
+  transition: border-color 0.15s ease;
+}
+
+.komposer-kotak-isian:focus {
+  border-color: var(--aksen);
+}
+
+.komposer-kotak-isian::placeholder {
+  color: var(--teks-samar);
+}
+
+/* Lampiran yang sudah menempel: sepotong alamat yang bisa dilihat dan dicabut
+   sebelum komentarnya terkirim. */
+.komposer-lampiran {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 7px 8px 7px 11px;
+  border: 1px solid var(--garis-kuat);
+  border-radius: 12px;
+}
+
+.komposer-lampiran-lambang {
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: var(--teks);
+}
+
+.komposer-lampiran-alamat {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  color: var(--teks-samar);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.komposer-lampiran-buang {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: var(--teks-samar);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.komposer-lampiran-buang:hover {
+  background: var(--bahaya-lembut);
+  color: var(--bahaya);
+}
+
+.komposer-galat {
+  margin-top: 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--bahaya);
+  overflow-wrap: anywhere;
 }
 
 .komposer-petunjuk {
@@ -876,6 +992,79 @@ input::-webkit-strong-password-auto-fill-button {
   overflow-wrap: anywhere;
 }
 
+/* Kartu tautan X.
+
+   Tidak ada isi postingan yang diambil dari luar — tidak ada permintaan ke
+   server X, tidak ada skrip sematan yang ikut termuat, dan pembaca tidak
+   terlacak siapa-siapa. Yang digambar hanya keterangan yang sudah tersimpan di
+   alamatnya sendiri, plus tanda bahwa menekannya berarti pergi ke luar. */
+.tautanx {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--garis-kuat);
+  border-radius: 14px;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.tautanx:hover {
+  background: var(--lapis-hover);
+  border-color: var(--aksen);
+}
+
+.tautanx-lambang {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--latar-naik);
+  border: 1px solid var(--garis);
+  color: var(--teks);
+}
+
+.tautanx-isi {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.tautanx-judul {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tautanx-alamat {
+  font-size: 12.5px;
+  color: var(--teks-samar);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tautanx-panah {
+  display: grid;
+  place-items: center;
+  flex: none;
+  margin-left: auto;
+  color: var(--teks-samar);
+}
+
+.tautanx:hover .tautanx-panah {
+  color: var(--aksen);
+}
+
 /* Tiga penghitung, bukan tujuh benda: sisanya pindah ke menu titik tiga.
    Ketiganya berkelompok di kiri, tidak lagi direntang selebar kartu. Angka nol
    tidak ditulis, jadi merentangnya membuat komentar yang belum punya suka
@@ -891,10 +1080,14 @@ input::-webkit-strong-password-auto-fill-button {
   margin-left: -8px;
 }
 
+/* Ikon dan angkanya satu benda, bukan dua yang kebetulan bersebelahan: tinggi
+   keduanya disamakan dengan lingkaran sorot supaya garis tengahnya berimpit,
+   dan jarak ke angka dihitung dari tepi lingkaran, bukan dari tepi ikon. */
 .aksi {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 1px;
+  padding-right: 9px;
   color: var(--teks-samar);
   font-size: 13px;
   transition: color 0.15s ease;
@@ -912,8 +1105,19 @@ input::-webkit-strong-password-auto-fill-button {
     transform 0.15s ease;
 }
 
+/* Angka dibuat setinggi lingkaran ikonnya dan dipusatkan di dalamnya. Dibiarkan
+   memakai tinggi baris badan, kotak teksnya menyisakan ruang turunan huruf di
+   bawah — dan karena angka tidak punya turunan, digitnya duduk sekitar satu
+   piksel di atas titik tengah ikon. Selisih sekecil itu tidak terbaca sebagai
+   selisih, hanya sebagai baris yang entah kenapa terasa goyah. */
 .aksi-jumlah {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  font-size: 13px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
+  line-height: 1;
   min-width: 1ch;
 }
 

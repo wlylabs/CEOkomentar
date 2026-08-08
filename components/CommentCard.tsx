@@ -6,8 +6,10 @@ import Avatar from "./Avatar";
 import Lencana from "./Lencana";
 import MenuKartu from "./MenuKartu";
 import TeksKomentar from "./TeksKomentar";
+import KartuTautanX from "./TautanX";
 import { IkonJam, IkonSuka, IkonTayang, IkonUlang } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
+import { petikTautanX } from "@/lib/tautan";
 import { jangkauan } from "@/lib/jangkauan";
 import { MASA_KOMENTAR_MS } from "@/lib/kebijakan";
 import { angkaPenuh, angkaSosial, sisaWaktu, waktuLengkap, waktuRelatif } from "@/lib/time";
@@ -100,6 +102,10 @@ export default function CommentCard({
   const jumlahSuka = komentar.likes + tambahan.suka;
   const jumlahUlang = komentar.reposts + tambahan.ulang;
 
+  /* Tautan X yang dilampirkan keluar dari kalimat dan berdiri sebagai kartu di
+     bawahnya; alamat mentahnya tidak perlu ikut terbaca dua kali. */
+  const { teks: isiTeks, tautan } = petikTautanX(komentar.text);
+
   return (
     <article className="komentar">
       <div className="komentar-baris">
@@ -158,7 +164,11 @@ export default function CommentCard({
             />
           </header>
 
-          <TeksKomentar teks={komentar.text} onTagar={onTagar} onSebut={onSebut} />
+          {isiTeks && (
+            <TeksKomentar teks={isiTeks} onTagar={onTagar} onSebut={onSebut} />
+          )}
+
+          {tautan && <KartuTautanX tautan={tautan} />}
 
           {konfirmasiHapus && (
             <div

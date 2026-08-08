@@ -44,6 +44,15 @@ lewat pengalih di navigasi.
   sendiri — tidak ada balasan, tidak ada utas
 - Komposer dengan penghitung 280 karakter, tinggi menyesuaikan isi, dan pintasan
   `Ctrl`/`Cmd` + `Enter`
+- **Tempel tautan X (Twitter)** — dan hanya itu. Menempelkan
+  `https://x.com/i/status/2085707618681864284` mengangkat alamatnya jadi
+  lampiran yang bisa dilihat dan dicabut sebelum terkirim; alamat dari situs
+  lain ditolak saat ditempel maupun saat diketik, jadi tombol kirim tidak akan
+  mau berangkat selama masih ada. Bentuk `twitter.com`, `mobile.`, `www.`,
+  `/i/status/…`, dan ekor `?s=20` dirapikan jadi satu bentuk baku, sedangkan
+  inang yang menyerupai (`x.com.contoh.id`) ditolak. Di kartu komentar,
+  tautannya turun jadi kartu tersendiri — tanpa sematan, tanpa permintaan ke
+  server X, jadi tidak ada pihak ketiga yang ikut melihat siapa yang membaca
 - Suka dan posting ulang yang tersimpan permanen, diterapkan optimistis dan
   dibatalkan sendiri bila server menolak
 - Hapus komentar sendiri
@@ -257,7 +266,8 @@ components/
   RightRail.tsx     tren, ringkasan aktivitas, dan kartu akun (desktop)
   ProfileHeader.tsx kepala profil, tombol ikuti, form penyuntingan, unggah media
   CommentCard.tsx   kartu komentar beserta aksinya
-  TeksKomentar.tsx  isi komentar dengan tagar dan sebutan yang bisa ditekan
+  TeksKomentar.tsx  isi komentar dengan tagar, sebutan, dan tautan X
+  TautanX.tsx       kartu untuk tautan X yang dilampirkan di komentar
   Utas.tsx          halaman tautan tetap satu komentar
   JamEmas.tsx       jam emas audiens Indonesia: kartu panel kanan dan baris ringkas
   DaftarNotifikasi.tsx daftar suka, posting ulang, dan pengikut baru
@@ -278,6 +288,7 @@ lib/
   avatar.ts         avatar bawaan DiceBear yang dibangkitkan dari handle
   jamEmas.ts        jendela jam emas WIB dan hitungan potensi jangkauannya
   kebijakan.ts      masa hidup komentar, disamakan dengan basis data
+  tautan.ts         pengenalan dan perapian tautan X; penolak alamat lain
   tema.ts           tema terang/gelap: skrip pra-lukis, peralihan, warna bilah
   i18n/             daftar bahasa, kamus ID/EN, konteks React, dan teks berformat
   supabase/         klien peramban, klien server, tipe basis data, kredensial
