@@ -18,13 +18,7 @@ import Sidebar from "./Sidebar";
 import TombolTema from "./TombolTema";
 import BilahTamu from "./BilahTamu";
 import PemilihBahasa from "./PemilihBahasa";
-import {
-  IkonJam,
-  IkonKeluar,
-  IkonKembali,
-  IkonTulis,
-  IkonTutup,
-} from "./Icons";
+import { IkonJam, IkonKeluar, IkonTulis, IkonTutup } from "./Icons";
 import { useBahasa } from "@/lib/i18n/konteks";
 import type { KunciTeks } from "@/lib/i18n/kamus";
 import { klienPeramban } from "@/lib/supabase/client";
@@ -872,21 +866,7 @@ export default function App({
         : t("kosong.profilOrang", { handle: penggunaProfil?.handle ?? "" })
       : t("kosong.beranda");
 
-  /* Beranda memakai lambangnya di kiri bilah, jadi namanya tidak perlu diulang
-     lagi di tengah; ruang kosongnya tetap dipakai untuk menjaga tata letak.
-     Profil pun begitu: nama dan fotonya sudah sebesar itu di kartu tepat di
-     bawah bilah, jadi mengulangnya di sini hanya menumpuk. */
-  const judulBilah =
-    tampilan === "notifikasi"
-      ? t("nav.notifikasi")
-      : tampilan === "misi"
-        ? t("nav.misi")
-        : tampilan === "panduan"
-          ? t("nav.panduan")
-          : "";
-
-  /* Tiga layar yang bukan tempat menulis; ketiganya memakai panah pulang di
-     tempat lambang merek berada. */
+  /* Tiga layar yang bukan tempat menulis. */
   const layarSekunder =
     tampilan === "notifikasi" || tampilan === "misi" || tampilan === "panduan";
 
@@ -903,23 +883,16 @@ export default function App({
       />
 
       <main className="utama" ref={utamaRef}>
+        {/* Satu bilah yang sama di kelima layar: lambang merek di kiri, alat
+            akun di kanan. Nama layarnya tidak ditulis di sini — navigasi bawah
+            sudah menyalakan namanya, dan kepala kolom tepat di bawah bilah ini
+            menuliskannya lagi dengan huruf yang jauh lebih besar. Panah pulang
+            pun tidak ada gunanya: tiap tujuan berjarak satu sentuhan lewat
+            navigasi bawah, persis seperti X dan Threads. */}
         <div className="bilah-mobil">
-          {!layarSekunder ? (
-            <span className="bilah-merek">
-              <Brand size={26} />
-            </span>
-          ) : (
-            <button
-              type="button"
-              className="bulat"
-              onClick={() => gantiTampilan("beranda")}
-              aria-label={t("nav.kembali")}
-            >
-              <IkonKembali size={20} />
-            </button>
-          )}
-
-          <span className="bilah-judul">{judulBilah}</span>
+          <span className="bilah-merek">
+            <Brand size={26} />
+          </span>
 
           <span className="bilah-aksi">
             <PemilihBahasa varian="bulat" size={20} />
