@@ -2,7 +2,8 @@
 
 Antarmuka bergaya Twitter yang dibangun dengan Next.js (App Router), TypeScript,
 dan **Supabase**: feed komentar berumur 24 jam, profil yang bisa diikuti,
-notifikasi, misi lencana, papan tren, dan penunjuk jam emas audiens X Indonesia.
+notifikasi, misi lencana, papan tren, penunjuk jam emas audiens X Indonesia, dan
+panduan mengembangkan akun X yang dibaca dari kode perekomendasi X sendiri.
 Hampir seluruh aplikasi berjalan di satu rute (`/`) tanpa perpindahan halaman;
 satu rute lagi (`/komentar/[id]`) melayani tautan tetap satu komentar.
 
@@ -83,6 +84,47 @@ lewat pengalih di navigasi.
 - Tampil sebagai kartu di panel kanan pada layar lebar, dan sebagai satu baris
   ringkas tepat di atas kotak tulis di ponsel
 
+**Panduan**
+
+Satu halaman tersendiri di navigasi, tempat jam emas bertemu dua bacaan yang
+menjelaskan kenapa jam itu penting: kode perekomendasi X yang dibuka Twitter,
+dan kebijakan Creator Studio yang menentukan kapan jangkauan menjadi uang.
+
+- **Kartu jam emas penuh** — bukan baris ringkas — beserta satu tombol yang
+  membawa langsung ke kotak tulis, dan yang berbunyi berbeda saat jendelanya
+  memang sedang berlangsung. Di layar lebar kartu yang sama dilepas dari panel
+  kanan selama halaman ini terbuka, supaya tidak ada dua salinan bersebelahan
+- **Rencana hari ini**: enam langkah yang sama tiap hari, masing-masing dengan
+  angka atau aturan yang mendasarinya, dengan bilah kemajuan di atasnya.
+  Centangnya kosong lagi tiap tengah malam WIB — yang dilatih kebiasaannya,
+  bukan penyelesaiannya — dan seluruhnya tinggal di `localStorage`: tidak ada
+  baris basis data dan tidak ada permintaan jaringan
+- **Bagaimana linimasa X memilih**, dibaca dari
+  [twitter/the-algorithm](https://github.com/twitter/the-algorithm): empat tahap
+  yang dilewati sebuah postingan, dari mana kandidatnya datang (indeks pencarian
+  Earlybird yang menyumbang sekitar separuh linimasa, User-Tweet Entity Graph,
+  SimClusters, RealGraph, FRS), dan apa yang menyaringnya setelah pemeringkatan
+  — keragaman penulis, imbang dalam–luar lingkaran, kelelahan umpan balik
+- **Bobot sepuluh sinyal heavy ranker** apa adanya dari
+  [twitter/the-algorithm-ml](https://github.com/twitter/the-algorithm-ml), tiap
+  satunya dengan bilah sepanjang angkanya dan terjemahan ke satuan yang bisa
+  dibayangkan: satu balasan sebanding 27 suka, satu balasan yang dibalas
+  penulisnya sebanding 150 suka, satu laporan menghapus nilai 738 suka. Nama
+  parameter aslinya ikut ditulis supaya angkanya bisa dicari sendiri
+- **Kebijakan Creator Studio X**: tiga programnya, syarat masuk (langganan
+  Premium, 500 pengikut, 5 juta tayangan organik dalam tiga bulan, akun
+  pembayaran, kepatuhan yang berlaku terus), dan enam hal yang mencabut
+  monetisasi — umpan keterlibatan di urutan pertama, persis taktik yang paling
+  sering dijanjikan menaikkan jangkauan
+- **Tafsir dipisahkan dari kutipan.** Angka dan nama layanan datang dari
+  repositori; kalimat "jadi lakukan ini" berdiri di bloknya sendiri, dan tiap
+  satunya membawa dasarnya di baris kecil di bawahnya. Halaman ditutup daftar
+  rujukan, catatan bahwa yang dibuka Twitter adalah potret 2023 dan bukan mesin
+  yang berjalan hari ini, serta pengingat bahwa ambang milik X berubah tanpa
+  pemberitahuan
+- Twitter Mini tidak terhubung ke X dan tidak meminta izin apa pun atas akun
+  siapa pun: seluruh isi halaman ini bacaan atas dokumen yang terbuka untuk umum
+
 **Ikuti, notifikasi, dan tren**
 
 - **Ikuti dan berhenti mengikuti** siapa pun dari profilnya. Angka pengikut
@@ -136,7 +178,10 @@ lewat pengalih di navigasi.
   (persegi untuk avatar, 3:1 untuk sampul), dikecilkan, diubah ke WebP, lalu
   diunggah ke Supabase Storage. Berkas lama dibuang setelah baris profil
   tersimpan
-- Penyuntingan nama, bio, lokasi, dan akun X langsung di halaman
+- Penyuntingan nama, bio, lokasi, dan akun X langsung di halaman. Membuka form
+  itu **tidak menaikkan papan tik**: tidak ada isian yang tersorot otomatis,
+  jadi separuh layar tidak tertutup sebelum sempat melihat foto, sampul, dan bio
+  — yang justru lebih sering diubah daripada namanya
 - Tab **Komentar** dan **Disukai** yang menyaring feed lewat kueri terpisah,
   bukan penyaringan di sisi peramban
 - **Avatar bawaan DiceBear** bergaya *adventurer-neutral*, dibangkitkan dari
@@ -332,6 +377,7 @@ components/
   TautanX.tsx       kartu untuk tautan X yang dilampirkan di komentar
   Utas.tsx          halaman tautan tetap satu komentar
   JamEmas.tsx       jam emas audiens Indonesia: kartu panel kanan dan baris ringkas
+  Panduan.tsx       halaman panduan: jam emas, rencana harian, algoritma, kebijakan
   DaftarMisi.tsx    kartu misi, penyusun kalimat pengajuan, dan tombol kirimnya
   KelolaLencana.tsx panel lencana milik admin di kartu profil orang lain
   Lencana.tsx       lencana yang berjajar di sebelah nama akun
@@ -344,17 +390,20 @@ components/
   PemilihBahasa.tsx pengalih Indonesia/Inggris dalam tiga bentuk
   TombolPasang.tsx  ajakan memasang aplikasi, muncul bila peramban menawarkannya
   DaftarSW.tsx      pendaftaran service worker
-  menu.ts           empat tujuan navigasi, dipakai bilah samping dan bilah bawah
+  menu.ts           lima tujuan navigasi, dipakai bilah samping dan bilah bawah
   Icons.tsx         kumpulan ikon SVG
   Brand.tsx         tanda visual aplikasi
 lib/
   api.ts            seluruh baca-tulis ke Supabase dan pemetaan ke tipe aplikasi
   akun.ts           akun yang sedang masuk, dibaca di server sebelum merender
+  algoritma.ts      bacaan atas twitter/the-algorithm: tahap, sumber, bobot sinyal
   avatar.ts         avatar bawaan DiceBear yang dibangkitkan dari handle
   jamEmas.ts        jendela jam emas WIB dan hitungan potensi jangkauannya
   kebijakan.ts      masa hidup komentar, disamakan dengan basis data
+  kreator.ts        program, syarat, dan larangan Creator Studio X
   lencana.ts        katalog lencana: kode, urutan tampil, dan keterangannya
   misi.ts           katalog misi: kalimat, langkah, dan penyusun teks pengajuan
+  rencana.ts        enam langkah harian panduan dan penyimpanan centangnya
   tautan.ts         pengenalan dan perapian tautan X; penolak alamat lain
   tema.ts           tema terang/gelap: skrip pra-lukis, peralihan, warna bilah
   i18n/             daftar bahasa, kamus ID/EN, konteks React, dan teks berformat

@@ -14,6 +14,8 @@ type Props = {
   pengguna: User;
   /** epoch ms dari jam aplikasi; jam emas ikut berdetak bersamanya */
   sekarang: number;
+  /** halaman panduan sudah memuat kartu jam emas sendiri di kolom tengah */
+  tanpaJam: boolean;
   onTagar: (tagar: string) => void;
   onKeluar: () => void;
 };
@@ -23,6 +25,7 @@ export default function RightRail({
   tren,
   pengguna,
   sekarang,
+  tanpaJam,
   onTagar,
   onKeluar,
 }: Props) {
@@ -36,8 +39,11 @@ export default function RightRail({
     <aside className="rel" aria-label={t("rel.label")}>
       <div className="rel-isi">
         {/* Kapan menulis lebih menentukan jangkauan daripada apa pun yang ada
-            di kartu-kartu di bawahnya, jadi tempatnya paling atas. */}
-        <JamEmas sekarang={sekarang} />
+            di kartu-kartu di bawahnya, jadi tempatnya paling atas. Kecuali di
+            panduan: di sana kartu yang sama sudah berdiri di kolom tengah, dan
+            dua salinan bersebelahan hanya membuat pembacanya ragu apakah
+            keduanya menunjukkan hal yang sama. */}
+        {!tanpaJam && <JamEmas sekarang={sekarang} />}
 
         {/* Tren hanya muncul kalau memang ada yang sedang ramai; kartu kosong
             berisi kalimat "belum ada apa-apa" cuma menambah kebisingan. */}

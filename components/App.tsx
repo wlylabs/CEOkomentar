@@ -11,6 +11,7 @@ import DaftarMisi from "./DaftarMisi";
 import DaftarNotifikasi from "./DaftarNotifikasi";
 import JamEmas from "./JamEmas";
 import Kabar, { type IsiKabar, type JenisKabar } from "./Kabar";
+import Panduan from "./Panduan";
 import ProfileHeader from "./ProfileHeader";
 import RightRail from "./RightRail";
 import Sidebar from "./Sidebar";
@@ -307,8 +308,15 @@ export default function App({
   }, [supabase]);
 
   useEffect(() => {
-    /* Notifikasi dan misi punya jalur muatnya masing-masing. */
-    if (tampilan === "notifikasi" || tampilan === "misi") return;
+    /* Notifikasi dan misi punya jalur muatnya masing-masing, sedangkan panduan
+       tidak memuat apa-apa: seluruh isinya sudah ada di dalam aplikasi. */
+    if (
+      tampilan === "notifikasi" ||
+      tampilan === "misi" ||
+      tampilan === "panduan"
+    ) {
+      return;
+    }
 
     let batal = false;
     const nomor = ++nomorMuat.current;
@@ -820,7 +828,9 @@ export default function App({
         ? "nav.notifikasi"
         : tampilan === "misi"
           ? "nav.misi"
-          : (TAB.find((butir) => butir.kunci === tab)?.label ?? "tab.komentar"),
+          : tampilan === "panduan"
+            ? "nav.panduan"
+            : (TAB.find((butir) => butir.kunci === tab)?.label ?? "tab.komentar"),
   );
 
   const daftarPengguna = useMemo(
@@ -870,11 +880,14 @@ export default function App({
       ? t("nav.notifikasi")
       : tampilan === "misi"
         ? t("nav.misi")
-        : "";
+        : tampilan === "panduan"
+          ? t("nav.panduan")
+          : "";
 
-  /* Dua layar yang bukan tempat menulis; keduanya memakai panah pulang di
+  /* Tiga layar yang bukan tempat menulis; ketiganya memakai panah pulang di
      tempat lambang merek berada. */
-  const layarSekunder = tampilan === "notifikasi" || tampilan === "misi";
+  const layarSekunder =
+    tampilan === "notifikasi" || tampilan === "misi" || tampilan === "panduan";
 
   return (
     <div className="kerangka">
@@ -969,6 +982,11 @@ export default function App({
             <h1 className="kepala-judul">{t("nav.misi")}</h1>
             <p className="kepala-sub">{t("misi.sub")}</p>
           </div>
+        ) : tampilan === "panduan" ? (
+          <div className="kepala-kolom">
+            <h1 className="kepala-judul">{t("nav.panduan")}</h1>
+            <p className="kepala-sub">{t("panduan.sub")}</p>
+          </div>
         ) : (
           <div className="tab" role="tablist" aria-label={t("tab.saringan")}>
             {TAB.map(({ kunci, label }) => (
@@ -1029,7 +1047,9 @@ export default function App({
           className="daftar"
           aria-label={t("daftar.label", { judul: judulDaftar.toLowerCase() })}
         >
-          {tampilan === "misi" ? (
+          {tampilan === "panduan" ? (
+            <Panduan sekarang={sekarang} onTulis={mulaiMenulis} />
+          ) : tampilan === "misi" ? (
             <DaftarMisi daftar={misi} memuat={memuatMisi} onTulis={tulisKlaim} />
           ) : tampilan === "notifikasi" ? (
             memuatKabar && notifikasi.length === 0 ? (
@@ -1148,13 +1168,16 @@ export default function App({
         tren={tren}
         pengguna={akun}
         sekarang={sekarang}
+        tanpaJam={tampilan === "panduan"}
         onTagar={pilihTagar}
         onKeluar={mintaKeluar}
       />
 
       {/* Di profil tombol melayang ini menutupi kartu profil dan angkanya,
-          sedangkan jalan menulis sudah tersedia lewat navigasi bawah. */}
-      {layarSekunder && (
+          sedangkan jalan menulis sudah tersedia lewat navigasi bawah. Panduan
+          pun tidak memerlukannya: kartu jam emasnya sudah menutup dengan tombol
+          selebar kolom yang mengerjakan hal yang sama persis. */}
+      {layarSekunder && tampilan !== "panduan" && (
         <button
           type="button"
           className="apung"

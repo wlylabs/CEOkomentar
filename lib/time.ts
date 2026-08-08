@@ -171,6 +171,16 @@ export function angkaPenuh(nilai: number, bahasa: Bahasa) {
   return nilai.toLocaleString(LOKAL[bahasa]);
 }
 
+/**
+ * Angka pecahan dengan pemisah desimal sesuai bahasa: "13,5" dan "13.5".
+ *
+ * Dipakai bobot sinyal di panduan — tiga di antaranya lebih kecil dari satu,
+ * jadi angkanya tidak boleh dibulatkan seperti penghitung sosial.
+ */
+export function angkaDesimal(nilai: number, bahasa: Bahasa) {
+  return nilai.toLocaleString(LOKAL[bahasa], { maximumFractionDigits: 3 });
+}
+
 const SATUAN_RINGKAS: Record<Bahasa, [number, string][]> = {
   id: [
     [1_000_000_000, " M"],

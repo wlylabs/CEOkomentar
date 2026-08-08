@@ -1,0 +1,416 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import JamEmas from "./JamEmas";
+import {
+  IkonBuka,
+  IkonCentang,
+  IkonInfo,
+  IkonJam,
+  IkonPeringatan,
+  IkonTulis,
+  IkonX,
+} from "./Icons";
+import { useBahasa } from "@/lib/i18n/konteks";
+import {
+  BERKAS_BOBOT,
+  BOBOT,
+  LANGKAH,
+  REPO_ALGORITMA,
+  REPO_ALGORITMA_ML,
+  SARING,
+  SUMBER,
+  TAHAP,
+  panjangBobot,
+  setaraSuka,
+} from "@/lib/algoritma";
+import { isyaratJamEmas, tanggalWIB } from "@/lib/jamEmas";
+import {
+  DIPERIKSA,
+  LARANGAN,
+  PROGRAM,
+  STUDIO,
+  SYARAT,
+  TAUTAN_STANDAR,
+} from "@/lib/kreator";
+import {
+  RENCANA,
+  bacaRencana,
+  simpanRencana,
+  type KodeLangkah,
+} from "@/lib/rencana";
+import { angkaDesimal, angkaPenuh, bulanTahun } from "@/lib/time";
+
+type Props = {
+  /** epoch ms dari jam aplikasi; kartu jam emas dan rencana ikut berdetak */
+  sekarang: number;
+  /** membuka kotak tulis di beranda */
+  onTulis: () => void;
+};
+
+/**
+ * Panduan mengembangkan akun X lewat Twitter Mini.
+ *
+ * Tiga bahan yang sudah dimiliki aplikasi ini disatukan menjadi satu halaman
+ * yang bisa dikerjakan: jam emas audiens Indonesia yang sudah dihitung
+ * `lib/jamEmas.ts`, bacaan atas kode perekomendasi X yang dibuka Twitter di
+ * `lib/algoritma.ts`, dan kebijakan Creator Studio di `lib/kreator.ts`.
+ *
+ * Urutannya bukan urutan kepentingan melainkan urutan waktu: apa yang bisa
+ * dilakukan sekarang lebih dulu (jam emas dan rencana hari ini), baru
+ * penjelasan mengapa (bagaimana linimasa memilih), lalu pagar yang membatasi
+ * seluruhnya (kebijakan monetisasi). Yang membaca dari atas mendapat pekerjaan
+ * di menit pertama; yang ingin memeriksa dasarnya tinggal menggulir.
+ */
+export default function Panduan({ sekarang, onTulis }: Props) {
+  const { bahasa, t } = useBahasa();
+
+  const isyarat = isyaratJamEmas(sekarang);
+  const diJamEmas = isyarat.jendela !== null;
+
+  return (
+    <div className="panduan">
+      {/* ----------------------------------------------------------------
+          Kapan menulis
+          ---------------------------------------------------------------- */}
+      <section className="pan-blok">
+        <h2 className="pan-judul">
+          <IkonJam size={17} />
+          {t("panduan.kapan")}
+        </h2>
+        <p className="pan-sub">{t("panduan.kapanSub")}</p>
+
+        <JamEmas sekarang={sekarang} />
+
+        <button
+          type="button"
+          className={`tombol tombol-lebar${diJamEmas ? " tombol-utama" : " tombol-garis"}`}
+          onClick={onTulis}
+        >
+          <IkonTulis size={17} />
+          <span>
+            {t(diJamEmas ? "panduan.tulisSekarang" : "panduan.tulisTetap")}
+          </span>
+        </button>
+      </section>
+
+      {/* ----------------------------------------------------------------
+          Rencana hari ini
+          ---------------------------------------------------------------- */}
+      <Rencana sekarang={sekarang} />
+
+      {/* ----------------------------------------------------------------
+          Bagaimana linimasa memilih
+          ---------------------------------------------------------------- */}
+      <section className="pan-blok">
+        <h2 className="pan-judul">
+          <IkonInfo size={17} />
+          {t("panduan.algoritma")}
+        </h2>
+        <p className="pan-sub">{t("panduan.algoritmaSub")}</p>
+
+        <ol className="pan-tahap">
+          {TAHAP.map((tahap, nomor) => (
+            <li key={tahap.kode}>
+              <span className="pan-tahap-nomor" aria-hidden="true">
+                {nomor + 1}
+              </span>
+              <span className="pan-tahap-teks">
+                <strong>{t(tahap.nama)}</strong>
+                <span>{t(tahap.teks)}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+
+        <h3 className="pan-tajuk">{t("panduan.sumber")}</h3>
+        <ul className="pan-daftar">
+          {SUMBER.map((butir) => (
+            <li key={butir.kode}>
+              <span className="pan-baris-kepala">
+                <strong>{t(butir.nama)}</strong>
+                {butir.tanda && (
+                  <span className="pan-keping">{t(butir.tanda)}</span>
+                )}
+              </span>
+              <span className="pan-baris-teks">{t(butir.teks)}</span>
+            </li>
+          ))}
+        </ul>
+
+        <h3 className="pan-tajuk">{t("panduan.saring")}</h3>
+        <ul className="pan-daftar">
+          {SARING.map((butir) => (
+            <li key={butir.kode}>
+              <span className="pan-baris-kepala">
+                <strong>{t(butir.nama)}</strong>
+              </span>
+              <span className="pan-baris-teks">{t(butir.teks)}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* ----------------------------------------------------------------
+          Bobot sinyal
+          ---------------------------------------------------------------- */}
+      <section className="pan-blok">
+        <h2 className="pan-judul">{t("panduan.bobot")}</h2>
+        <p className="pan-sub">{t("panduan.bobotSub")}</p>
+
+        <ul className="pan-bobot">
+          {BOBOT.map((butir) => {
+            const rugi = butir.nilai < 0;
+            return (
+              <li
+                className={`pan-bobot-butir${rugi ? " pan-bobot-rugi" : ""}`}
+                key={butir.kode}
+              >
+                <span className="pan-bobot-kepala">
+                  <strong>{t(butir.nama)}</strong>
+                  <span className="pan-bobot-angka">
+                    {angkaDesimal(butir.nilai, bahasa)}
+                  </span>
+                </span>
+
+                <span className="pan-bobot-meter" aria-hidden="true">
+                  <span style={{ width: `${panjangBobot(butir.nilai)}%` }} />
+                </span>
+
+                <span className="pan-bobot-arti">{t(butir.arti)}</span>
+                <span className="pan-bobot-setara">
+                  {t(rugi ? "panduan.setaraRugi" : "panduan.setaraUntung", {
+                    jumlah: angkaPenuh(setaraSuka(butir.nilai), bahasa),
+                  })}
+                </span>
+                <code className="pan-parameter">{butir.parameter}</code>
+              </li>
+            );
+          })}
+        </ul>
+
+        <p className="pan-catatan">{t("panduan.bobotCatatan")}</p>
+      </section>
+
+      {/* ----------------------------------------------------------------
+          Turunannya untuk penulis
+          ---------------------------------------------------------------- */}
+      <section className="pan-blok">
+        <h2 className="pan-judul">{t("panduan.langkah")}</h2>
+        <p className="pan-sub">{t("panduan.langkahSub")}</p>
+
+        <ul className="pan-daftar">
+          {LANGKAH.map((butir) => (
+            <li key={butir.kode}>
+              <span className="pan-baris-teks pan-baris-utama">
+                {t(butir.teks)}
+              </span>
+              <span className="pan-dasar">{t(butir.dasar)}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* ----------------------------------------------------------------
+          Creator Studio
+          ---------------------------------------------------------------- */}
+      <section className="pan-blok">
+        <h2 className="pan-judul">
+          <IkonX size={15} />
+          {t("panduan.kreator")}
+        </h2>
+        <p className="pan-sub">{t("panduan.kreatorSub")}</p>
+
+        <ul className="pan-daftar">
+          {PROGRAM.map((butir) => (
+            <li key={butir.kode}>
+              <span className="pan-baris-kepala">
+                <strong>{t(butir.nama)}</strong>
+                <a
+                  className="pan-tautan"
+                  href={butir.tautan}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t("panduan.bacaAturan")}
+                  <IkonBuka size={13} />
+                </a>
+              </span>
+              <span className="pan-baris-teks">{t(butir.teks)}</span>
+            </li>
+          ))}
+        </ul>
+
+        <h3 className="pan-tajuk">{t("panduan.syarat")}</h3>
+        <ul className="pan-daftar">
+          {SYARAT.map((butir) => (
+            <li key={butir.kode}>
+              <span className="pan-baris-kepala">
+                <strong>{t(butir.nama)}</strong>
+              </span>
+              <span className="pan-baris-teks">{t(butir.teks)}</span>
+            </li>
+          ))}
+        </ul>
+
+        <h3 className="pan-tajuk">{t("panduan.larangan")}</h3>
+        <ul className="pan-larangan">
+          {LARANGAN.map((butir) => (
+            <li key={butir.kode}>
+              <IkonPeringatan size={15} />
+              <span>{t(butir.teks)}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="pan-aksi">
+          <a
+            className="tombol tombol-garis"
+            href={STUDIO}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IkonX size={15} />
+            <span>{t("panduan.bukaStudio")}</span>
+          </a>
+          <a
+            className="tombol tombol-garis"
+            href={TAUTAN_STANDAR}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IkonBuka size={15} />
+            <span>{t("panduan.bukaStandar")}</span>
+          </a>
+        </div>
+
+        <p className="pan-catatan">
+          {t("panduan.kreatorCatatan", {
+            waktu: bulanTahun(DIPERIKSA, bahasa),
+          })}
+        </p>
+      </section>
+
+      {/* ----------------------------------------------------------------
+          Dari mana angkanya
+          ---------------------------------------------------------------- */}
+      <section className="pan-blok pan-blok-sumber">
+        <h2 className="pan-judul">{t("panduan.rujukan")}</h2>
+        <ul className="pan-rujukan">
+          <li>
+            <a href={REPO_ALGORITMA} target="_blank" rel="noopener noreferrer">
+              twitter/the-algorithm
+              <IkonBuka size={13} />
+            </a>
+            <span>{t("panduan.rujukanRepo")}</span>
+          </li>
+          <li>
+            <a href={REPO_ALGORITMA_ML} target="_blank" rel="noopener noreferrer">
+              twitter/the-algorithm-ml
+              <IkonBuka size={13} />
+            </a>
+            <span>{t("panduan.rujukanMl")}</span>
+          </li>
+          <li>
+            <a href={BERKAS_BOBOT} target="_blank" rel="noopener noreferrer">
+              projects/home/recap/README.md
+              <IkonBuka size={13} />
+            </a>
+            <span>{t("panduan.rujukanBobot")}</span>
+          </li>
+          <li>
+            <a href={TAUTAN_STANDAR} target="_blank" rel="noopener noreferrer">
+              help.x.com
+              <IkonBuka size={13} />
+            </a>
+            <span>{t("panduan.rujukanX")}</span>
+          </li>
+        </ul>
+        <p className="pan-catatan">{t("panduan.rujukanCatatan")}</p>
+      </section>
+    </div>
+  );
+}
+
+/**
+ * Daftar kerja hari ini.
+ *
+ * Centangnya hidup di penyimpanan lokal, dan kunci hariannya tanggal WIB —
+ * sama dengan jam emasnya, jadi daftarnya berganti bersama audiens yang
+ * dilayaninya. Pembacaan pertama sengaja ditaruh di efek, bukan di nilai awal
+ * `useState`: server tidak punya penyimpanan lokal, dan menebaknya di sana
+ * berarti tampilan pertama berbeda dari hasil hidrasi.
+ */
+function Rencana({ sekarang }: { sekarang: number }) {
+  const { t } = useBahasa();
+
+  const tanggal = tanggalWIB(sekarang);
+  const [selesai, setSelesai] = useState<KodeLangkah[]>([]);
+
+  useEffect(() => {
+    setSelesai(bacaRencana(tanggal));
+  }, [tanggal]);
+
+  function alihkan(kode: KodeLangkah) {
+    setSelesai((sebelum) => {
+      const berikut = sebelum.includes(kode)
+        ? sebelum.filter((satu) => satu !== kode)
+        : [...sebelum, kode];
+      simpanRencana(tanggal, berikut);
+      return berikut;
+    });
+  }
+
+  const jumlah = selesai.length;
+  const total = RENCANA.length;
+  const tuntas = jumlah === total;
+
+  return (
+    <section className="pan-blok">
+      <h2 className="pan-judul">
+        <IkonCentang size={17} />
+        {t("panduan.rencana")}
+      </h2>
+      <p className="pan-sub">{t("panduan.rencanaSub")}</p>
+
+      <div className="pan-maju">
+        <span className="pan-maju-meter" aria-hidden="true">
+          <span style={{ width: `${(jumlah / total) * 100}%` }} />
+        </span>
+        <span className="pan-maju-teks" suppressHydrationWarning>
+          {t("panduan.rencanaMaju", { selesai: jumlah, total })}
+        </span>
+      </div>
+
+      <ul className="pan-rencana">
+        {RENCANA.map((butir) => {
+          const dicentang = selesai.includes(butir.kode);
+          return (
+            <li key={butir.kode}>
+              <label
+                className={`pan-rencana-butir${dicentang ? " pan-rencana-selesai" : ""}`}
+              >
+                <input
+                  type="checkbox"
+                  className="pan-rencana-kotak"
+                  checked={dicentang}
+                  onChange={() => alihkan(butir.kode)}
+                />
+                <span className="pan-rencana-teks">
+                  <span className="pan-rencana-kalimat">{t(butir.teks)}</span>
+                  <span className="pan-dasar">{t(butir.dasar)}</span>
+                </span>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+
+      {tuntas && (
+        <p className="pan-tuntas" suppressHydrationWarning>
+          {t("panduan.rencanaTuntas")}
+        </p>
+      )}
+    </section>
+  );
+}
