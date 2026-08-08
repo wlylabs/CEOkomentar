@@ -25,7 +25,7 @@ language sql
 immutable
 parallel safe
 as $$
-  select array['CEOkomentar']::text[];
+  select array['gaptekcat']::text[];
 $$;
 
 grant execute on function public.handle_admin() to authenticated;
@@ -49,7 +49,7 @@ $$;
 
 /*
  * Profil yang baru dibuat dengan handle admin langsung diberi tanda. Dengan
- * begitu @CEOkomentar tetap menjadi admin walau akunnya baru didaftarkan
+ * begitu @gaptekcat tetap menjadi admin walau akunnya baru didaftarkan
  * setelah migrasi ini jalan — tidak ada langkah manual yang perlu diingat.
  *
  * Sengaja hanya pada INSERT. Kalau pemicunya ikut jalan saat handle diubah,

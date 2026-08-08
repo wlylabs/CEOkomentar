@@ -2,7 +2,7 @@
 -- Twitter Mini — pengikut akun resmi
 -- Jalankan setelah 20260807150000_admin.sql. Aman dijalankan ulang.
 --
--- Akun resmi @CEOkomentar diikuti seluruh penduduk Indonesia: jumlah
+-- Akun resmi @gaptekcat diikuti seluruh penduduk Indonesia: jumlah
 -- pengikutnya disamakan dengan angka penduduk dari Badan Pusat Statistik.
 -- Angka itu jadi lantai, bukan nilai mati — kalau ada yang benar-benar
 -- mengikuti akun ini lewat tabel `follows`, hitungannya tetap bertambah
@@ -33,7 +33,7 @@ grant execute on function public.penduduk_indonesia() to anon, authenticated;
 /*
  * Sama seperti versi di 20260807150000_admin.sql, dengan satu tambahan:
  * profil admin yang baru dibuat langsung memulai dari angka penduduk. Dengan
- * begitu akun @CEOkomentar yang didaftarkan setelah migrasi ini jalan tidak
+ * begitu akun @gaptekcat yang didaftarkan setelah migrasi ini jalan tidak
  * perlu disentuh manual.
  */
 create or replace function public.tandai_admin()

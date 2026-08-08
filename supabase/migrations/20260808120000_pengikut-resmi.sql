@@ -8,7 +8,7 @@
 -- pemeriksaannya selalu berakhir "tidak yakin" dan lencananya tidak pernah
 -- diberikan kepada siapa pun.
 --
--- Sumber kebenarannya dipindahkan ke sini: satu daftar pengikut @CEOkomentar
+-- Sumber kebenarannya dipindahkan ke sini: satu daftar pengikut @gaptekcat
 -- yang disegarkan sekaligus oleh pengelola, dan verifikasi menjadi pencocokan
 -- nama terhadap daftar itu. Yang tidak berubah adalah aturan pokoknya — akun X
 -- tetap harus dibuktikan miliknya lewat OAuth, dan peramban tetap tidak punya
@@ -34,7 +34,7 @@ create table if not exists public.pengikut_resmi (
 );
 
 comment on table public.pengikut_resmi is
-  'pengikut @CEOkomentar hasil penyegaran terakhir; hanya ditulis public.ganti_pengikut_resmi()';
+  'pengikut @gaptekcat hasil penyegaran terakhir; hanya ditulis public.ganti_pengikut_resmi()';
 
 /*
  * Kapan daftarnya terakhir disegarkan, dalam satu baris tunggal.

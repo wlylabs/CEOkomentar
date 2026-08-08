@@ -109,7 +109,7 @@ comment on table public.misi is
   'katalog misi; menambah misi baru cukup satu baris di sini plus pemeriksanya di aplikasi';
 
 /*
- * Misi pertama: mengikuti akun resmi @CEOkomentar di X, hadiahnya centang biru.
+ * Misi pertama: mengikuti akun resmi @gaptekcat di X, hadiahnya centang biru.
  * Pemeriksanya ada di app/api/misi/x/ — aplikasi yang menanyakan ke X apakah
  * akun itu benar-benar diikuti, basis data hanya mencatat hasilnya.
  */
@@ -150,7 +150,7 @@ create table if not exists public.lencana_pengguna (
 
 /*
  * Satu akun X hanya pernah menjadi bukti untuk satu akun aplikasi, selamanya.
- * Tanpa ikatan ini satu orang bisa mengikuti @CEOkomentar sekali lalu memakai
+ * Tanpa ikatan ini satu orang bisa mengikuti @gaptekcat sekali lalu memakai
  * pengikutan yang sama untuk memberi centang pada berapa pun akun yang ia buat.
  * Barisnya sengaja tidak pernah dihapus saat lencananya dicabut.
  */
@@ -296,7 +296,7 @@ $$;
 
 /*
  * Kebalikannya, dipakai ketika pemeriksaan ulang menemukan syaratnya sudah
- * tidak dipenuhi lagi — misalnya akun @CEOkomentar berhenti diikuti.
+ * tidak dipenuhi lagi — misalnya akun @gaptekcat berhenti diikuti.
  */
 create or replace function public.batalkan_misi(pengguna uuid, kode_misi text)
 returns void
