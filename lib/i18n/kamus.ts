@@ -249,22 +249,38 @@ const KAMUS_ID = {
   "panduan.rencanaTuntas":
     "Enam-enamnya selesai. Sisanya biarkan waktu yang bekerja — daftar ini kosong lagi besok pagi.",
 
-  "panduan.algoritma": "Bagaimana linimasa X memilih",
-  "panduan.algoritmaSub":
-    "Maret 2023 Twitter membuka kode perekomendasi “For You” di GitHub. Yang di bawah ini bacaan atas kode itu: empat tahap yang dilewati sebuah postingan sebelum sampai ke layar orang lain.",
+  "panduan.kini": "Bagaimana linimasa X memilih",
+  "panduan.kiniSub":
+    "Januari 2026 X menerbitkan ulang perekomendasinya di bawah xAI, dan yang terbit bukan versi baru dari mesin 2023 melainkan mesin yang lain sama sekali. Satu model menggantikan seluruh ciri buatan tangan yang dulu diperingkat satu per satu: Phoenix, transformer berbasis Grok.",
+  "panduan.kiniKutip":
+    "“We have eliminated every single hand-engineered feature and most heuristics from the system.” — README xai-org/x-algorithm",
+  "panduan.kiniSumber": "Dua sumber, satu pemeringkat",
+  "panduan.kiniTahap": "Tujuh tahap tiap permintaan",
+  "panduan.kiniAksi": "Yang diramalkan untuk tiap postingan",
+  "panduan.kiniAksiTeks":
+    "{jumlah} aksi sekaligus — {untung} menaikkan skor, {rugi} menurunkannya. Bobot tiap satunya tidak ikut diterbitkan, jadi yang bisa dibaca hanya nama dan tandanya. Perhatikan bahwa “dilewati tanpa berhenti” berdiri di sisi yang merugikan.",
+  "panduan.kiniMekanik": "Rumus yang benar-benar tertulis",
+  "panduan.kiniGrox": "Grok membaca tiap postingan",
+  "panduan.kiniTakTerbit": "Yang tidak ikut diterbitkan",
+  "panduan.kiniCatatan":
+    "Dibaca langsung dari klona repositorinya pada komit {komit} ({tanggal}), bukan dari ringkasan orang lain. X menyatakan akan memperbarui repositorinya tiap empat pekan, jadi bacaan ini perlu dicocokkan ulang dari waktu ke waktu.",
+
+  "panduan.arsip": "Mesin sebelumnya, dan kenapa masih dibaca",
+  "panduan.arsipSub":
+    "Rilis 2023 sudah digantikan hampir seluruhnya. Ia tetap ada di sini karena satu hal yang tidak bisa digantikan rilis mana pun: hanya di sinilah bobot tiap sinyal pernah diterbitkan sebagai angka. Yang dibaca darinya bukan besarnya hari ini, melainkan arahnya.",
   "panduan.sumber": "Dari mana kandidat datang",
   "panduan.saring": "Yang menyaring setelahnya",
-  "panduan.bobot": "Bobot tiap sinyal",
+  "panduan.bobot": "Bobot tiap sinyal — angka 2023",
   "panduan.bobotSub":
-    "Heavy ranker menjumlahkan peluang sepuluh hal terjadi, masing-masing dikalikan bobotnya. Angka di bawah ini tertulis apa adanya di repositorinya — panjang bilahnya sebanding lurus dengan angkanya.",
+    "Heavy ranker 2023 menjumlahkan peluang sepuluh hal terjadi, masing-masing dikalikan bobotnya. Inilah satu-satunya kesempatan angka itu pernah terbit; penerusnya memuat rumusnya dan tidak memuat satu pun angkanya. Panjang bilah sebanding lurus dengan angkanya.",
   "panduan.setaraUntung": "Sebanding dengan {jumlah} suka",
   "panduan.setaraRugi": "Menghapus nilai {jumlah} suka",
   "panduan.bobotCatatan":
-    "Yang terbuka adalah potret sistemnya pada 2023, bukan mesin yang berjalan hari ini; X sudah mengubahnya berkali-kali sejak itu. Yang bertahan bukan angkanya melainkan urutannya: percakapan jauh di atas suka, dan satu laporan menghapus lebih banyak daripada yang bisa dikumpulkan ratusan suka.",
+    "Angka-angka ini potret sistem yang sudah dipensiunkan, jadi jangan diperlakukan sebagai besaran yang berlaku hari ini. Yang bertahan urutannya: percakapan jauh di atas suka, dan satu laporan menghapus lebih banyak daripada yang bisa dikumpulkan ratusan suka. Rilis 2026 memakai daftar aksi yang jauh lebih panjang dengan urutan yang sama di kedua ujungnya.",
 
   "panduan.langkah": "Artinya buat yang menulis",
   "panduan.langkahSub":
-    "Enam kesimpulan, masing-masing dengan angka atau aturan yang mendasarinya. Baris kecil di bawah tiap kalimat adalah dasarnya, bukan hiasan — silakan diperiksa sendiri di repositorinya.",
+    "Enam kesimpulan yang ditarik dari dua rilis sekaligus, masing-masing dengan angka, rumus, atau aturan yang mendasarinya. Baris kecil di bawah tiap kalimat adalah dasarnya, bukan hiasan — silakan diperiksa sendiri di repositorinya.",
 
   "panduan.kreator": "Kebijakan Creator Studio X",
   "panduan.kreatorSub":
@@ -278,7 +294,15 @@ const KAMUS_ID = {
     "Dicocokkan terakhir dengan halaman bantuan X pada {waktu}. Ambang dan tarifnya milik X dan berubah tanpa pemberitahuan — yang berlaku selalu yang tertulis di halaman aslinya, bukan salinan di sini.",
 
   "panduan.rujukan": "Dari mana angkanya",
-  "panduan.rujukanRepo": "Kode perekomendasi linimasa yang dibuka Twitter.",
+  "panduan.rujukanKini":
+    "Mesin “For You” yang berjalan sekarang, diterbitkan xAI.",
+  "panduan.rujukanPeringkat":
+    "Penjumlahan bobot, peluruhan keragaman penulis, dan pengali luar jaringan.",
+  "panduan.rujukanPhoenix":
+    "Dua menara pengambilan, transformer pemeringkat, dan pengasingan kandidat.",
+  "panduan.rujukanGrox":
+    "Pengelas isi berbasis Grok: spam, mutu, keamanan, dan peringkat balasan.",
+  "panduan.rujukanRepo": "Kode perekomendasi linimasa yang dibuka Twitter, 2023.",
   "panduan.rujukanMl": "Model pembelajaran mesinnya, termasuk heavy ranker.",
   "panduan.rujukanBobot": "Tabel bobot sepuluh sinyal beserta keterangannya.",
   "panduan.rujukanX": "Halaman bantuan X untuk program kreator.",
@@ -298,114 +322,214 @@ const KAMUS_ID = {
   "rencana.temuiOrang":
     "Balas lima akun lain di topik yang sama, di jam yang sama.",
   "rencana.temuiOrangDasar":
-    "RealGraph menaksir peluang dua akun berinteraksi lagi dari riwayatnya.",
+    "Riwayat keterlibatan pembacalah yang dibaca modelnya, dan irisan follow bersama ikut dihitung tiap kandidat.",
   "rencana.satuTopik": "Bertahan di satu topik sepanjang hari ini.",
   "rencana.satuTopikDasar":
-    "SimClusters mengelompokkan akun ke sekitar 145 rb komunitas dari graf follow.",
+    "Pengambilan Phoenix mencocokkan sematan riwayat pembaca dengan sematan postingan — teks berikut medianya.",
   "rencana.tanpaUmpan":
     "Tanpa umpan keterlibatan: tidak ada “RT kalau setuju”, tidak ada balasan pancingan.",
   "rencana.tanpaUmpanDasar":
     "Umpan negatif −74, laporan −369, dan Creator Monetization Standards melarangnya.",
 
   /* ------------------------------------------------------------ algoritma */
-  "algo.tahap.kandidat": "Kumpulkan kandidat",
-  "algo.tahap.kandidatTeks":
+  "arsip.tahap.kandidat": "Kumpulkan kandidat",
+  "arsip.tahap.kandidatTeks":
     "Beberapa layanan mengumpulkan calon postingan dari dua kolam: yang ditulis akun yang kamu ikuti, dan yang datang dari luar lingkaranmu. Sekitar separuh linimasa berasal dari kolam pertama.",
-  "algo.tahap.peringkat": "Peringkatkan",
-  "algo.tahap.peringkatTeks":
+  "arsip.tahap.peringkat": "Peringkatkan",
+  "arsip.tahap.peringkatTeks":
     "Penyaring ringan memangkas dulu jumlahnya, lalu heavy ranker menilai sisanya dengan sekitar 6.000 ciri per postingan dan mengurutkannya.",
-  "algo.tahap.saring": "Campur dan saring",
-  "algo.tahap.saringTeks":
+  "arsip.tahap.saring": "Campur dan saring",
+  "arsip.tahap.saringTeks":
     "Urutan tadi belum jadi linimasa. Di sini penulis yang sama dijarangkan, isi dari dalam dan luar lingkaran diseimbangkan, dan apa pun yang tidak boleh tampil dibuang.",
-  "algo.tahap.sajikan": "Sajikan",
-  "algo.tahap.sajikanTeks":
+  "arsip.tahap.sajikan": "Sajikan",
+  "arsip.tahap.sajikanTeks":
     "Hasilnya dikirim ke beranda, notifikasi, dan permukaan lain — masing-masing dengan campuran yang berbeda.",
 
-  "algo.sumber.earlybird": "Indeks pencarian (Earlybird)",
-  "algo.sumber.earlybirdTeks":
+  "arsip.sumber.earlybird": "Indeks pencarian (Earlybird)",
+  "arsip.sumber.earlybirdTeks":
     "Mencari dan memeringkat postingan dari akun yang kamu ikuti. Inilah sumber terbesarnya.",
-  "algo.sumber.earlybirdTanda": "±50% linimasa",
-  "algo.sumber.uteg": "User-Tweet Entity Graph",
-  "algo.sumber.utegTeks":
+  "arsip.sumber.earlybirdTanda": "±50% linimasa",
+  "arsip.sumber.uteg": "User-Tweet Entity Graph",
+  "arsip.sumber.utegTeks":
     "Graf interaksi orang-dengan-postingan yang disimpan di memori. Menemukan kandidat dengan menelusurinya: apa yang disukai akun-akun yang kamu ikuti.",
-  "algo.sumber.simclusters": "SimClusters",
-  "algo.sumber.simclustersTeks":
+  "arsip.sumber.simclusters": "SimClusters",
+  "arsip.sumber.simclustersTeks":
     "Mengelompokkan akun menjadi komunitas berdasarkan graf follow, lalu merekomendasikan postingan yang ramai di komunitas yang sama denganmu.",
-  "algo.sumber.simclustersTanda": "±145 rb komunitas",
-  "algo.sumber.realgraph": "RealGraph",
-  "algo.sumber.realgraphTeks":
+  "arsip.sumber.simclustersTanda": "±145 rb komunitas",
+  "arsip.sumber.realgraph": "RealGraph",
+  "arsip.sumber.realgraphTeks":
     "Menaksir peluang satu akun berinteraksi dengan akun lain, dihitung dari riwayat interaksi keduanya. Kekuatan hubungan, bukan sekadar status mengikuti.",
-  "algo.sumber.frs": "Follow Recommendation Service",
-  "algo.sumber.frsTeks":
+  "arsip.sumber.frs": "Follow Recommendation Service",
+  "arsip.sumber.frsTeks":
     "Merekomendasikan akun yang layak diikuti, berikut postingannya.",
 
-  "algo.bobot.laporan": "Dilaporkan",
-  "algo.bobot.laporanArti": "Peluang pembaca menekan “Laporkan postingan”.",
-  "algo.bobot.balasanDibalas": "Balasan yang dibalas penulisnya",
-  "algo.bobot.balasanDibalasArti":
+  "arsip.bobot.laporan": "Dilaporkan",
+  "arsip.bobot.laporanArti": "Peluang pembaca menekan “Laporkan postingan”.",
+  "arsip.bobot.balasanDibalas": "Balasan yang dibalas penulisnya",
+  "arsip.bobot.balasanDibalasArti":
     "Peluang pembaca membalas postingannya, dan balasan itu ditanggapi penulis postingan.",
-  "algo.bobot.umpanNegatif": "Umpan negatif",
-  "algo.bobot.umpanNegatifArti":
+  "arsip.bobot.umpanNegatif": "Umpan negatif",
+  "arsip.bobot.umpanNegatifArti":
     "Peluang pembaca menekan “tampilkan lebih jarang”, membisukan, atau memblokir penulisnya.",
-  "algo.bobot.balasan": "Balasan",
-  "algo.bobot.balasanArti": "Peluang pembaca membalas postingannya.",
-  "algo.bobot.profilKlik": "Klik profil yang berlanjut",
-  "algo.bobot.profilKlikArti":
+  "arsip.bobot.balasan": "Balasan",
+  "arsip.bobot.balasanArti": "Peluang pembaca membalas postingannya.",
+  "arsip.bobot.profilKlik": "Klik profil yang berlanjut",
+  "arsip.bobot.profilKlikArti":
     "Peluang pembaca membuka profil penulisnya lalu menyukai atau membalas sebuah postingan di sana.",
-  "algo.bobot.klikBagus": "Masuk percakapan lalu ikut",
-  "algo.bobot.klikBagusArti":
+  "arsip.bobot.klikBagus": "Masuk percakapan lalu ikut",
+  "arsip.bobot.klikBagusArti":
     "Peluang pembaca membuka percakapan postingan ini lalu membalas atau menyukai sesuatu di dalamnya.",
-  "algo.bobot.klikLama": "Masuk percakapan lalu bertahan",
-  "algo.bobot.klikLamaArti":
+  "arsip.bobot.klikLama": "Masuk percakapan lalu bertahan",
+  "arsip.bobot.klikLamaArti":
     "Peluang pembaca membuka percakapannya dan tinggal di sana setidaknya dua menit.",
-  "algo.bobot.ulang": "Posting ulang",
-  "algo.bobot.ulangArti": "Peluang pembaca memposting ulang.",
-  "algo.bobot.suka": "Suka",
-  "algo.bobot.sukaArti": "Peluang pembaca menyukainya.",
-  "algo.bobot.video": "Video ditonton separuh",
-  "algo.bobot.videoArti":
+  "arsip.bobot.ulang": "Posting ulang",
+  "arsip.bobot.ulangArti": "Peluang pembaca memposting ulang.",
+  "arsip.bobot.suka": "Suka",
+  "arsip.bobot.sukaArti": "Peluang pembaca menyukainya.",
+  "arsip.bobot.video": "Video ditonton separuh",
+  "arsip.bobot.videoArti":
     "Untuk postingan bervideo: peluang pembaca menonton setidaknya separuhnya.",
 
-  "algo.saring.visibilitas": "Penyaring visibilitas",
-  "algo.saring.visibilitasTeks":
+  "arsip.saring.visibilitas": "Penyaring visibilitas",
+  "arsip.saring.visibilitasTeks":
     "Akun yang diblokir dan dibisukan, setelan konten sensitif, dan kewajiban hukum. Berjalan sebelum yang lain.",
-  "algo.saring.ragam": "Keragaman penulis",
-  "algo.saring.ragamTeks":
+  "arsip.saring.ragam": "Keragaman penulis",
+  "arsip.saring.ragamTeks":
     "Menjarangkan postingan berturut-turut dari akun yang sama, sekalipun semuanya menang di pemeringkatan.",
-  "algo.saring.imbang": "Imbang dalam–luar lingkaran",
-  "algo.saring.imbangTeks":
+  "arsip.saring.imbang": "Imbang dalam–luar lingkaran",
+  "arsip.saring.imbangTeks":
     "Menjaga campuran antara akun yang kamu ikuti dan yang belum, supaya linimasa tidak menjadi satu-satunya di antara keduanya.",
-  "algo.saring.lelah": "Kelelahan umpan balik",
-  "algo.saring.lelahTeks":
+  "arsip.saring.lelah": "Kelelahan umpan balik",
+  "arsip.saring.lelahTeks":
     "Menurunkan yang mirip dengan apa yang baru saja ditolak pembacanya.",
-  "algo.saring.kembar": "Penyingkiran kembar",
-  "algo.saring.kembarTeks":
+  "arsip.saring.kembar": "Penyingkiran kembar",
+  "arsip.saring.kembarTeks":
     "Membuang postingan yang sudah dilihat dan kandidat yang sama dari beberapa sumber sekaligus.",
 
-  "algo.langkah.percakapan":
+  /* ---------------------------------------------------- algoritma 2026 */
+  "kini.tahap.konteks": "Kumpulkan konteks pembacanya",
+  "kini.tahap.konteksTeks":
+    "Riwayat keterlibatan terakhirnya, daftar yang diikuti, topik, saringan tayangan, dan apa yang sudah pernah disajikan. Inilah yang dibaca modelnya — bukan profilmu.",
+  "kini.tahap.kandidat": "Ambil kandidat",
+  "kini.tahap.kandidatTeks":
+    "Dari Thunder untuk yang di dalam lingkaran, dan dari pengambilan Phoenix untuk yang di luarnya.",
+  "kini.tahap.lengkapi": "Lengkapi tiap kandidat",
+  "kini.tahap.lengkapiTeks":
+    "Isi postingan, data penulis, media, bahasa, durasi video, jumlah keterlibatan, kutipan yang dibuka, dan irisan follow bersama.",
+  "kini.tahap.saringAwal": "Saring sebelum dinilai",
+  "kini.tahap.saringAwalTeks":
+    "Kembar, terlalu tua, postingan sendiri, penulis yang diblokir atau dibisukan, kata yang dibisukan, dan apa pun yang sudah pernah terlihat.",
+  "kini.tahap.nilai": "Nilai",
+  "kini.tahap.nilaiTeks":
+    "Phoenix meramalkan peluang tiap aksi, penjumlah bobot menyatukannya, lalu keragaman penulis dan pengali luar jaringan menyesuaikan hasilnya.",
+  "kini.tahap.pilih": "Pilih",
+  "kini.tahap.pilihTeks": "Urutkan menurut skor akhir, ambil sejumlah teratas.",
+  "kini.tahap.saringAkhir": "Periksa sekali lagi",
+  "kini.tahap.saringAkhirTeks":
+    "Penyaring visibilitas terakhir — terhapus, spam, kekerasan — dan penyingkiran cabang percakapan yang kembar.",
+
+  "kini.sumber.thunder": "Thunder — dalam lingkaran",
+  "kini.sumber.thunderTeks":
+    "Simpanan postingan di dalam memori yang diisi terus dari aliran kejadian, sehingga postingan akun yang kamu ikuti bisa diambil tanpa menyentuh basis data. Isinya dipangkas sendiri begitu lewat masa simpannya.",
+  "kini.sumber.phoenix": "Phoenix — luar lingkaran",
+  "kini.sumber.phoenixTeks":
+    "Model dua menara: riwayatmu diringkas jadi satu sematan, seluruh korpus postingan jadi sematan lain, lalu yang paling mirip diambil. Inilah pintu masuk akun yang belum diikuti siapa-siapa.",
+
+  "kini.aksi.suka": "Disukai",
+  "kini.aksi.balas": "Dibalas",
+  "kini.aksi.ulang": "Diposting ulang",
+  "kini.aksi.kutip": "Dikutip",
+  "kini.aksi.bagikan": "Dibagikan",
+  "kini.aksi.bagikanDm": "Dikirim lewat pesan",
+  "kini.aksi.bagikanTautan": "Tautannya disalin",
+  "kini.aksi.buka": "Dibuka",
+  "kini.aksi.bukaProfil": "Profil penulis dibuka",
+  "kini.aksi.bukaKutipan": "Kutipannya dibuka",
+  "kini.aksi.bukaFoto": "Fotonya diperbesar",
+  "kini.aksi.video": "Videonya ditonton",
+  "kini.aksi.videoKutipan": "Video kutipannya ditonton",
+  "kini.aksi.berhenti": "Berhenti membaca",
+  "kini.aksi.lamaBerhenti": "Lama berhenti",
+  "kini.aksi.lamaDibuka": "Lama setelah dibuka",
+  "kini.aksi.ikutiPenulis": "Penulisnya diikuti",
+  "kini.aksi.dilewati": "Dilewati tanpa berhenti",
+  "kini.aksi.takTertarik": "Tidak tertarik",
+  "kini.aksi.bisukan": "Penulisnya dibisukan",
+  "kini.aksi.blokir": "Penulisnya diblokir",
+  "kini.aksi.laporkan": "Dilaporkan",
+
+  "kini.mekanik.jumlah": "Skor sebuah postingan",
+  "kini.mekanik.jumlahTeks":
+    "Peluang tiap aksi dikalikan bobotnya, lalu semuanya dijumlahkan. Bentuknya sama persis dengan heavy ranker 2023 — yang berubah panjang daftarnya dan siapa yang meramalkan peluangnya.",
+  "kini.mekanik.ragam": "Pengali keragaman penulis",
+  "kini.mekanik.ragamTeks":
+    "Yang dipakai posisi postingan itu di antara postingan penulis yang sama dalam satu tanggapan, bukan jarak waktunya. Postingan keduamu yang lolos dikalikan peluruhan pangkat satu, yang ketiga pangkat dua, dan seterusnya sampai menyentuh lantai. Tidak ada jumlah keterlibatan yang membatalkan pengali ini.",
+  "kini.mekanik.luar": "Pengali luar jaringan",
+  "kini.mekanik.luarTeks":
+    "Kandidat dari luar lingkaran pembaca dikalikan satu faktor tersendiri sebelum diurutkan — dan faktornya berbeda lagi untuk linimasa topik dan untuk akun yang masih baru.",
+
+  "kini.grox.banger": "Penyaring mutu",
+  "kini.grox.bangerTeks":
+    "Grok membaca postingannya berikut medianya dan mengeluarkan nilai mutu, keterangan, tanda topik, serta nilai tersendiri untuk isi yang dangkal. Mutu di sini dibaca, bukan dihitung dari ciri.",
+  "kini.grox.spam": "Pengelas spam",
+  "kini.grox.spamTeks":
+    "Ada pengelas yang khusus dijalankan untuk akun berpengikut sedikit. Akun kecil bukan berarti disingkirkan — tetapi tulisan yang berlagak seperti spam paling cepat tertangkap di sana.",
+  "kini.grox.aman": "Pemeriksa kebijakan",
+  "kini.grox.amanTeks":
+    "Tiap postingan dicocokkan dengan tujuh kebijakan sekaligus, dan hasilnya menempel pada postingannya sebagai keterangan.",
+  "kini.grox.balasan": "Peringkat balasan",
+  "kini.grox.balasanTeks":
+    "Balasan di bawah sebuah postingan diberi nilai oleh Grok, dengan ambang tersendiri untuk akun besar. Urutan balasan bukan urutan waktu.",
+  "kini.grox.sematan": "Sematan multimoda",
+  "kini.grox.sematanTeks":
+    "Teks, gambar, dan suara diringkas menjadi satu sematan yang mewakili postingannya. Inilah yang dicocokkan pengambilan Phoenix — jadi gambar dan videomu ikut terbaca, bukan sekadar terhitung.",
+
+  "kini.aman.spam": "Spam",
+  "kini.aman.benci": "Kebencian dan pelecehan",
+  "kini.aman.kekerasan": "Ucapan kekerasan",
+  "kini.aman.mediaKekerasan": "Media kekerasan",
+  "kini.aman.dewasa": "Konten dewasa",
+  "kini.aman.ilegal": "Perbuatan ilegal dan terbatas",
+  "kini.aman.sakitDiri": "Bunuh diri dan melukai diri",
+
+  "kini.takTerbit.bobot": "Angka bobot tiap aksi",
+  "kini.takTerbit.bobotTeks":
+    "Seluruhnya dibaca dari modul saklar fitur yang tidak ikut diterbitkan. Setiap panduan yang menyebut “bobot menurut algoritma X 2026” tidak mendapatkannya dari repositori itu.",
+  "kini.takTerbit.ambang": "Ambang dan batas",
+  "kini.takTerbit.ambangTeks":
+    "Umur maksimum sebuah postingan, jumlah yang dipilih tiap permintaan, faktor peluruhan keragaman penulis, dan pengali luar jaringan — semuanya dirujuk kodenya, tidak satu pun bernilai di sana.",
+  "kini.takTerbit.prompt": "Prompt Grok",
+  "kini.takTerbit.promptTeks":
+    "Yang menentukan apa yang dianggap spam, dangkal, atau bermutu adalah kalimat perintah ke modelnya — dan direktori promptnya tidak ada di rilis ini.",
+  "kini.takTerbit.model": "Model produksinya",
+  "kini.takTerbit.modelTeks":
+    "Yang dibagikan model mini yang dibekukan pada satu titik, sedangkan yang di produksi lebih besar dan dilatih terus-menerus dari data waktu nyata.",
+
+  /* --------------------------------------------- turunan untuk penulis */
+  "langkah.percakapan":
     "Tulis sesuatu yang bisa dijawab, bukan sesuatu yang bisa disukai.",
-  "algo.langkah.percakapanDasar":
-    "Balasan 13,5 lawan suka 0,5 — satu balasan menandingi 27 suka.",
-  "algo.langkah.balasBalik":
+  "langkah.percakapanDasar":
+    "2023: balasan 13,5 lawan suka 0,5. 2026: dibalas, dikutip, dan dibagikan tetap berdiri terpisah dari disukai di daftar aksinya.",
+  "langkah.balasBalik":
     "Balas balasan yang masuk. Ini satu-satunya bagian yang seluruhnya ada di tanganmu.",
-  "algo.langkah.balasBalikDasar":
-    "Balasan yang dibalas penulisnya 75 — bobot positif terbesar di seluruh daftar.",
-  "algo.langkah.utuh":
-    "Buat postingannya berdiri sendiri; percakapannya harus bisa hidup di dalam postingan itu, bukan di tempat lain.",
-  "algo.langkah.utuhDasar":
-    "Empat dari sepuluh sinyal bernilai dua digit menghitung apa yang terjadi di dalam percakapannya.",
-  "algo.langkah.topik":
-    "Bertahan di satu topik. Akun yang tidak jelas berbicara tentang apa sulit ditempatkan.",
-  "algo.langkah.topikDasar":
-    "SimClusters menempatkan akun ke komunitas dari graf follow; kandidat luar lingkaran datang dari sana.",
-  "algo.langkah.jarak":
-    "Beri jarak antarpostingan, jangan memborong satu jam emas dengan lima postingan sekaligus.",
-  "algo.langkah.jarakDasar":
-    "Keragaman penulis menjarangkan postingan berturut-turut dari akun yang sama.",
-  "algo.langkah.umpan":
-    "Jangan memancing keterlibatan. Yang membuat orang menekan “tampilkan lebih jarang” lebih mahal daripada apa pun yang bisa dikumpulkan.",
-  "algo.langkah.umpanDasar":
-    "Umpan negatif −74 dan laporan −369 lawan suka 0,5.",
+  "langkah.balasBalikDasar":
+    "2023: balasan yang dibalas penulisnya 75 — bobot positif terbesar. 2026: balasan diperingkat Grok, jadi utas yang hidup naik bersama postingan induknya.",
+  "langkah.utuh":
+    "Buat postingannya berdiri sendiri, dan buat orang berhenti di baris pertama.",
+  "langkah.utuhDasar":
+    "“Berhenti membaca” dan “lama berhenti” dinilai terpisah, sedangkan “dilewati tanpa berhenti” dihitung sebagai kerugian.",
+  "langkah.topik":
+    "Bertahan di satu topik, dan biarkan gambarnya bercerita hal yang sama.",
+  "langkah.topikDasar":
+    "Pengambilan Phoenix mencocokkan sematan; sematan itu dibangun dari teks, gambar, dan suara postinganmu sekaligus.",
+  "langkah.jarak":
+    "Beri jarak antarpostingan. Memborong satu jam emas dengan lima postingan menghukum empat di antaranya.",
+  "langkah.jarakDasar":
+    "Pengali keragaman = (1 − lantai) × peluruhan^posisi + lantai, dengan posisi dihitung dari peringkat postinganmu sendiri.",
+  "langkah.umpan":
+    "Jangan memancing keterlibatan. Yang membuat orang menekan “tidak tertarik” lebih mahal daripada apa pun yang bisa dikumpulkan.",
+  "langkah.umpanDasar":
+    "2023: umpan negatif −74 dan laporan −369 lawan suka 0,5. 2026: lima aksi merugikan plus pengelas spam yang membaca tulisanmu.",
 
   /* -------------------------------------------------------------- kreator */
   "kreator.program.bagiHasil": "Bagi hasil iklan",
@@ -876,22 +1000,38 @@ const KAMUS_EN: Record<KunciTeks, string> = {
   "panduan.rencanaTuntas":
     "All six done. Let time do the rest — the list is empty again tomorrow morning.",
 
-  "panduan.algoritma": "How the X timeline picks",
-  "panduan.algoritmaSub":
-    "In March 2023 Twitter opened the “For You” recommendation code on GitHub. What follows is a reading of that code: the four stages a post passes through before it reaches anyone else's screen.",
+  "panduan.kini": "How the X timeline picks",
+  "panduan.kiniSub":
+    "In January 2026 X republished its recommender under xAI, and what came out is not a new version of the 2023 engine but a different engine entirely. One model replaced every hand-engineered feature that used to be ranked one by one: Phoenix, a Grok-based transformer.",
+  "panduan.kiniKutip":
+    "“We have eliminated every single hand-engineered feature and most heuristics from the system.” — xai-org/x-algorithm README",
+  "panduan.kiniSumber": "Two sources, one ranker",
+  "panduan.kiniTahap": "Seven stages per request",
+  "panduan.kiniAksi": "What gets predicted for every post",
+  "panduan.kiniAksiTeks":
+    "{jumlah} actions at once — {untung} push the score up, {rugi} push it down. None of the weights were published, so all that can be read is the name and the sign. Note that “scrolled past without stopping” sits on the losing side.",
+  "panduan.kiniMekanik": "The formulas that were actually published",
+  "panduan.kiniGrox": "Grok reads every post",
+  "panduan.kiniTakTerbit": "What was left out",
+  "panduan.kiniCatatan":
+    "Read straight from a clone of the repository at commit {komit} ({tanggal}), not from anyone's summary. X says it will update the repository every four weeks, so this reading needs re-checking from time to time.",
+
+  "panduan.arsip": "The previous engine, and why it is still here",
+  "panduan.arsipSub":
+    "The 2023 release has been almost entirely replaced. It stays on this page for one thing no later release can supply: this is the only place the weight of each signal was ever published as a number. What to read from it is not today's magnitude but the direction.",
   "panduan.sumber": "Where candidates come from",
   "panduan.saring": "What filters them afterwards",
-  "panduan.bobot": "The weight of each signal",
+  "panduan.bobot": "The weight of each signal — 2023 numbers",
   "panduan.bobotSub":
-    "The heavy ranker adds up the probability of ten things happening, each multiplied by its weight. The numbers below are written exactly like that in the repository — bar length is directly proportional to the number.",
+    "The 2023 heavy ranker added up the probability of ten things happening, each multiplied by its weight. This was the one time those numbers were published; its successor ships the formula and not a single number. Bar length is directly proportional to the number.",
   "panduan.setaraUntung": "Worth {jumlah} likes",
   "panduan.setaraRugi": "Wipes out {jumlah} likes",
   "panduan.bobotCatatan":
-    "What was opened is a snapshot of the system in 2023, not the machine running today; X has changed it many times since. What lasts is not the numbers but their order: conversation far above likes, and a single report erasing more than hundreds of likes can gather.",
+    "These numbers are a snapshot of a retired system, so do not treat them as magnitudes that hold today. What lasts is their order: conversation far above likes, and a single report erasing more than hundreds of likes can gather. The 2026 release uses a much longer list of actions with the same order at both ends.",
 
   "panduan.langkah": "What it means for you",
   "panduan.langkahSub":
-    "Six conclusions, each with the number or rule behind it. The small line under every sentence is that basis, not decoration — check it yourself in the repository.",
+    "Six conclusions drawn from both releases at once, each with the number, formula, or rule behind it. The small line under every sentence is that basis, not decoration — check it yourself in the repository.",
 
   "panduan.kreator": "X Creator Studio policy",
   "panduan.kreatorSub":
@@ -905,7 +1045,14 @@ const KAMUS_EN: Record<KunciTeks, string> = {
     "Last checked against X's help pages in {waktu}. The thresholds and rates belong to X and change without notice — what applies is always what the original page says, not this copy.",
 
   "panduan.rujukan": "Where the numbers come from",
-  "panduan.rujukanRepo": "The timeline recommendation code Twitter opened.",
+  "panduan.rujukanKini": "The “For You” engine running today, published by xAI.",
+  "panduan.rujukanPeringkat":
+    "The weighted sum, the author-diversity decay, and the out-of-network multiplier.",
+  "panduan.rujukanPhoenix":
+    "Two-tower retrieval, the ranking transformer, and candidate isolation.",
+  "panduan.rujukanGrox":
+    "The Grok-based content classifiers: spam, quality, safety, and reply ranking.",
+  "panduan.rujukanRepo": "The timeline recommendation code Twitter opened in 2023.",
   "panduan.rujukanMl": "Its machine learning models, the heavy ranker included.",
   "panduan.rujukanBobot": "The table of ten signal weights and what each one means.",
   "panduan.rujukanX": "X's help pages for the creator programs.",
@@ -923,113 +1070,212 @@ const KAMUS_EN: Record<KunciTeks, string> = {
     "A reply the author engages with weighs 75 — worth 150 likes.",
   "rencana.temuiOrang": "Reply to five other accounts on the same topic, same hours.",
   "rencana.temuiOrangDasar":
-    "RealGraph estimates how likely two accounts are to interact again from their history.",
+    "The reader's engagement history is what the model reads, and mutual-follow overlap is computed for every candidate.",
   "rencana.satuTopik": "Stay on one topic for the whole day.",
   "rencana.satuTopikDasar":
-    "SimClusters sorts accounts into around 145k communities from the follow graph.",
+    "Phoenix retrieval matches the reader's history embedding against post embeddings — text and media together.",
   "rencana.tanpaUmpan":
     "No engagement bait: no “RT if you agree”, no fishing replies.",
   "rencana.tanpaUmpanDasar":
     "Negative feedback −74, report −369, and the Creator Monetization Standards forbid it.",
 
   /* ------------------------------------------------------------ algoritma */
-  "algo.tahap.kandidat": "Gather candidates",
-  "algo.tahap.kandidatTeks":
+  "arsip.tahap.kandidat": "Gather candidates",
+  "arsip.tahap.kandidatTeks":
     "Several services collect candidate posts from two pools: what the accounts you follow wrote, and what comes from outside your circle. About half the timeline comes from the first pool.",
-  "algo.tahap.peringkat": "Rank them",
-  "algo.tahap.peringkatTeks":
+  "arsip.tahap.peringkat": "Rank them",
+  "arsip.tahap.peringkatTeks":
     "A light ranker trims the pile first, then the heavy ranker scores what is left using around 6,000 features per post and puts them in order.",
-  "algo.tahap.saring": "Mix and filter",
-  "algo.tahap.saringTeks":
+  "arsip.tahap.saring": "Mix and filter",
+  "arsip.tahap.saringTeks":
     "That order is not a timeline yet. Here the same author is spaced out, in-network and out-of-network content is balanced, and anything that must not appear is dropped.",
-  "algo.tahap.sajikan": "Serve",
-  "algo.tahap.sajikanTeks":
+  "arsip.tahap.sajikan": "Serve",
+  "arsip.tahap.sajikanTeks":
     "The result goes out to the home timeline, notifications, and other surfaces — each with a different mix.",
 
-  "algo.sumber.earlybird": "Search index (Earlybird)",
-  "algo.sumber.earlybirdTeks":
+  "arsip.sumber.earlybird": "Search index (Earlybird)",
+  "arsip.sumber.earlybirdTeks":
     "Finds and ranks posts from the accounts you follow. This is the largest source of all.",
-  "algo.sumber.earlybirdTanda": "±50% of the timeline",
-  "algo.sumber.uteg": "User-Tweet Entity Graph",
-  "algo.sumber.utegTeks":
+  "arsip.sumber.earlybirdTanda": "±50% of the timeline",
+  "arsip.sumber.uteg": "User-Tweet Entity Graph",
+  "arsip.sumber.utegTeks":
     "An in-memory graph of people and the posts they touched. It finds candidates by walking it: what the accounts you follow liked.",
-  "algo.sumber.simclusters": "SimClusters",
-  "algo.sumber.simclustersTeks":
+  "arsip.sumber.simclusters": "SimClusters",
+  "arsip.sumber.simclustersTeks":
     "Groups accounts into communities from the follow graph, then recommends posts that are busy in the same communities as you.",
-  "algo.sumber.simclustersTanda": "±145k communities",
-  "algo.sumber.realgraph": "RealGraph",
-  "algo.sumber.realgraphTeks":
+  "arsip.sumber.simclustersTanda": "±145k communities",
+  "arsip.sumber.realgraph": "RealGraph",
+  "arsip.sumber.realgraphTeks":
     "Estimates how likely one account is to interact with another, computed from their interaction history. The strength of a tie, not merely the fact of a follow.",
-  "algo.sumber.frs": "Follow Recommendation Service",
-  "algo.sumber.frsTeks": "Recommends accounts worth following, and their posts.",
+  "arsip.sumber.frs": "Follow Recommendation Service",
+  "arsip.sumber.frsTeks": "Recommends accounts worth following, and their posts.",
 
-  "algo.bobot.laporan": "Reported",
-  "algo.bobot.laporanArti": "The probability the reader clicks “Report post”.",
-  "algo.bobot.balasanDibalas": "Reply engaged by the author",
-  "algo.bobot.balasanDibalasArti":
+  "arsip.bobot.laporan": "Reported",
+  "arsip.bobot.laporanArti": "The probability the reader clicks “Report post”.",
+  "arsip.bobot.balasanDibalas": "Reply engaged by the author",
+  "arsip.bobot.balasanDibalasArti":
     "The probability the reader replies to the post and that reply is engaged by the post's author.",
-  "algo.bobot.umpanNegatif": "Negative feedback",
-  "algo.bobot.umpanNegatifArti":
+  "arsip.bobot.umpanNegatif": "Negative feedback",
+  "arsip.bobot.umpanNegatifArti":
     "The probability the reader asks for “show less often”, mutes, or blocks the author.",
-  "algo.bobot.balasan": "Reply",
-  "algo.bobot.balasanArti": "The probability the reader replies to the post.",
-  "algo.bobot.profilKlik": "Profile click that goes further",
-  "algo.bobot.profilKlikArti":
+  "arsip.bobot.balasan": "Reply",
+  "arsip.bobot.balasanArti": "The probability the reader replies to the post.",
+  "arsip.bobot.profilKlik": "Profile click that goes further",
+  "arsip.bobot.profilKlikArti":
     "The probability the reader opens the author's profile and then likes or replies to a post there.",
-  "algo.bobot.klikBagus": "Into the conversation, then joins",
-  "algo.bobot.klikBagusArti":
+  "arsip.bobot.klikBagus": "Into the conversation, then joins",
+  "arsip.bobot.klikBagusArti":
     "The probability the reader opens this post's conversation and replies to or likes something inside it.",
-  "algo.bobot.klikLama": "Into the conversation, then stays",
-  "algo.bobot.klikLamaArti":
+  "arsip.bobot.klikLama": "Into the conversation, then stays",
+  "arsip.bobot.klikLamaArti":
     "The probability the reader opens the conversation and stays there for at least two minutes.",
-  "algo.bobot.ulang": "Repost",
-  "algo.bobot.ulangArti": "The probability the reader reposts it.",
-  "algo.bobot.suka": "Like",
-  "algo.bobot.sukaArti": "The probability the reader likes it.",
-  "algo.bobot.video": "Video watched halfway",
-  "algo.bobot.videoArti":
+  "arsip.bobot.ulang": "Repost",
+  "arsip.bobot.ulangArti": "The probability the reader reposts it.",
+  "arsip.bobot.suka": "Like",
+  "arsip.bobot.sukaArti": "The probability the reader likes it.",
+  "arsip.bobot.video": "Video watched halfway",
+  "arsip.bobot.videoArti":
     "For a video post: the probability the reader watches at least half of it.",
 
-  "algo.saring.visibilitas": "Visibility filtering",
-  "algo.saring.visibilitasTeks":
+  "arsip.saring.visibilitas": "Visibility filtering",
+  "arsip.saring.visibilitasTeks":
     "Blocked and muted accounts, sensitive content settings, and legal obligations. Runs ahead of the rest.",
-  "algo.saring.ragam": "Author diversity",
-  "algo.saring.ragamTeks":
+  "arsip.saring.ragam": "Author diversity",
+  "arsip.saring.ragamTeks":
     "Spaces out consecutive posts from the same account, even when every one of them won on ranking.",
-  "algo.saring.imbang": "In-network / out-of-network balance",
-  "algo.saring.imbangTeks":
+  "arsip.saring.imbang": "In-network / out-of-network balance",
+  "arsip.saring.imbangTeks":
     "Keeps a mix of accounts you follow and accounts you do not, so the timeline never becomes only one of the two.",
-  "algo.saring.lelah": "Feedback fatigue",
-  "algo.saring.lelahTeks":
+  "arsip.saring.lelah": "Feedback fatigue",
+  "arsip.saring.lelahTeks":
     "Pushes down whatever resembles what the reader just turned away.",
-  "algo.saring.kembar": "Deduplication",
-  "algo.saring.kembarTeks":
+  "arsip.saring.kembar": "Deduplication",
+  "arsip.saring.kembarTeks":
     "Drops posts already seen and the same candidate arriving from several sources at once.",
 
-  "algo.langkah.percakapan":
-    "Write something answerable, not something likeable.",
-  "algo.langkah.percakapanDasar":
-    "Reply 13.5 against like 0.5 — one reply matches 27 likes.",
-  "algo.langkah.balasBalik":
+  /* ---------------------------------------------------- algoritma 2026 */
+  "kini.tahap.konteks": "Gather the reader's context",
+  "kini.tahap.konteksTeks":
+    "Their recent engagement history, who they follow, their topics, impression filters, and what has already been served to them. This is what the model reads — not your profile.",
+  "kini.tahap.kandidat": "Fetch candidates",
+  "kini.tahap.kandidatTeks":
+    "From Thunder for in-network posts, and from Phoenix retrieval for everything outside that circle.",
+  "kini.tahap.lengkapi": "Enrich each candidate",
+  "kini.tahap.lengkapiTeks":
+    "Post body, author data, media, language, video duration, engagement counts, expanded quotes, and mutual-follow overlap.",
+  "kini.tahap.saringAwal": "Filter before scoring",
+  "kini.tahap.saringAwalTeks":
+    "Duplicates, posts past the age limit, the viewer's own posts, blocked or muted authors, muted keywords, and anything already seen.",
+  "kini.tahap.nilai": "Score",
+  "kini.tahap.nilaiTeks":
+    "Phoenix predicts the probability of each action, the weighted scorer combines them, then author diversity and the out-of-network multiplier adjust the result.",
+  "kini.tahap.pilih": "Select",
+  "kini.tahap.pilihTeks": "Sort by final score, take the top K.",
+  "kini.tahap.saringAkhir": "Check once more",
+  "kini.tahap.saringAkhirTeks":
+    "A last visibility pass — deleted, spam, violence — and deduplication of branches of the same conversation.",
+
+  "kini.sumber.thunder": "Thunder — in-network",
+  "kini.sumber.thunderTeks":
+    "An in-memory post store fed continuously from an event stream, so posts from accounts you follow can be fetched without touching a database. It trims itself once posts pass the retention period.",
+  "kini.sumber.phoenix": "Phoenix — out-of-network",
+  "kini.sumber.phoenixTeks":
+    "A two-tower model: your history is compressed into one embedding, the whole post corpus into others, and the closest ones are retrieved. This is the door in for accounts nobody follows yet.",
+
+  "kini.aksi.suka": "Liked",
+  "kini.aksi.balas": "Replied to",
+  "kini.aksi.ulang": "Reposted",
+  "kini.aksi.kutip": "Quoted",
+  "kini.aksi.bagikan": "Shared",
+  "kini.aksi.bagikanDm": "Sent in a message",
+  "kini.aksi.bagikanTautan": "Link copied",
+  "kini.aksi.buka": "Opened",
+  "kini.aksi.bukaProfil": "Author's profile opened",
+  "kini.aksi.bukaKutipan": "Quote opened",
+  "kini.aksi.bukaFoto": "Photo expanded",
+  "kini.aksi.video": "Video watched",
+  "kini.aksi.videoKutipan": "Quoted video watched",
+  "kini.aksi.berhenti": "Stopped to read",
+  "kini.aksi.lamaBerhenti": "How long they stopped",
+  "kini.aksi.lamaDibuka": "How long after opening",
+  "kini.aksi.ikutiPenulis": "Followed the author",
+  "kini.aksi.dilewati": "Scrolled past without stopping",
+  "kini.aksi.takTertarik": "Not interested",
+  "kini.aksi.bisukan": "Author muted",
+  "kini.aksi.blokir": "Author blocked",
+  "kini.aksi.laporkan": "Reported",
+
+  "kini.mekanik.jumlah": "A post's score",
+  "kini.mekanik.jumlahTeks":
+    "Each action's probability multiplied by its weight, all summed. The shape is exactly the 2023 heavy ranker's — what changed is the length of the list and who predicts the probabilities.",
+  "kini.mekanik.ragam": "Author-diversity multiplier",
+  "kini.mekanik.ragamTeks":
+    "What it uses is the post's position among that same author's posts in one response, not how far apart they were written. Your second post to make the cut is multiplied by decay to the first power, the third by decay squared, and so on down to a floor. No amount of engagement cancels this multiplier.",
+  "kini.mekanik.luar": "Out-of-network multiplier",
+  "kini.mekanik.luarTeks":
+    "Candidates from outside the reader's circle are multiplied by a factor of their own before sorting — and the factor differs again for topic timelines and for accounts that are still new.",
+
+  "kini.grox.banger": "Quality screen",
+  "kini.grox.bangerTeks":
+    "Grok reads the post and its media and returns a quality score, a description, topic tags, and a separate score for shallow filler. Quality here is read, not computed from features.",
+  "kini.grox.spam": "Spam classifier",
+  "kini.grox.spamTeks":
+    "One classifier runs specifically for low-follower accounts. Being small is not itself a penalty — but writing that behaves like spam is caught fastest there.",
+  "kini.grox.aman": "Policy screen",
+  "kini.grox.amanTeks":
+    "Every post is checked against seven policies at once, and the outcome is attached to the post as an annotation.",
+  "kini.grox.balasan": "Reply ranking",
+  "kini.grox.balasanTeks":
+    "Replies under a post are scored by Grok, with a separate threshold for large accounts. Reply order is not chronological order.",
+  "kini.grox.sematan": "Multimodal embeddings",
+  "kini.grox.sematanTeks":
+    "Text, images, and audio are compressed into one embedding representing the post. This is what Phoenix retrieval matches against — so your images and video are read, not merely counted.",
+
+  "kini.aman.spam": "Spam",
+  "kini.aman.benci": "Hate and abuse",
+  "kini.aman.kekerasan": "Violent speech",
+  "kini.aman.mediaKekerasan": "Violent media",
+  "kini.aman.dewasa": "Adult content",
+  "kini.aman.ilegal": "Illegal and regulated behaviour",
+  "kini.aman.sakitDiri": "Suicide and self-harm",
+
+  "kini.takTerbit.bobot": "The weight of each action",
+  "kini.takTerbit.bobotTeks":
+    "Every one of them is read from a feature-switch module that was not published. Any guide quoting “weights from the 2026 X algorithm” did not get them from that repository.",
+  "kini.takTerbit.ambang": "Thresholds and limits",
+  "kini.takTerbit.ambangTeks":
+    "Maximum post age, how many get selected per request, the author-diversity decay factor, the out-of-network multiplier — the code references all of them and none of them has a value there.",
+  "kini.takTerbit.prompt": "The Grok prompts",
+  "kini.takTerbit.promptTeks":
+    "What counts as spam, filler, or quality is decided by the instructions given to the model — and the prompt directory is not in this release.",
+  "kini.takTerbit.model": "The production model",
+  "kini.takTerbit.modelTeks":
+    "What ships is a mini model frozen at one point in time, while the production one is larger and trained continuously on live data.",
+
+  /* --------------------------------------------- turunan untuk penulis */
+  "langkah.percakapan": "Write something answerable, not something likeable.",
+  "langkah.percakapanDasar":
+    "2023: reply 13.5 against like 0.5. 2026: replied to, quoted, and shared still stand apart from liked in the action list.",
+  "langkah.balasBalik":
     "Answer the replies you get. This is the one part entirely in your hands.",
-  "algo.langkah.balasBalikDasar":
-    "A reply engaged by the author weighs 75 — the largest positive weight on the whole list.",
-  "algo.langkah.utuh":
-    "Let the post stand on its own; the conversation has to be able to live inside it, not somewhere else.",
-  "algo.langkah.utuhDasar":
-    "Four of the ten double-digit signals count what happens inside the conversation.",
-  "algo.langkah.topik":
-    "Stay on one topic. An account with no clear subject is hard to place.",
-  "algo.langkah.topikDasar":
-    "SimClusters puts accounts into communities from the follow graph; out-of-network candidates come from there.",
-  "algo.langkah.jarak":
-    "Leave space between posts; do not spend one golden window on five posts at once.",
-  "algo.langkah.jarakDasar":
-    "Author diversity spaces out consecutive posts from the same account.",
-  "algo.langkah.umpan":
-    "Never fish for engagement. Whatever makes someone press “show less often” costs more than anything you could gather.",
-  "algo.langkah.umpanDasar":
-    "Negative feedback −74 and report −369 against like 0.5.",
+  "langkah.balasBalikDasar":
+    "2023: a reply engaged by the author weighs 75 — the largest positive weight. 2026: replies are ranked by Grok, so a living thread rises with the post above it.",
+  "langkah.utuh":
+    "Let the post stand on its own, and make people stop at the first line.",
+  "langkah.utuhDasar":
+    "“Stopped to read” and “how long they stopped” are scored separately, while “scrolled past without stopping” counts as a loss.",
+  "langkah.topik":
+    "Stay on one topic, and let your images say the same thing your words do.",
+  "langkah.topikDasar":
+    "Phoenix retrieval matches embeddings; those embeddings are built from your post's text, images, and audio together.",
+  "langkah.jarak":
+    "Leave space between posts. Spending one golden window on five posts penalises four of them.",
+  "langkah.jarakDasar":
+    "Diversity multiplier = (1 − floor) × decay^position + floor, where position is your own post's rank.",
+  "langkah.umpan":
+    "Never fish for engagement. Whatever makes someone press “not interested” costs more than anything you could gather.",
+  "langkah.umpanDasar":
+    "2023: negative feedback −74 and report −369 against like 0.5. 2026: five losing actions plus a spam classifier that reads what you wrote.",
 
   /* -------------------------------------------------------------- kreator */
   "kreator.program.bagiHasil": "Ads revenue sharing",

@@ -15,7 +15,6 @@ import { useBahasa } from "@/lib/i18n/konteks";
 import {
   BERKAS_BOBOT,
   BOBOT,
-  LANGKAH,
   REPO_ALGORITMA,
   REPO_ALGORITMA_ML,
   SARING,
@@ -23,7 +22,25 @@ import {
   TAHAP,
   panjangBobot,
   setaraSuka,
-} from "@/lib/algoritma";
+} from "@/lib/algoritmaArsip";
+import {
+  AKSI,
+  AKSI_RUGI,
+  AKSI_UNTUNG,
+  BERKAS_GROX,
+  BERKAS_PERINGKAT,
+  BERKAS_PHOENIX,
+  GROX,
+  KEBIJAKAN_AMAN,
+  KOMIT_KINI,
+  LANGKAH,
+  MEKANIK,
+  REPO_KINI,
+  SUMBER_KINI,
+  TAHAP_KINI,
+  TAK_TERBIT,
+  TANGGAL_KINI,
+} from "@/lib/algoritmaKini";
 import { isyaratJamEmas, tanggalWIB } from "@/lib/jamEmas";
 import {
   DIPERIKSA,
@@ -100,14 +117,124 @@ export default function Panduan({ sekarang, onTulis }: Props) {
       <Rencana sekarang={sekarang} />
 
       {/* ----------------------------------------------------------------
-          Bagaimana linimasa memilih
+          Mesin yang berjalan sekarang — rilis xai-org 2026
           ---------------------------------------------------------------- */}
       <section className="pan-blok">
         <h2 className="pan-judul">
           <IkonInfo size={17} />
-          {t("panduan.algoritma")}
+          {t("panduan.kini")}
         </h2>
-        <p className="pan-sub">{t("panduan.algoritmaSub")}</p>
+        <p className="pan-sub">{t("panduan.kiniSub")}</p>
+
+        <p className="pan-kutip">{t("panduan.kiniKutip")}</p>
+
+        <h3 className="pan-tajuk">{t("panduan.kiniSumber")}</h3>
+        <ul className="pan-daftar">
+          {SUMBER_KINI.map((butir) => (
+            <li key={butir.kode}>
+              <span className="pan-baris-kepala">
+                <strong>{t(butir.nama)}</strong>
+              </span>
+              <span className="pan-baris-teks">{t(butir.teks)}</span>
+            </li>
+          ))}
+        </ul>
+
+        <h3 className="pan-tajuk">{t("panduan.kiniTahap")}</h3>
+        <ol className="pan-tahap">
+          {TAHAP_KINI.map((tahap, nomor) => (
+            <li key={tahap.kode}>
+              <span className="pan-tahap-nomor" aria-hidden="true">
+                {nomor + 1}
+              </span>
+              <span className="pan-tahap-teks">
+                <strong>{t(tahap.nama)}</strong>
+                <span>{t(tahap.teks)}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+
+        {/* Dua puluh dua nama tanpa satu pun angka. Kepingan, bukan daftar
+            berketerangan: yang perlu terbaca di sini panjang daftarnya dan di
+            sisi mana tiap namanya berdiri, bukan penjelasan satu per satu. */}
+        <h3 className="pan-tajuk">{t("panduan.kiniAksi")}</h3>
+        <p className="pan-baris-teks">
+          {t("panduan.kiniAksiTeks", {
+            jumlah: AKSI.length,
+            untung: AKSI_UNTUNG,
+            rugi: AKSI_RUGI,
+          })}
+        </p>
+        <ul className="pan-aksi-daftar">
+          {AKSI.map((aksi) => (
+            <li
+              key={aksi.medan}
+              className={`pan-aksi-keping${aksi.rugi ? " pan-aksi-rugi" : ""}`}
+              title={aksi.medan}
+            >
+              {t(aksi.nama)}
+            </li>
+          ))}
+        </ul>
+
+        <h3 className="pan-tajuk">{t("panduan.kiniMekanik")}</h3>
+        <ul className="pan-daftar">
+          {MEKANIK.map((butir) => (
+            <li key={butir.kode}>
+              <span className="pan-baris-kepala">
+                <strong>{t(butir.nama)}</strong>
+              </span>
+              <code className="pan-rumus">{butir.rumus}</code>
+              <span className="pan-baris-teks">{t(butir.teks)}</span>
+            </li>
+          ))}
+        </ul>
+
+        <h3 className="pan-tajuk">{t("panduan.kiniGrox")}</h3>
+        <ul className="pan-daftar">
+          {GROX.map((butir) => (
+            <li key={butir.kode}>
+              <span className="pan-baris-kepala">
+                <strong>{t(butir.nama)}</strong>
+              </span>
+              <span className="pan-baris-teks">{t(butir.teks)}</span>
+            </li>
+          ))}
+        </ul>
+
+        <ul className="pan-aksi-daftar">
+          {KEBIJAKAN_AMAN.map((kunci) => (
+            <li className="pan-aksi-keping pan-aksi-rugi" key={kunci}>
+              {t(kunci)}
+            </li>
+          ))}
+        </ul>
+
+        {/* Batas rilisnya, dan alasan blok arsip di bawah masih berdiri. */}
+        <h3 className="pan-tajuk">{t("panduan.kiniTakTerbit")}</h3>
+        <ul className="pan-daftar">
+          {TAK_TERBIT.map((butir) => (
+            <li key={butir.kode}>
+              <span className="pan-baris-kepala">
+                <strong>{t(butir.nama)}</strong>
+              </span>
+              <span className="pan-baris-teks">{t(butir.teks)}</span>
+            </li>
+          ))}
+        </ul>
+
+        <p className="pan-catatan">
+          {t("panduan.kiniCatatan", { komit: KOMIT_KINI, tanggal: TANGGAL_KINI })}
+        </p>
+      </section>
+
+      {/* ----------------------------------------------------------------
+          Arsip 2023 — satu-satunya angka yang pernah diterbitkan
+          ---------------------------------------------------------------- */}
+      <section className="pan-blok">
+        <h2 className="pan-judul">{t("panduan.arsip")}</h2>
+        <p className="pan-sub">{t("panduan.arsipSub")}</p>
 
         <ol className="pan-tahap">
           {TAHAP.map((tahap, nomor) => (
@@ -297,6 +424,34 @@ export default function Panduan({ sekarang, onTulis }: Props) {
       <section className="pan-blok pan-blok-sumber">
         <h2 className="pan-judul">{t("panduan.rujukan")}</h2>
         <ul className="pan-rujukan">
+          <li>
+            <a href={REPO_KINI} target="_blank" rel="noopener noreferrer">
+              xai-org/x-algorithm
+              <IkonBuka size={13} />
+            </a>
+            <span>{t("panduan.rujukanKini")}</span>
+          </li>
+          <li>
+            <a href={BERKAS_PERINGKAT} target="_blank" rel="noopener noreferrer">
+              home-mixer/scorers/ranking_scorer.rs
+              <IkonBuka size={13} />
+            </a>
+            <span>{t("panduan.rujukanPeringkat")}</span>
+          </li>
+          <li>
+            <a href={BERKAS_PHOENIX} target="_blank" rel="noopener noreferrer">
+              phoenix/README.md
+              <IkonBuka size={13} />
+            </a>
+            <span>{t("panduan.rujukanPhoenix")}</span>
+          </li>
+          <li>
+            <a href={BERKAS_GROX} target="_blank" rel="noopener noreferrer">
+              grox/
+              <IkonBuka size={13} />
+            </a>
+            <span>{t("panduan.rujukanGrox")}</span>
+          </li>
           <li>
             <a href={REPO_ALGORITMA} target="_blank" rel="noopener noreferrer">
               twitter/the-algorithm
